@@ -1,0 +1,68 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  margin-bottom: 24px;
+}
+
+.form-busca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.campo-opcao {
+  min-width: 240px;
+  flex: 1;
+}
+
+.erro {
+  color: #d32f2f;
+}
+
+.carregando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0;
+}
+
+.erro-msg {
+  color: #d32f2f;
+  margin: 16px 0;
+}
+
+.dados-opcao {
+  margin-bottom: 24px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.rolagens {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-vencimento {
+  table {
+    width: 100%;
+  }
+}
+
+.sem-dados {
+  color: #666;
+  font-style: italic;
+  margin-top: 12px;
+}

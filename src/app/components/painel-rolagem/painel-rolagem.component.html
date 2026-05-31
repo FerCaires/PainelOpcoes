@@ -1,0 +1,91 @@
+<div class="container">
+  <h1>Painel de Rolagem de Opções</h1>
+
+  <form [formGroup]="form" (ngSubmit)="buscar()" class="form-busca">
+    <mat-form-field appearance="outline" class="campo-opcao">
+      <mat-label>Opção *</mat-label>
+      <input matInput formControlName="opcao" placeholder="Ex: BBSEF358" maxlength="8" />
+      <mat-hint *ngIf="opcaoInvalida" class="erro">O campo deve conter entre 5 e 8 caracteres</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Quantidade de Vencimentos</mat-label>
+      <mat-select formControlName="quantidadeVencimentos">
+        <mat-option *ngFor="let v of vencimentos" [value]="v">{{ v }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de Rolagem</mat-label>
+      <mat-select formControlName="tipoRolagem">
+        <mat-option *ngFor="let tipo of tiposRolagem" [value]="tipo">{{ tipo }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!podeBuscar">
+      Buscar Rolagens
+    </button>
+  </form>
+
+  <div *ngIf="carregando" class="carregando">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Buscando rolagens...</p>
+  </div>
+
+  <div *ngIf="erro" class="erro-msg">
+    <p>{{ erro }}</p>
+  </div>
+
+  <div *ngIf="resultado && !carregando" class="resultados">
+    <mat-card class="dados-opcao">
+      <mat-card-title>Dados da Opção Informada</mat-card-title>
+      <mat-card-content>
+        <div class="info-grid">
+          <div><strong>Nome Opção:</strong> {{ resultado.opcao }}</div>
+          <div><strong>Vencimento:</strong> {{ formatarData(resultado.vencimento) }}</div>
+          <div><strong>Strike:</strong> {{ formatarValor(resultado.strike) }}</div>
+          <div><strong>Prêmio:</strong> Em breve</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="rolagens">
+      <mat-card *ngFor="let rv of resultado.rolagens" class="card-vencimento">
+        <mat-card-title>Vencimento: {{ formatarData(rv.data) }}</mat-card-title>
+        <mat-card-content>
+          <table mat-table [dataSource]="opcoesParaVencimento(rv)" class="mat-elevation-z0">
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef> Nome Opção </th>
+              <td mat-cell *matCellDef="let o"> {{ o.nome }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="vencimento">
+              <th mat-header-cell *matHeaderCellDef> Vencimento </th>
+              <td mat-cell *matCellDef="let o"> {{ formatarData(rv.data) }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="strike">
+              <th mat-header-cell *matHeaderCellDef> Strike </th>
+              <td mat-cell *matCellDef="let o"> {{ formatarValor(o.strike) }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="premio">
+              <th mat-header-cell *matHeaderCellDef> Prêmio </th>
+              <td mat-cell *matCellDef="let o"> {{ formatarValor(o.premio) }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="delta">
+              <th mat-header-cell *matHeaderCellDef> Delta </th>
+              <td mat-cell *matCellDef="let o"> {{ formatarValor(o.delta) }} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasTabela;"></tr>
+          </table>
+
+          <p *ngIf="rv.opcoes.length === 0" class="sem-dados">Nenhuma opção encontrada para este vencimento.</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
