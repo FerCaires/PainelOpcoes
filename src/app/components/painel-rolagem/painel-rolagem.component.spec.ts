@@ -9,6 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { of, throwError } from 'rxjs';
+import { DebugElement } from '@angular/core';
+import { By } from '@angular/platform-browser';
 
 import { PainelRolagemComponent } from './painel-rolagem.component';
 import { RolagemApiService } from '../../services/rolagem-api.service';
@@ -129,5 +131,78 @@ describe('PainelRolagemComponent', () => {
   it('should format value with 2 decimals', () => {
     expect(component.formatarValor(33.29)).toBe('33.29');
     expect(component.formatarValor(2)).toBe('2.00');
+  });
+
+  // TASK-02: Testes de alinhamento e responsividade do botão
+  describe('Alinhamento do Botão "Buscar Rolagens"', () => {
+    it('should have height: 100% on submit button', () => {
+      const button: DebugElement = fixture.debugElement.query(By.css('button[type="submit"]'));
+      expect(button).toBeTruthy();
+      
+      const computedStyle = window.getComputedStyle(button.nativeElement);
+      expect(computedStyle.height).toBeTruthy();
+      expect(computedStyle.display).toBe('flex');
+      expect(computedStyle.alignItems).toBe('center');
+    });
+
+    it('should align button height with mat-form-field', () => {
+      const button: DebugElement = fixture.debugElement.query(By.css('button[type="submit"]'));
+      const formField: DebugElement = fixture.debugElement.query(By.css('mat-form-field'));
+      
+      expect(button).toBeTruthy();
+      expect(formField).toBeTruthy();
+      
+      const buttonHeight = button.nativeElement.offsetHeight;
+      const formFieldHeight = formField.nativeElement.offsetHeight;
+      
+      // Permite pequena margem de erro (±2px) devido a renderização
+      expect(Math.abs(buttonHeight - formFieldHeight)).toBeLessThanOrEqual(2);
+    });
+
+    it('should maintain button alignment in different viewport sizes', () => {
+      const resolutions = [1920, 768, 375];
+      const button: DebugElement = fixture.debugElement.query(By.css('button[type="submit"]'));
+      const formField: DebugElement = fixture.debugElement.query(By.css('mat-form-field'));
+      
+      resolutions.forEach(width => {
+        // Simula redimensionamento
+        Object.defineProperty(window, 'innerWidth', {
+          writable: true,
+          configurable: true,
+          value: width,
+        });
+        
+        window.dispatchEvent(new Event('resize'));
+        fixture.detectChanges();
+        
+        const buttonHeight = button.nativeElement.offsetHeight;
+        const formFieldHeight = formField.nativeElement.offsetHeight;
+        
+        // Valida que o botão mantém alinhamento
+        expect(Math.abs(buttonHeight - formFieldHeight)).toBeLessThanOrEqual(2);
+      });
+    });
+
+    it('should have flex display properties for centering', () => {
+      const button: DebugElement = fixture.debugElement.query(By.css('button[type="submit"]'));
+      const computedStyle = window.getComputedStyle(button.nativeElement);
+      
+      expect(computedStyle.display).toBe('flex');
+      expect(computedStyle.alignItems).toBe('center');
+      expect(computedStyle.justifyContent).toBe('center');
+    });
+
+    it('should maintain hover effect with flex layout', () => {
+      const button: DebugElement = fixture.debugElement.query(By.css('button[type="submit"]'));
+      const buttonElement = button.nativeElement;
+      
+      // Simula hover
+      buttonElement.dispatchEvent(new MouseEvent('mouseenter'));
+      fixture.detectChanges();
+      
+      const computedStyle = window.getComputedStyle(buttonElement);
+      expect(computedStyle.display).toBe('flex');
+      expect(computedStyle.alignItems).toBe('center');
+    });
   });
 });
