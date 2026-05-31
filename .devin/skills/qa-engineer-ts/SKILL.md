@@ -54,6 +54,14 @@ Garante qualidade antes da entrega: revisa código TypeScript idiomático, valid
 - [ ] **Configurações**: Environment variables (`environment.ts`, `environment.prod.ts`) usados corretamente
 - [ ] **Performance**: `ChangeDetectionStrategy.OnPush`, `trackBy` em `*ngFor`
 
+### Design & UI (OBRIGATÓRIO para features com componentes visuais)
+- [ ] **Frontend Design**: Se a feature envolver UI/styling, validar que `frontend-design` foi invocado
+- [ ] **Qualidade Visual**: Componentes seguem padrões de design system
+- [ ] **Responsividade**: Layout funciona em mobile, tablet, desktop
+- [ ] **Acessibilidade**: ARIA labels, contraste de cores, navegação por teclado
+- [ ] **Animações**: Suaves, performáticas (CSS preferível a JS)
+- [ ] **Temas**: Suporte a light/dark mode (se aplicável)
+
 ### Testes
 - [ ] **TDD validado**: Testes que falhariam antes da implementação? (RED-GREEN-REFACTOR)
 - [ ] **Cobertura**: `ng test --coverage` > 80% em regras de negócio

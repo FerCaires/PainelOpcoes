@@ -234,6 +234,26 @@ CMD ["npm", "run", "start:prod"]
 
 > **REGRA**: Se a feature for Grande e não houver Dockerfile/docker-compose, PARE e exija a criação antes de aprovar o design.
 
+### Integração com Frontend Design (OBRIGATÓRIO para UI/Styling)
+
+Se a feature envolver **decisões de UI/UX ou design de componentes visuais**, o Tech Lead DEVE:
+
+1. **Consultar o `frontend-design`** para validar abordagem visual
+2. **Documentar no ADR** (se houver) as decisões de design system ou padrões visuais
+3. **Invocar a skill** quando necessário:
+
+```bash
+skill({ name: "frontend-design", task: "[descrição do design system ou componentes a criar]" })
+```
+
+> **REGRA**: O Tech Lead é responsável por garantir que a arquitetura visual seja coerente e escalável. Se a feature envolver:
+> - Design system novo ou atualização
+> - Padrões visuais complexos
+> - Integração com bibliotecas de UI
+> - Decisões de tema/branding
+>
+> **SEMPRE** consulte o `frontend-design` para garantir qualidade visual excepcional.
+
 ### README — Instruções de Execução Local (OBRIGATÓRIO)
 
 O Tech Lead deve garantir que o `README.md` contenha **seção completa** de como rodar a aplicação localmente.
