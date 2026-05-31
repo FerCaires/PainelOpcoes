@@ -345,22 +345,37 @@ ng serve                  # Validação manual (se aplicável)
 - [ ] Sem side effects em ngOnInit desnecessários
 - [ ] Backward compatibility mantida
 
-### Docker (se aplicação Grande)
+### Docker (OBRIGATÓRIO para todas as features)
 
-Se a feature for classificada como **GRANDE** pelo Tech Lead:
+Para **TODAS as features**, independentemente do tamanho:
 
-- [ ] `Dockerfile` criado/atualizado (multi-stage build, Node.js 20)
-- [ ] `docker-compose.yml` atualizado com novos serviços (mock APIs, etc.)
-- [ ] `.dockerignore` presente
-- [ ] `environment.docker.ts` criado se necessário
-- [ ] `ng build --configuration production` gera build
+- [ ] `Dockerfile` criado/atualizado (multi-stage build, Node.js 18+)
+  - Stage 1: Build com `npm ci` e `ng build`
+  - Stage 2: Runtime com Nginx (para produção) ou Node.js (para dev)
+- [ ] `docker-compose.yml` criado/atualizado com:
+  - Serviço principal da aplicação
+  - Portas expostas
+  - Health checks
+  - Variáveis de ambiente
+  - Volumes (se necessário)
+- [ ] `.dockerignore` presente com:
+  - `node_modules`
+  - `.git`
+  - `dist`
+  - `docs`
+  - Arquivos de teste (`.spec.ts`)
+- [ ] `environment.docker.ts` criado se necessário (para variáveis de ambiente Docker)
+- [ ] `ng build --configuration production` gera build sem erros
 
 ```bash
 # Validar build Docker
 docker build -t app:test .
-docker run -p 4200:4200 --env-file environment.docker.ts app:test
-# Testar: curl http://localhost:4200/
+docker-compose up -d
+# Testar: curl http://localhost/ (ou porta configurada)
+docker-compose down
 ```
+
+> **REGRA**: Docker é parte obrigatória de TODA feature. O QA deve validar na Fase 4.
 
 ### 6.5. README — Instruções de Execução Local (OBRIGATÓRIO)
 

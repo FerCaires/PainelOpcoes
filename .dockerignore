@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+.angular
+.vscode
+.devin
+docs
+README.md
+IMPLEMENTACAO_RESUMO.md
+.editorconfig
+karma.conf.js
+tsconfig.spec.json
+src/**/*.spec.ts
+.env
+.env.local

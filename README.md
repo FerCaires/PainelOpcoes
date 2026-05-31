@@ -1,27 +1,170 @@
-# PainelOpcoes
+# Painel de Rolagem de Opções
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+Aplicação Angular para gerenciamento de rolagem de vencimentos de opções.
 
-## Development server
+## 🚀 Quick Start
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Com Docker (Recomendado)
 
-## Code scaffolding
+```bash
+# Iniciar a aplicação
+docker-compose up -d
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+# Acessar em http://localhost
+```
 
-## Build
+### Sem Docker
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+# Instalar dependências
+npm install
 
-## Running unit tests
+# Servidor de desenvolvimento
+ng serve
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+# Acessar em http://localhost:4200
+```
 
-## Running end-to-end tests
+## 📋 Pré-requisitos
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Node.js 18+
+- npm 9+
+- Angular CLI 17+
+- (Opcional) Docker 20.10+ e Docker Compose 2.0+
 
-## Further help
+## 🛠️ Desenvolvimento
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### Servidor de Desenvolvimento
+
+```bash
+ng serve
+# Acessa em http://localhost:4200
+# A aplicação recarrega automaticamente ao salvar arquivos
+```
+
+### Build para Produção
+
+```bash
+ng build --configuration production
+# Artifacts salvos em dist/painel-opcoes
+```
+
+### Testes Unitários
+
+```bash
+ng test
+# Executa testes via Karma
+```
+
+### Linting
+
+```bash
+ng lint
+# Valida código com ESLint
+```
+
+## 🐳 Docker
+
+Para instruções detalhadas sobre Docker, veja [DOCKER.md](./DOCKER.md).
+
+```bash
+# Build da imagem
+docker build -t painel-opcoes:latest .
+
+# Executar com Docker Compose
+docker-compose up -d
+
+# Parar
+docker-compose down
+```
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── app/
+│   ├── components/
+│   │   └── painel-rolagem/
+│   ├── models/
+│   ├── services/
+│   └── app.component.*
+├── assets/
+├── styles/
+└── main.ts
+
+dist/
+└── painel-opcoes/  # Build de produção
+
+docs/
+├── ajuste-botao-buscar/  # Documentação de features
+└── ...
+```
+
+## 📚 Documentação
+
+- [DOCKER.md](./DOCKER.md) - Guia completo de Docker
+- [docs/](./docs/) - Documentação técnica e de features
+
+## 🔧 Configuração
+
+### Variáveis de Ambiente
+
+Crie um arquivo `src/environments/environment.ts`:
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:3000/api'
+};
+```
+
+Para produção, use `src/environments/environment.prod.ts`.
+
+## 🚀 Deploy
+
+### Docker
+
+```bash
+# Build da imagem
+docker build -t painel-opcoes:latest .
+
+# Push para registro (Docker Hub, ECR, etc.)
+docker tag painel-opcoes:latest seu-registro/painel-opcoes:latest
+docker push seu-registro/painel-opcoes:latest
+
+# Deploy com Docker Compose
+docker-compose up -d
+```
+
+### Nginx (Standalone)
+
+```bash
+# Build
+ng build --configuration production
+
+# Copiar dist para servidor Nginx
+cp -r dist/painel-opcoes/* /var/www/painel-opcoes/
+```
+
+## 🤝 Contribuindo
+
+1. Crie uma branch: `git checkout -b feature/sua-feature`
+2. Commit suas mudanças: `git commit -m "feat: descrição"`
+3. Push: `git push origin feature/sua-feature`
+4. Abra um Pull Request
+
+## 📝 Convenções
+
+- **Idioma**: Português (BR) para código, commits e documentação
+- **Commits**: Use conventional commits (`feat:`, `fix:`, `docs:`, etc.)
+- **TypeScript**: Type-safe, sem `any`, use `readonly`
+- **Components**: Use `ChangeDetectionStrategy.OnPush`
+- **Services**: Lógica de negócio em services, não em componentes
+
+## 📄 Licença
+
+MIT
+
+## 📞 Suporte
+
+Para dúvidas ou problemas, abra uma issue no repositório.

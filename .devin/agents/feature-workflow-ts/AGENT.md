@@ -390,8 +390,16 @@ Você está atuando como **QA Engineer TS**.
 5. Verifique que não há `any` sem justificativa, funções > 20 linhas
 6. Verifique que componentes são puros sempre que possível
 7. Verifique que há tratamento de erros (try/catch, error boundaries)
-8. Crie o PR usando `gh pr create` com template profissional
-9. Atualize `docs/workflow-{featureName}.md` (fase REVIEW = CONCLUIDO)
+8. **OBRIGATÓRIO - Docker**:
+   - [ ] Verifique se `Dockerfile` existe e está atualizado
+   - [ ] Verifique se `docker-compose.yml` existe e está atualizado
+   - [ ] Verifique se `.dockerignore` existe
+   - [ ] Execute `docker build -t app:test .` e valide que o build passa
+   - [ ] Execute `docker-compose up -d` e valide que a aplicação inicia corretamente
+   - [ ] Teste a aplicação em `http://localhost` (ou porta configurada)
+   - [ ] Execute `docker-compose down` para limpar
+9. Crie o PR usando `gh pr create` com template profissional
+10. Atualize `docs/workflow-{featureName}.md` (fase REVIEW = CONCLUIDO)
 
 **Restrições**: NUNCA modifique código de produção sem justificar em comentário no PR.
 ```
