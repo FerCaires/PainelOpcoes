@@ -36,6 +36,25 @@ h1 {
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(255, 255, 255, 0.8);
   animation: slideDown 0.5s ease-out;
+  
+  // Breakpoint: Desktop (1920px+)
+  @media (min-width: 1920px) {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  
+  // Breakpoint: Tablet (768px - 1919px)
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+  
+  // Breakpoint: Mobile (375px - 767px)
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
 }
 
 .campo-opcao { min-width: 240px; flex: 1; }
@@ -54,7 +73,9 @@ button[type="submit"] {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   
-  // Alinhamento com mat-form-field (Opção B: height: 100% + display: flex)
+  // Alinhamento responsivo com mat-form-field
+  // Estratégia: display: flex + align-items: center + height: 100%
+  // Sem valores fixos em px para garantir responsividade
   height: 100%;
   display: flex;
   align-items: center;
@@ -65,8 +86,36 @@ button[type="submit"] {
     box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
   }
   
-  &:active:not(:disabled) { transform: translateY(0); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:active:not(:disabled) { 
+    transform: translateY(0); 
+  }
+  
+  &:disabled { 
+    opacity: 0.5; 
+    cursor: not-allowed; 
+  }
+  
+  // Breakpoint: Desktop (1920px+)
+  // Mantém padding padrão para melhor espaçamento
+  @media (min-width: 1920px) {
+    padding: 0 40px;
+    font-size: 1.05rem;
+  }
+  
+  // Breakpoint: Tablet (768px - 1024px)
+  // Reduz padding para melhor proporção
+  @media (max-width: 1024px) {
+    padding: 0 24px;
+    font-size: 0.95rem;
+  }
+  
+  // Breakpoint: Mobile (375px - 767px)
+  // Botão em tela cheia com padding mínimo
+  @media (max-width: 640px) {
+    padding: 0 16px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
 }
 
 .erro { color: var(--error); font-weight: 500; font-size: 0.875rem; }
