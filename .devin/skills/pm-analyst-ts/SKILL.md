@@ -134,6 +134,27 @@ Para **cada** critério de aceite que envolva fluxo de usuário ou integração 
 
 > **Dica**: Use a estrutura **Dado-Quando-Então** para todos os critérios de aceite de fluxo. Isso permite que o QA gere automaticamente os testes E2E com Cucumber.
 
+### Passo 2.1.5: Integração com Frontend Design (OBRIGATÓRIO para features com UI)
+
+Se a feature envolver **criação ou redesign de componentes/páginas visuais**, o PM DEVE:
+
+1. **Documentar na spec** as expectativas visuais (tom, estilo, componentes)
+2. **Indicar que `frontend-design` será invocado** durante a implementação
+3. **Adicionar task de design** se necessário:
+
+```markdown
+## Tarefas de Design (se aplicável)
+- [ ] [DESIGN-01] Criar/refinar componentes visuais — invocar `frontend-design`
+```
+
+> **REGRA**: Se a feature incluir:
+> - Novos componentes visuais
+> - Redesign de páginas
+> - Melhorias estéticas
+> - Animações e micro-interações
+>
+> **SEMPRE** mencione na spec que `frontend-design` será utilizado para garantir qualidade visual excepcional.
+
 ### Passo 2.2: Quebra Atômica de Tasks (OBRIGATÓRIO)
 
 Cada feature deve ser decomposta em **tasks atômicas** — a menor unidade independente, testável e reviewável.

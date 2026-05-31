@@ -408,6 +408,23 @@ ng serve --configuration local
 
 > **REGRA**: Se o Dev não atualizar o README, o QA deve rejeitar o PR.
 
+### 6.6. Integração com Frontend Design (OBRIGATÓRIO para UI/Styling)
+
+Se a feature envolver **criação ou melhoria significativa de UI/componentes visuais**, você DEVE invocar a skill `frontend-design`:
+
+```bash
+skill({ name: "frontend-design", task: "[descrição do componente/página a criar]" })
+```
+
+> **REGRA**: Sempre que a feature incluir:
+> - Novos componentes visuais
+> - Redesign de páginas
+> - Melhorias estéticas significativas
+> - Criação de design system
+> - Animações e micro-interações
+>
+> **NUNCA** implemente UI/styling sozinho. Chame o `frontend-design` para garantir qualidade visual excepcional.
+
 ### 7. Handoff para o Orquestrador (OBRIGATÓRIO)
 
 Após implementar e validar, **você DEVE chamar o orquestrador** para que ele coordene a fase de review.
