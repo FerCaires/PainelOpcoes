@@ -97,13 +97,13 @@ O orquestrador atualiza este arquivo antes e depois de cada subagente.
                               (orquestrador coordena tudo automaticamente)
 ```
 
-| # | Fase | Subagente | Entregas |
-|---|------|-----------|----------|
-| 1 | **Planejamento** | PM Analyst TS | `docs/{feature}/spec.md`, `docs/memoria-tasks.md` |
-| 2 | **Design Técnico** | Tech Lead TS | `docs/sdd.md`, ADRs, `docs/codebase-*.md` |
-| 3 | **Implementação** | Senior Dev TS | Código `.ts`, testes |
-| 4 | **Code Review** | QA Engineer TS | PR revisada, CI verde |
-| 5 | **Merge/Deploy** | Orchestrator | Branch mergeada, deploy |
+| # | Fase | Subagente | Entregas | Aprovação |
+|---|------|-----------|----------|-----------|
+| 1 | **Planejamento** | PM Analyst TS | `docs/{feature}/spec.md` | ✅ **OBRIGATÓRIA** |
+| 2 | **Design Técnico** | Tech Lead TS | `docs/{feature}/sdd.md`, `docs/{feature}/adrs/` | ✅ **OBRIGATÓRIA** |
+| 3 | **Implementação** | Senior Dev TS | Código `.ts`, testes | Automática (modo contínuo) |
+| 4 | **Code Review** | QA Engineer TS | PR revisada, CI verde | Automática (modo contínuo) |
+| 5 | **Merge/Deploy** | Orchestrator | Branch mergeada, deploy | Automática (modo contínuo) |
 
 ---
 
@@ -122,14 +122,30 @@ Usuario: "Preciso criar notificacao por email"
 2. Definir `featureName` em kebab-case
 3. Criar `docs/workflow-{featureName}.md` com estado `PLANEJAMENTO`
 4. **Executar a Fase 1** — invocar subagente PM Analyst TS
-5. **Após conclusão**, verificar entregas, **LER e APRESENTAR** o conteúdo de `docs/{featureName}/spec.md` e `docs/memoria-tasks.md` ao usuário para revisão. **Aguardar aprovação do usuário** antes de avançar.
+5. **Após conclusão**, verificar entregas:
+   - ✅ Verificar se `docs/{featureName}/spec.md` foi criado
+   - ✅ **LER o conteúdo completo** de `docs/{featureName}/spec.md`
+   - ✅ **APRESENTAR ao usuário** em resumo estruturado
+   - ✅ **AGUARDAR aprovação explícita** do usuário (SIM/NÃO)
+   - ❌ Se rejeitado: reinvocar PM TS com feedback
 6. **Executar a Fase 2** — invocar subagente Tech Lead TS
-7. **Após conclusão**, verificar entregas, **LER e APRESENTAR** o conteúdo de `docs/sdd.md` e ADRs ao usuário para revisão. **Aguardar aprovação do usuário** antes de avançar.
+7. **Após conclusão**, verificar entregas:
+   - ✅ Verificar se `docs/{featureName}/sdd.md` foi criado
+   - ✅ Verificar se ADRs foram criados em `docs/{featureName}/adrs/` (se necessário)
+   - ✅ **LER o conteúdo completo** de `docs/{featureName}/sdd.md` e ADRs
+   - ✅ **APRESENTAR ao usuário** em resumo estruturado
+   - ✅ **AGUARDAR aprovação explícita** do usuário (SIM/NÃO)
+   - ❌ Se rejeitado: reinvocar Tech Lead TS com feedback
 8. **Executar a Fase 3** — invocar subagente Senior Dev TS (por task, se muitas)
 9. **Executar a Fase 4** — invocar subagente QA Engineer TS
 10. **Finalizar** — workflow em `DONE`, resumo ao usuário
 
-> **REGRA CRÍTICA**: Mesmo no modo contínuo, as fases de documentação (Planejamento e Design) **SEMPRE** exigem apresentação das documentações ao usuário e aguardar aprovação antes de avançar. O modo interativo apenas adiciona pausa também nas fases de Implementação e Review.
+> **REGRA CRÍTICA**: Mesmo no modo contínuo, as fases de documentação (Planejamento e Design) **SEMPRE** exigem:
+> - Apresentação das documentações ao usuário
+> - Aguardar aprovação explícita (SIM/NÃO)
+> - Se rejeitado, reinvocar o subagente com feedback
+> 
+> O modo interativo apenas adiciona pausa também nas fases de Implementação e Review.
 
 ### Modo B: Continuar workflow (se interrompido)
 
@@ -227,16 +243,47 @@ Você está atuando como **PM Analyst TS** para o projeto de carteira de opçõe
 read_subagent(agent_id: "AGENT_ID_AQUI", block: true, timeout: 300)
 ```
 
-### Passo 4: Verificar entregas
+### Passo 4: Verificar entregas e Solicitar Aprovação
 
 Após o subagente retornar:
+
+#### 4.1 Verificação de Entregas
 1. Verifique se os arquivos esperados foram criados (`glob`, `read`)
 2. Se faltarem entregas críticas, **reinvocar o subagente** com instruções de correção
-3. Se estiver OK, **para as fases de documentação (PM e Tech Lead)**:
-   - **LER o conteúdo completo** dos arquivos gerados (`read`)
-   - **APRESENTAR ao usuário** em resumo estruturado
-   - **Aguardar aprovação explícita** do usuário antes de avançar
-4. Para fases de Implementação e Review, atualizar workflow e avançar (ou pausar se modo interativo)
+3. Se estiver OK, prosseguir para 4.2
+
+#### 4.2 Apresentação e Aprovação (OBRIGATÓRIO para Fase 1 e Fase 2)
+
+**Para Fase 1 (PM Analyst TS)**:
+- [ ] **LER o conteúdo completo** de `docs/{featureName}/spec.md`
+- [ ] **APRESENTAR ao usuário** em resumo estruturado com:
+  - Contexto e objetivo
+  - Requisitos funcionais
+  - Critérios de aceite
+  - Tasks atômicas
+  - Riscos e dependências
+- [ ] **AGUARDAR aprovação explícita** do usuário:
+  - ✅ "Aprovado" → Avançar para Fase 2
+  - ❌ "Rejeitado" → Reinvocar PM TS com feedback do usuário
+  - ❓ "Revisar" → Permitir edições e reinvocar
+
+**Para Fase 2 (Tech Lead TS)**:
+- [ ] **LER o conteúdo completo** de `docs/{featureName}/sdd.md`
+- [ ] **LER ADRs** em `docs/{featureName}/adrs/` (se existirem)
+- [ ] **APRESENTAR ao usuário** em resumo estruturado com:
+  - Decisões arquiteturais
+  - Padrões técnicos
+  - Integrações
+  - Trade-offs considerados
+  - ADRs (se houver)
+- [ ] **AGUARDAR aprovação explícita** do usuário:
+  - ✅ "Aprovado" → Avançar para Fase 3
+  - ❌ "Rejeitado" → Reinvocar Tech Lead TS com feedback do usuário
+  - ❓ "Revisar" → Permitir edições e reinvocar
+
+**Para Fase 3 e 4 (Dev e QA)**:
+- Atualizar workflow e avançar automaticamente (modo contínuo)
+- Ou pausar se modo interativo
 
 ### Passo 5: Atualizar workflow e avançar
 
@@ -264,12 +311,15 @@ Você está atuando como **PM Analyst TS**.
 **Instruções**:
 1. Leia `AGENTS.md` para convenções
 2. **OBRIGATÓRIO**: Siga o template da skill em `.devin/skills/pm-analyst-ts/templates/spec-template.md` se existir; caso contrário, siga a estrutura padrão da skill PM Analyst TS
-3. Analise a demanda e escreva a spec em `docs/{featureName}/spec.md`
-4. Inclua: RF, RNF, critérios de aceite Gherkin, tasks atômicas, matriz de rastreabilidade
-5. Atualize `docs/memoria-tasks.md`
-6. Atualize `docs/workflow-{featureName}.md` (fase PLANEJAMENTO = CONCLUIDO)
+3. **OBRIGATÓRIO**: Todos os documentos DEVEM ficar em `docs/{featureName}/`
+4. Analise a demanda e escreva a spec em `docs/{featureName}/spec.md`
+5. Inclua: RF, RNF, critérios de aceite Gherkin, tasks atômicas, matriz de rastreabilidade
+6. Atualize `docs/memoria-tasks.md` (arquivo global, fora de docs/{featureName}/)
+7. Atualize `docs/workflow-{featureName}.md` (fase PLANEJAMENTO = CONCLUIDO)
 
-**Restrições**: NUNCA escreva código. Apenas documentação.
+**Restrições**: 
+- NUNCA escreva código. Apenas documentação.
+- TODOS os documentos da feature devem estar em `docs/{featureName}/`
 ```
 
 ### Fase 2: Design Técnico (Tech Lead TS)
@@ -284,14 +334,17 @@ Você está atuando como **Tech Lead TS**.
 **Instruções**:
 1. Leia a spec e o código existente
 2. **OBRIGATÓRIO**: Siga o template da skill em `.devin/skills/tech-lead-ts/templates/adr-template.md` se existir; caso contrário, siga a estrutura padrão da skill Tech Lead TS
-3. Decida arquitetura, camadas, integrações, tecnologias
-4. Crie/Atualize `docs/sdd.md`
-5. Crie ADRs em `docs/adrs/` se houver decisão complexa
-6. Atualize `docs/codebase-negocio.md` e `docs/codebase-tecnologia.md` se necessário
-7. Atualize `docs/workflow-{featureName}.md` (fase DESIGN = CONCLUIDO)
-8. Crie `docs/{featureName}/refinamento-tasks.md` se necessário refinar tasks
+3. **OBRIGATÓRIO**: Todos os documentos DEVEM ficar em `docs/{featureName}/`
+4. Decida arquitetura, camadas, integrações, tecnologias
+5. Crie `docs/{featureName}/sdd.md` (SDD específico da feature)
+6. Crie ADRs em `docs/{featureName}/adrs/` se houver decisão complexa
+7. Atualize `docs/codebase-negocio.md` e `docs/codebase-tecnologia.md` se necessário (fora de docs/{featureName}/)
+8. Atualize `docs/workflow-{featureName}.md` (fase DESIGN = CONCLUIDO)
+9. Crie `docs/{featureName}/refinamento-tasks.md` se necessário refinar tasks
 
-**Restrições**: NUNCA escreva código de produção. Apenas documentação técnica.
+**Restrições**: 
+- NUNCA escreva código de produção. Apenas documentação técnica.
+- TODOS os documentos da feature devem estar em `docs/{featureName}/`
 ```
 
 ### Fase 3: Implementação (Senior Dev TS)
@@ -423,17 +476,21 @@ Ao receber uma demanda:
   ├─ Verificar entregas → OK?
   │   ├─ NÃO → Reinvocar PM TS com correções
   │   └─ SIM →
-  │       ├─ LER docs/{feature}/spec.md e docs/memoria-tasks.md
-  │       ├─ APRESENTAR ao usuário para revisão
-  │       └─ AGUARDAR aprovação do usuário
+  │       ├─ LER docs/{featureName}/spec.md
+  │       ├─ APRESENTAR ao usuário em resumo estruturado
+  │       ├─ AGUARDAR aprovação explícita (SIM/NÃO/REVISAR)
+  │       ├─ Se NÃO → Reinvocar PM TS com feedback
+  │       └─ Se SIM → Continuar para FASE 2
   ├─ FASE 2: Invocar subagente Tech Lead TS
   ├─ Aguardar conclusão
   ├─ Verificar entregas → OK?
   │   ├─ NÃO → Reinvocar Tech Lead TS com correções
   │   └─ SIM →
-  │       ├─ LER docs/sdd.md e ADRs
-  │       ├─ APRESENTAR ao usuário para revisão
-  │       └─ AGUARDAR aprovação do usuário
+  │       ├─ LER docs/{featureName}/sdd.md e docs/{featureName}/adrs/
+  │       ├─ APRESENTAR ao usuário em resumo estruturado
+  │       ├─ AGUARDAR aprovação explícita (SIM/NÃO/REVISAR)
+  │       ├─ Se NÃO → Reinvocar Tech Lead TS com feedback
+  │       └─ Se SIM → Continuar para FASE 3
   ├─ FASE 3: Invocar subagente Senior Dev TS (por task)
   ├─ Aguardar conclusão
   ├─ Verificar entregas → OK?
@@ -465,9 +522,18 @@ Ao concluir cada fase:
 - **NUNCA** reinvoque o mesmo subagente mais de 2 vezes para a mesma correção (se persistir, reporte bloqueio ao usuário)
 - **NUNCA** execute `git push` sem confirmação do usuário
 - **NUNCA** use `@pm-analyst-ts` ou `@senior-dev-ts` — use `run_subagent` com o prompt apropriado
-- **NUNCA** avance da Fase 1 (Planejamento) para Fase 2 sem **LER e APRESENTAR** `docs/{feature}/spec.md` e `docs/memoria-tasks.md` ao usuário e aguardar sua aprovação
-- **NUNCA** avance da Fase 2 (Design) para Fase 3 sem **LER e APRESENTAR** `docs/sdd.md` e ADRs ao usuário e aguardar sua aprovação
+- **NUNCA** avance da Fase 1 (Planejamento) para Fase 2 sem:
+  - ✅ **LER o conteúdo completo** de `docs/{featureName}/spec.md`
+  - ✅ **APRESENTAR ao usuário** em resumo estruturado
+  - ✅ **AGUARDAR aprovação explícita** do usuário (SIM/NÃO/REVISAR)
+  - ✅ Se rejeitado, reinvocar PM TS com feedback
+- **NUNCA** avance da Fase 2 (Design) para Fase 3 sem:
+  - ✅ **LER o conteúdo completo** de `docs/{featureName}/sdd.md` e `docs/{featureName}/adrs/`
+  - ✅ **APRESENTAR ao usuário** em resumo estruturado
+  - ✅ **AGUARDAR aprovação explícita** do usuário (SIM/NÃO/REVISAR)
+  - ✅ Se rejeitado, reinvocar Tech Lead TS com feedback
 - **NUNCA** permita que subagentes PM ou Tech Lead ignorem os templates definidos nas skills `.devin/skills/pm-analyst-ts/` e `.devin/skills/tech-lead-ts/`
+- **NUNCA** permita que documentos da feature fiquem fora de `docs/{featureName}/` (exceto `docs/memoria-tasks.md` e `docs/workflow-{featureName}.md` que são globais)
 
 ---
 
