@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { HeaderMenuComponent } from './header-menu.component';
 
 describe('HeaderMenuComponent', () => {
@@ -9,13 +10,7 @@ describe('HeaderMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HeaderMenuComponent],
-      providers: [
-        {
-          provide: Router,
-          useValue: { navigate: jasmine.createSpy('navigate'), url: '/' }
-        }
-      ]
+      imports: [HeaderMenuComponent, RouterTestingModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(HeaderMenuComponent);
@@ -87,6 +82,7 @@ describe('HeaderMenuComponent', () => {
   });
 
   it('deve chamar router.navigate ao clicar em link', () => {
+    spyOn(router, 'navigate');
     component.navigate('/painel-rolagem');
     expect(router.navigate).toHaveBeenCalledWith(['/painel-rolagem']);
   });

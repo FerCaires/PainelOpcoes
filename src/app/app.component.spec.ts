@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 import { RolagemApiService } from './services/rolagem-api.service';
 import { of } from 'rxjs';
@@ -7,7 +8,7 @@ import { of } from 'rxjs';
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent, NoopAnimationsModule],
+      imports: [AppComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: RolagemApiService, useValue: { buscarRolagens: () => of({}) } }
       ]
@@ -26,10 +27,10 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('painel-opcoes');
   });
 
-  it('should render painel-rolagem component', () => {
+  it('should render router-outlet', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('app-painel-rolagem')).toBeTruthy();
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });

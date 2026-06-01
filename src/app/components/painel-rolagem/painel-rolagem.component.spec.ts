@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { of, throwError } from 'rxjs';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { PainelRolagemComponent } from './painel-rolagem.component';
 import { RolagemApiService } from '../../services/rolagem-api.service';
@@ -40,9 +41,12 @@ describe('PainelRolagemComponent', () => {
         MatButtonModule,
         MatCardModule,
         MatTableModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        RouterTestingModule
       ],
-      providers: [{ provide: RolagemApiService, useValue: apiService }]
+      providers: [
+        { provide: RolagemApiService, useValue: apiService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PainelRolagemComponent);
