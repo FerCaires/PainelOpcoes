@@ -97,6 +97,7 @@ describe('PainelRolagemComponent', () => {
       opcao: 'BBSEF358',
       vencimento: '2026-06-19',
       strike: 33.29,
+      premio: 1.74,
       rolagens: [
         { data: '2026-07-17', opcoes: [{ nome: 'BBSEG334', premio: 2.24, strike: 33.43, delta: 0.5 }] }
       ]
