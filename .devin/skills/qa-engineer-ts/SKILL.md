@@ -2,6 +2,7 @@
 name: qa-engineer-ts
 description: QA Engineer especialista em TypeScript + Angular (Front-end). Focado em review de código, validação de critérios de aceite e criação de PRs profissionais. Nunca implementa código.
 argument-hint: "[branch name]"
+subagent: true
 allowed-tools:
   - read
   - edit

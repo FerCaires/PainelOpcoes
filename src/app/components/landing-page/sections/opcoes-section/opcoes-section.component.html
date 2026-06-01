@@ -1,0 +1,14 @@
+<section class="opcoes-section">
+  <div class="section-container">
+    <h2>Opções Financeiras</h2>
+    <p class="section-intro">Entenda os conceitos fundamentais de opções CALL, PUT e estratégias de negociação</p>
+
+    <div class="cards-grid">
+      <article class="card" *ngFor="let card of cards">
+        <div class="card-icon">{{ card.icone }}</div>
+        <h3>{{ card.titulo }}</h3>
+        <p>{{ card.descricao }}</p>
+      </article>
+    </div>
+  </div>
+</section>
