@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { PainelRolagemComponent } from './components/painel-rolagem/painel-rolagem.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PainelRolagemComponent],
-  template: `<app-painel-rolagem></app-painel-rolagem>`,
+  imports: [RouterOutlet],
+  template: `<router-outlet></router-outlet>`,
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
