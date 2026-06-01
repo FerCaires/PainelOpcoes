@@ -27,7 +27,7 @@
             [routerLink]="item.route"
             class="nav-link"
             (click)="closeMenu()"
-            [attr.aria-current]="router.url === item.route ? 'page' : null">
+            [attr.aria-current]="currentUrl() === item.route ? 'page' : null">
             <span class="nav-icon" *ngIf="item.icon">{{ item.icon }}</span>
             <span class="nav-label">{{ item.label }}</span>
           </a>

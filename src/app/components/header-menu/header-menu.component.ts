@@ -23,8 +23,11 @@ export class HeaderMenuComponent {
   ];
 
   readonly isMenuOpen = signal(false);
+  readonly currentUrl = signal('');
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router) {
+    this.currentUrl.set(router.url);
+  }
 
   toggleMenu(): void {
     this.isMenuOpen.update(open => !open);
