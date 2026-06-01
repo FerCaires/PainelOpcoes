@@ -1,3 +1,5 @@
+<app-header-menu></app-header-menu>
+
 <div class="container">
   <h1>Painel de Rolagem de Opções</h1>
 
@@ -44,7 +46,7 @@
           <div><strong>Nome Opção:</strong> {{ resultado.opcao }}</div>
           <div><strong>Vencimento:</strong> {{ formatarData(resultado.vencimento) }}</div>
           <div><strong>Strike:</strong> {{ formatarValor(resultado.strike) }}</div>
-          <div><strong>Prêmio:</strong> Em breve</div>
+          <div><strong>Prêmio:</strong> {{ formatarValor(resultado.premio) }}</div>
         </div>
       </mat-card-content>
     </mat-card>

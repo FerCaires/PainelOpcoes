@@ -15,6 +15,7 @@ import { BuscaRolagemResponse } from '../../models/busca-rolagem-response.model'
 import { RolagemVencimento } from '../../models/rolagem-vencimento.model';
 import { Opcao } from '../../models/opcao.model';
 import { RolagemApiService } from '../../services/rolagem-api.service';
+import { HeaderMenuComponent } from '../header-menu/header-menu.component';
 
 @Component({
   selector: 'app-painel-rolagem',
@@ -28,7 +29,8 @@ import { RolagemApiService } from '../../services/rolagem-api.service';
     MatButtonModule,
     MatCardModule,
     MatTableModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    HeaderMenuComponent
   ],
   templateUrl: './painel-rolagem.component.html',
   styleUrls: ['./painel-rolagem.component.scss']

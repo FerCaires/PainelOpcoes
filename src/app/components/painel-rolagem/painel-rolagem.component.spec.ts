@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { of, throwError } from 'rxjs';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { PainelRolagemComponent } from './painel-rolagem.component';
 import { RolagemApiService } from '../../services/rolagem-api.service';
@@ -40,9 +41,12 @@ describe('PainelRolagemComponent', () => {
         MatButtonModule,
         MatCardModule,
         MatTableModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        RouterTestingModule
       ],
-      providers: [{ provide: RolagemApiService, useValue: apiService }]
+      providers: [
+        { provide: RolagemApiService, useValue: apiService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PainelRolagemComponent);
@@ -97,6 +101,7 @@ describe('PainelRolagemComponent', () => {
       opcao: 'BBSEF358',
       vencimento: '2026-06-19',
       strike: 33.29,
+      premio: 1.74,
       rolagens: [
         { data: '2026-07-17', opcoes: [{ nome: 'BBSEG334', premio: 2.24, strike: 33.43, delta: 0.5 }] }
       ]

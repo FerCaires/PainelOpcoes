@@ -1,0 +1,38 @@
+<header class="header-menu">
+  <div class="header-container">
+    <div class="logo">
+      <span class="logo-icon">📊</span>
+      <span class="logo-text">Painel de Opções</span>
+    </div>
+
+    <button
+      class="hamburger"
+      [class.active]="isMenuOpen()"
+      (click)="toggleMenu()"
+      aria-label="Toggle menu"
+      aria-expanded="isMenuOpen()">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+
+    <nav
+      class="nav"
+      [class.open]="isMenuOpen()"
+      role="navigation"
+      aria-label="Menu principal">
+      <ul class="nav-list">
+        <li *ngFor="let item of menuItems" class="nav-item">
+          <a
+            [routerLink]="item.route"
+            class="nav-link"
+            (click)="closeMenu()"
+            [attr.aria-current]="currentUrl() === item.route ? 'page' : null">
+            <span class="nav-icon" *ngIf="item.icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

@@ -37,6 +37,7 @@ describe('RolagemApiService', () => {
       opcao: 'BBSEF358',
       vencimento: '2026-06-19',
       strike: 33.29,
+      premio: 1.74,
       rolagens: []
     };
 

@@ -39,7 +39,7 @@ Sua missão: **receber uma demanda, criar o plano e executar todas as fases auto
 
 O orquestrador funciona como um **agente mestre** que delega o trabalho de cada fase a **subagentes especializados** via `run_subagent`. Ele:
 
-1. Analisa a demanda e cria o plano (`docs/workflow-{feature}.md`)
+1. Analisa a demanda e cria o plano (`docs/{featureName}/workflow-{feature}.md`)
 2. Para cada fase, **invoca um subagente** com o contexto completo
 3. **Aguarda a conclusão** do subagente (`read_subagent` com `block: true`)
 4. **Verifica as entregas** e atualiza o workflow
@@ -78,7 +78,7 @@ Aguarde a conclusão com `read_subagent` (`block: true`).
 
 ### Estado do Workflow
 
-Cada feature tem um arquivo `docs/workflow-{featureName}.md` que rastreia:
+Cada feature tem um arquivo `docs/{featureName}/workflow-{featureName}.md` que rastreia:
 - Fase atual
 - Status de cada fase (PENDENTE | EM_ANDAMENTO | CONCLUIDO | BLOQUEADO)
 - Entregas concluídas
@@ -120,7 +120,7 @@ Usuario: "Preciso criar notificacao por email"
 **Você deve:**
 1. Classificar complexidade (Pequena/Média/Grande)
 2. Definir `featureName` em kebab-case
-3. Criar `docs/workflow-{featureName}.md` com estado `PLANEJAMENTO`
+3. Criar `docs/{featureName}/workflow-{featureName}.md` com estado `PLANEJAMENTO`
 4. **Executar a Fase 1** — invocar subagente PM Analyst TS
 5. **Após conclusão**, verificar entregas:
    - ✅ Verificar se `docs/{featureName}/spec.md` foi criado
@@ -154,7 +154,7 @@ Usuario: "Continuar: email-notification"
 ```
 
 **Você deve:**
-1. Ler `docs/workflow-{featureName}.md`
+1. Ler `docs/{featureName}/workflow-{featureName}.md`
 2. Identificar a fase atual (a que está `EM_ANDAMENTO` ou a próxima `PENDENTE`)
 3. **Invocar o subagente da fase atual** com o contexto completo
 4. Continuar o fluxo automaticamente
@@ -166,7 +166,7 @@ Usuario: "Status: email-notification"
 ```
 
 **Você deve:**
-1. Ler `docs/workflow-{featureName}.md`
+1. Ler `docs/{featureName}/workflow-{featureName}.md`
 2. Listar todas as fases e seus estados
 3. Identificar gargalos ou bloqueios
 4. Sugerir próxima ação
@@ -189,7 +189,7 @@ Usuario: "Preciso criar notificacao por email. Modo: interativo"
 ### Passo 1: Preparar o contexto
 
 Antes de invocar um subagente, leia os artefatos necessários:
-- `docs/workflow-{feature}.md` (estado atual)
+- `docs/{featureName}/workflow-{feature}.md` (estado atual)
 - `docs/{feature}/spec.md` (se já existir)
 - `docs/sdd.md` (se já existir)
 - `AGENTS.md` (convenções do projeto)
@@ -231,7 +231,7 @@ Você está atuando como **PM Analyst TS** para o projeto de carteira de opçõe
 - **OBRIGATÓRIO**: Siga o template em `.devin/skills/pm-analyst-ts/templates/spec-template.md` se existir; caso contrário, siga a estrutura padrão da skill PM Analyst TS
 
 **Ao finalizar**:
-- Atualize `docs/workflow-email-notification.md`, marcando a fase PLANEJAMENTO como CONCLUIDO
+- Atualize `docs/email-notification/workflow-email-notification.md`, marcando a fase PLANEJAMENTO como CONCLUIDO
 - Retorne um resumo das entregas criadas
 """
 )
@@ -287,7 +287,7 @@ Após o subagente retornar:
 
 ### Passo 5: Atualizar workflow e avançar
 
-Edite `docs/workflow-{feature}.md`:
+Edite `docs/{featureName}/workflow-{feature}.md`:
 - Marcar fase atual como CONCLUIDO
 - Marcar próxima fase como EM_ANDAMENTO
 - Adicionar entrada no histórico de transições
@@ -315,7 +315,7 @@ Você está atuando como **PM Analyst TS**.
 4. Analise a demanda e escreva a spec em `docs/{featureName}/spec.md`
 5. Inclua: RF, RNF, critérios de aceite Gherkin, tasks atômicas, matriz de rastreabilidade
 6. Atualize `docs/memoria-tasks.md` (arquivo global, fora de docs/{featureName}/)
-7. Atualize `docs/workflow-{featureName}.md` (fase PLANEJAMENTO = CONCLUIDO)
+7. Atualize `docs/{featureName}/workflow-{featureName}.md` (fase PLANEJAMENTO = CONCLUIDO)
 
 **Restrições**: 
 - NUNCA escreva código. Apenas documentação.
@@ -339,7 +339,7 @@ Você está atuando como **Tech Lead TS**.
 5. Crie `docs/{featureName}/sdd.md` (SDD específico da feature)
 6. Crie ADRs em `docs/{featureName}/adrs/` se houver decisão complexa
 7. Atualize `docs/codebase-negocio.md` e `docs/codebase-tecnologia.md` se necessário (fora de docs/{featureName}/)
-8. Atualize `docs/workflow-{featureName}.md` (fase DESIGN = CONCLUIDO)
+8. Atualize `docs/{featureName}/workflow-{featureName}.md` (fase DESIGN = CONCLUIDO)
 9. Crie `docs/{featureName}/refinamento-tasks.md` se necessário refinar tasks
 
 **Restrições**: 
@@ -363,7 +363,7 @@ Você está atuando como **Senior Dev TS**.
 3. Siga convenções TypeScript do AGENTS.md (type-safety, readonly, injeção por construtor, etc.)
 4. Máximo 300 linhas de diff por PR/task
 5. Valide com `npm test` antes de considerar pronto
-6. Atualize `docs/workflow-{featureName}.md` com tasks concluídas
+6. Atualize `docs/{featureName}/workflow-{featureName}.md` com tasks concluídas
 7. Atualize `docs/memoria-tasks.md` com status das tasks
 
 **Restrições**:
@@ -380,7 +380,7 @@ Você está atuando como **QA Engineer TS**.
 
 **Feature**: {featureName}
 **Branch**: feature/{featureName}
-**Workflow**: docs/workflow-{featureName}.md
+**Workflow**: docs/{featureName}/workflow-{featureName}.md
 
 **Instruções**:
 1. Execute `ng test` e valide que tudo passa
@@ -399,7 +399,7 @@ Você está atuando como **QA Engineer TS**.
    - [ ] Teste a aplicação em `http://localhost` (ou porta configurada)
    - [ ] Execute `docker-compose down` para limpar
 9. Crie o PR usando `gh pr create` com template profissional
-10. Atualize `docs/workflow-{featureName}.md` (fase REVIEW = CONCLUIDO)
+10. Atualize `docs/{featureName}/workflow-{featureName}.md` (fase REVIEW = CONCLUIDO)
 
 **Restrições**: NUNCA modifique código de produção sem justificar em comentário no PR.
 ```
@@ -524,7 +524,7 @@ Ao concluir cada fase:
 ## 🚫 O QUE NUNCA FAZER
 
 - **NUNCA** execute tarefas de outras skills diretamente — sempre use `run_subagent`
-- **NUNCA** deixe de atualizar o arquivo `docs/workflow-{featureName}.md`
+- **NUNCA** deixe de atualizar o arquivo `docs/{featureName}/workflow-{featureName}.md`
 - **NUNCA** avance para a próxima fase sem verificar as entregas da fase anterior
 - **NUNCA** pule uma fase sem justificativa documentada no workflow
 - **NUNCA** reinvoque o mesmo subagente mais de 2 vezes para a mesma correção (se persistir, reporte bloqueio ao usuário)
@@ -541,7 +541,7 @@ Ao concluir cada fase:
   - ✅ **AGUARDAR aprovação explícita** do usuário (SIM/NÃO/REVISAR)
   - ✅ Se rejeitado, reinvocar Tech Lead TS com feedback
 - **NUNCA** permita que subagentes PM ou Tech Lead ignorem os templates definidos nas skills `.devin/skills/pm-analyst-ts/` e `.devin/skills/tech-lead-ts/`
-- **NUNCA** permita que documentos da feature fiquem fora de `docs/{featureName}/` (exceto `docs/memoria-tasks.md` e `docs/workflow-{featureName}.md` que são globais)
+- **NUNCA** permita que documentos da feature fiquem fora de `docs/{featureName}/` (exceto `docs/memoria-tasks.md` que é global)
 
 ---
 
@@ -570,7 +570,7 @@ skill({ name: "feature-workflow-ts" }) Listar workflows
 ## ✅ Checklist de Conclusão do Orchestrator
 
 Ao finalizar uma feature, confirme:
-- [ ] Workflow em `docs/workflow-{feature}.md` com fase `DONE`
+- [ ] Workflow em `docs/{featureName}/workflow-{feature}.md` com fase `DONE`
 - [ ] Todos os commits seguem conventional commits em português
 - [ ] `npm test` passando
 - [ ] PR criada (Fase 4 concluída)
