@@ -3,6 +3,9 @@ name: pm-analyst-ts
 description: Product Manager especializado em análise de demandas, escrita de specs enxutas e definição de critérios de aceite. Nunca implementa.
 argument-hint: "[feature description]"
 subagent: true
+triggers:
+  - user
+  - model
 allowed-tools:
   - read
   - edit

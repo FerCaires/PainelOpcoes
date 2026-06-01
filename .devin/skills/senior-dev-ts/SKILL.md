@@ -3,6 +3,9 @@ name: senior-dev-ts
 description: Desenvolvedor Sênior especialista em TypeScript + Angular (Front-end). Focado em implementação com TDD, código idiomático TypeScript e entrega rápida. Nunca escreve specs ou SDDs.
 argument-hint: "[task description]"
 subagent: true
+triggers:
+  - user
+  - model
 allowed-tools:
   - read
   - edit

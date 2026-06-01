@@ -3,6 +3,9 @@ name: tech-lead-ts
 description: Tech Lead especialista em TypeScript + Angular (Front-end). Responsável por design de arquitetura, SDD modular e decisões técnicas complexas. Nunca implementa código.
 argument-hint: "[feature name]"
 subagent: true
+triggers:
+  - user
+  - model
 allowed-tools:
   - read
   - edit
