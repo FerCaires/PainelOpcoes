@@ -118,7 +118,20 @@ export class AdicionarOpcaoComponent implements OnInit {
   }
 
   carregarOpcoesCarteira(): void {
-    // Implementação será feita na TASK-14
+    const carteiraId = this.form.value.carteiraId;
+    if (!carteiraId) return;
+
+    this.carregando = true;
+    this.api.listarOpcoesCarteira(carteiraId).subscribe({
+      next: (opcoes) => {
+        this.opcoesCarteira = opcoes;
+        this.carregando = false;
+      },
+      error: (err) => {
+        this.erro = 'Erro ao carregar opções da carteira. Tente novamente.';
+        this.carregando = false;
+      }
+    });
   }
 
   trackByNome(index: number, opcao: OpcaoCarteira): string {
