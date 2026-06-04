@@ -59,6 +59,25 @@ export class CriarCarteiraComponent {
   }
 
   criar(): void {
-    // Implementação será feita na TASK-08
+    if (this.form.invalid) return;
+
+    const nome = this.form.value.nome;
+    this.carregando = true;
+    this.erro = undefined;
+
+    this.api.criarCarteira(nome).subscribe({
+      next: (carteira) => {
+        this.carregando = false;
+        this.router.navigate(['/carteira', carteira.id]);
+      },
+      error: (err) => {
+        this.carregando = false;
+        if (err.status === 409) {
+          this.erro = 'Nome de carteira já existe';
+        } else {
+          this.erro = 'Erro ao criar carteira. Tente novamente.';
+        }
+      }
+    });
   }
 }
