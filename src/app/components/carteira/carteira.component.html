@@ -10,6 +10,7 @@
         <p class="description">
           Crie e gerencie suas carteiras de opções para organizar suas posições.
         </p>
+
         <button
           mat-raised-button
           color="primary"
@@ -17,6 +18,50 @@
           class="create-button">
           Criar Nova Carteira
         </button>
+
+        <div *ngIf="carregando" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Carregando carteiras...</p>
+        </div>
+
+        <div *ngIf="erro" class="error-message">
+          {{ erro }}
+        </div>
+
+        <div *ngIf="!carregando && carteiras.length > 0" class="tabela-container">
+          <h3>Carteiras Ativas</h3>
+          <table mat-table [dataSource]="carteiras" class="full-width">
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef>Nome</th>
+              <td mat-cell *matCellDef="let carteira">{{ carteira.nome }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let carteira">{{ carteira.status }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <td mat-cell *matCellDef="let carteira">
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="adicionarOpcoes(carteira.id)"
+                  class="action-button">
+                  Adicionar Opções
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasTabela"></tr>
+          </table>
+        </div>
+
+        <div *ngIf="!carregando && carteiras.length === 0 && !erro" class="empty-state">
+          <p>Nenhuma carteira encontrada. Crie sua primeira carteira para começar.</p>
+        </div>
       </mat-card-content>
     </mat-card>
   </section>
