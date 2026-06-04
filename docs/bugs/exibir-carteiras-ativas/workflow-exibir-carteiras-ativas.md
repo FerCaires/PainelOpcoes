@@ -1,7 +1,7 @@
 # Workflow: exibir-carteiras-ativas
 
 ## Status Geral
-- **Fase Atual**: IMPLEMENTACAO
+- **Fase Atual**: REVIEW
 - **Complexidade**: Simples
 - **Inicio**: 2026-06-04
 
@@ -13,9 +13,9 @@
 - **Observações**: O backend retorna carteiras corretamente, mas o template não as renderiza.
 
 ### 2. Implementação (Bug Fixer TS)
-- **Status**: EM_ANDAMENTO
+- **Status**: CONCLUIDO
 - **Entregas**: Código corrigido, testes atualizados
-- **Observações**:
+- **Observações**: HTML atualizado para exibir tabela de carteiras, loading, erro e empty state.
 
 ### 3. Review (QA Engineer TS)
 - **Status**: PENDENTE
@@ -33,3 +33,4 @@
 |------|-----|------|------|
 | 2026-06-04 | - | ANALISE | Início da análise do bug |
 | 2026-06-04 | ANALISE | IMPLEMENTACAO | Causa raiz identificada: HTML não atualizado |
+| 2026-06-04 | IMPLEMENTACAO | REVIEW | Correção commitada: template atualizado |
