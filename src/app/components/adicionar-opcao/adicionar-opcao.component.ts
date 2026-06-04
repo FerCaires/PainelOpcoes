@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +30,7 @@ import { OpcaoCarteira } from '../../models/opcao-carteira.model';
   styleUrls: ['./adicionar-opcao.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdicionarOpcaoComponent {
+export class AdicionarOpcaoComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(CarteiraApiService);
 
@@ -51,6 +51,24 @@ export class AdicionarOpcaoComponent {
         Validators.pattern(/^[a-zA-Z0-9]+$/)
       ]],
       carteiraId: ['', Validators.required]
+    });
+  }
+
+  ngOnInit(): void {
+    this.carregarCarteirasAtivas();
+  }
+
+  private carregarCarteirasAtivas(): void {
+    this.carregando = true;
+    this.api.listarCarteirasAtivas().subscribe({
+      next: (carteiras) => {
+        this.carteiras = carteiras;
+        this.carregando = false;
+      },
+      error: (err) => {
+        this.erro = 'Erro ao carregar carteiras. Tente novamente.';
+        this.carregando = false;
+      }
     });
   }
 

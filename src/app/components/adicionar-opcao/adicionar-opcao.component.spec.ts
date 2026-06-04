@@ -9,14 +9,30 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
 import { AdicionarOpcaoComponent } from './adicionar-opcao.component';
 import { CarteiraApiService } from '../../services/carteira-api.service';
+import { Carteira } from '../../models/carteira.model';
+import { StatusCarteira } from '../../models/status-carteira.enum';
 
 describe('AdicionarOpcaoComponent', () => {
   let component: AdicionarOpcaoComponent;
   let fixture: ComponentFixture<AdicionarOpcaoComponent>;
+  let apiService: jasmine.SpyObj<CarteiraApiService>;
 
   beforeEach(async () => {
+    const apiSpy = jasmine.createSpyObj('CarteiraApiService', ['listarCarteirasAtivas']);
+    const mockCarteiras: Carteira[] = [
+      {
+        id: '1',
+        nome: 'Carteira1',
+        status: StatusCarteira.ATIVA,
+        createdAt: '2024-01-01T00:00:00',
+        updatedAt: '2024-01-01T00:00:00'
+      }
+    ];
+    apiSpy.listarCarteirasAtivas.and.returnValue(of(mockCarteiras));
+
     await TestBed.configureTestingModule({
       imports: [
         AdicionarOpcaoComponent,
@@ -30,11 +46,12 @@ describe('AdicionarOpcaoComponent', () => {
         MatProgressSpinnerModule,
         NoopAnimationsModule
       ],
-      providers: [CarteiraApiService, provideHttpClient()]
+      providers: [{ provide: CarteiraApiService, useValue: apiSpy }, provideHttpClient()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdicionarOpcaoComponent);
     component = fixture.componentInstance;
+    apiService = TestBed.inject(CarteiraApiService) as jasmine.SpyObj<CarteiraApiService>;
     fixture.detectChanges();
   });
 
@@ -46,6 +63,11 @@ describe('AdicionarOpcaoComponent', () => {
     expect(component.form).toBeDefined();
     expect(component.form.get('nomeOpcao')).toBeDefined();
     expect(component.form.get('carteiraId')).toBeDefined();
+  });
+
+  it('should load carteiras on init', () => {
+    expect(apiService.listarCarteirasAtivas).toHaveBeenCalled();
+    expect(component.carteiras.length).toBeGreaterThan(0);
   });
 
   it('should disable button when form is invalid', () => {
