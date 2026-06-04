@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 
@@ -16,6 +16,8 @@ interface MenuItem {
   styleUrls: ['./header-menu.component.scss']
 })
 export class HeaderMenuComponent {
+  private readonly router = inject(Router);
+
   readonly menuItems: readonly MenuItem[] = [
     { label: 'Home', route: '/', icon: '🏠' },
     { label: 'Busca de Rolagens', route: '/painel-rolagem', icon: '🔍' },
@@ -26,8 +28,8 @@ export class HeaderMenuComponent {
   readonly isMenuOpen = signal(false);
   readonly currentUrl = signal('');
 
-  constructor(private readonly router: Router) {
-    this.currentUrl.set(router.url);
+  constructor() {
+    this.currentUrl.set(this.router.url);
   }
 
   toggleMenu(): void {

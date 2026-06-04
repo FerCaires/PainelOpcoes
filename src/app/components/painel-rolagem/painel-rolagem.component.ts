@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,6 +36,8 @@ import { HeaderMenuComponent } from '../header-menu/header-menu.component';
   styleUrls: ['./painel-rolagem.component.scss']
 })
 export class PainelRolagemComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly api = inject(RolagemApiService);
   form: FormGroup;
   tiposRolagem = Object.values(TipoRolagem);
   vencimentos = [1, 2, 3];
@@ -45,7 +47,7 @@ export class PainelRolagemComponent {
 
   colunasTabela = ['nome', 'vencimento', 'strike', 'premio', 'delta'];
 
-  constructor(private fb: FormBuilder, private api: RolagemApiService) {
+  constructor() {
     this.form = this.fb.group({
       opcao: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(8)]],
       quantidadeVencimentos: [2, Validators.required],
