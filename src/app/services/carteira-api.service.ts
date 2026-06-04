@@ -3,13 +3,14 @@ import { inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { Carteira } from '../models/carteira.model';
 import { OpcaoCarteira } from '../models/opcao-carteira.model';
 
 @Injectable({ providedIn: 'root' })
 export class CarteiraApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl = environment.apiBaseUrl;
 
   criarCarteira(nome: string): Observable<Carteira> {
     return this.http.post<Carteira>(`${this.baseUrl}/carteiras`, { nome }).pipe(
