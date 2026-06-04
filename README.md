@@ -1,6 +1,6 @@
-# Painel de Rolagem de Opções
+# Painel de Opções
 
-Aplicação Angular para gerenciamento de rolagem de vencimentos de opções.
+Aplicação Angular para consulta de rolagens de opções e gerenciamento de carteiras.
 
 ## 🚀 Quick Start
 
@@ -31,6 +31,30 @@ ng serve
 - npm 9+
 - Angular CLI 17+
 - (Opcional) Docker 20.10+ e Docker Compose 2.0+
+
+## ✨ Funcionalidades
+
+### Rolagem de Opções
+- Consulta de rolagens de vencimentos por ticker
+- Configuração de quantidade de vencimentos (1, 2 ou 3)
+- Seleção de tipo de rolagem (positiva, negativa ou neutra)
+- Exibição de resultados em tabela com strike, prêmio e delta
+
+### Gerenciamento de Carteiras
+- **Criação de Carteiras**: Crie carteiras com nome único (5-20 caracteres alfanuméricos)
+- **Adição de Opções**: Adicione opções existentes do banco de dados às suas carteiras
+- **Listagem de Opções**: Visualize todas as opções contidas em cada carteira
+- **Validações**: Tratamento de erros para carteiras duplicadas e opções não encontradas
+
+## 📍 Rotas
+
+| Rota | Componente | Descrição |
+|------|-----------|-----------|
+| `/` | LandingPageComponent | Página inicial |
+| `/painel-rolagem` | PainelRolagemComponent | Consulta de rolagens |
+| `/carteira` | CarteiraComponent | Página de carteiras |
+| `/carteira/criar` | CriarCarteiraComponent | Criação de nova carteira |
+| `/carteira/:id/adicionar-opcao` | AdicionarOpcaoComponent | Adição de opções à carteira |
 
 ## 🛠️ Desenvolvimento
 
