@@ -131,3 +131,157 @@
 - **Descrição**: Substituir placeholder "Em breve" por `{{ formatarValor(resultado.premio) }}`
 - **Critério de Done**: Prêmio da opção informada exibido corretamente no painel
 - **Estimativa**: 5 minutos
+
+## Feature: criacao-carteira
+
+### TASK-01: Criar enum StatusCarteira
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/models/status-carteira.enum.ts`
+- **Descrição**: Criar enum com valores ATIVA e INATIVA
+- **Critério de Done**: Enum exportado e utilizado no model Carteira
+
+### TASK-02: Criar model Carteira
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/models/carteira.model.ts`
+- **Descrição**: Criar interface TypeScript para `Carteira` (id, nome, status, createdAt, updatedAt) com propriedades readonly
+- **Critério de Done**: Interface criada com tipos estritos, sem `any`, usa StatusCarteira
+
+### TASK-03: Criar model OpcaoCarteira
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/models/opcao-carteira.model.ts`
+- **Descrição**: Criar interface TypeScript para `OpcaoCarteira` (nome, vencimento, strike, premio, situacao) com propriedades readonly
+- **Critério de Done**: Interface criada com tipos estritos, sem `any`
+
+### TASK-04: Criar DTO CriarCarteiraRequest
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/models/criar-carteira-request.model.ts`
+- **Descrição**: Criar interface para request body de criação de carteira (nome: string)
+- **Critério de Done**: Interface criada com tipos estritos
+
+### TASK-05: Criar CarteiraApiService
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/services/carteira-api.service.ts`
+- **Descrição**: Criar service com `inject()` para HttpClient. Métodos: criarCarteira(nome), listarCarteirasAtivas(), adicionarOpcao(carteiraId, nomeOpcao), listarOpcoesCarteira(carteiraId). Tratar erros com catchError no pipe RxJS.
+- **Critério de Done**: Service usa `inject()`, métodos retornam Observable, erros tratados
+
+### TASK-06: Criar testes unitários para CarteiraApiService
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/services/carteira-api.service.spec.ts`
+- **Descrição**: Criar testes para todos os métodos usando HttpClientTestingModule
+- **Critério de Done**: Testes passam, cobertura > 80%
+
+### TASK-07: Criar componente CriarCarteiraComponent (estrutura)
+- **Status**: PLANEJADO
+- **Arquivos**: `src/app/components/criar-carteira/criar-carteira.component.ts`, `.html`, `.scss`, `.spec.ts`
+- **Descrição**: Criar componente standalone com ChangeDetectionStrategy.OnPush, FormControl para nome, validação (5-20 chars alfanuméricos), botão desabilitado por padrão
+- **Critério de Done**: Componente renderiza, validação funciona, usa ReactiveFormsModule, OnPush
+
+### TASK-08: Implementar lógica de criação de carteira no componente
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/criar-carteira/criar-carteira.component.ts`
+- **Descrição**: Injetar CarteiraApiService com `inject()`, implementar método criar(), tratar sucesso (redirecionar) e erro 409 (CARTEIRA_DUPLICADA)
+- **Critério de Done**: Criação funciona, redirecionamento ocorre, erro exibido ao usuário
+
+### TASK-09: Invocar frontend-design para CriarCarteiraComponent
+- **Status**: PLANEJADO
+- **Arquivo**: N/A (design externo)
+- **Descrição**: Invocar frontend-design para definir layout, cores, spacing e responsividade da página de criação
+- **Critério de Done**: Design aprovado e aplicado no SCSS
+
+### TASK-10: Criar testes unitários para CriarCarteiraComponent
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/criar-carteira/criar-carteira.component.spec.ts`
+- **Descrição**: Testar validação de formulário, estado do botão, chamada ao service, tratamento de erros
+- **Critério de Done**: Testes passam, cobertura > 80%
+
+### TASK-11: Criar componente AdicionarOpcaoComponent (estrutura)
+- **Status**: PLANEJADO
+- **Arquivos**: `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`, `.html`, `.scss`, `.spec.ts`
+- **Descrição**: Criar componente standalone com ChangeDetectionStrategy.OnPush, FormControl para nome opção, FormControl para carteira (select), validação (5-8 chars alfanuméricos)
+- **Critério de Done**: Componente renderiza, select populado com carteiras ativas, usa ReactiveFormsModule, OnPush
+
+### TASK-12: Implementar lógica de carregamento de carteiras ativas
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`
+- **Descrição**: No ngOnInit, chamar CarteiraApiService.listarCarteirasAtivas() com `inject()` e popular select
+- **Critério de Done**: Select exibe carteiras ativas ao carregar página
+
+### TASK-13: Implementar lógica de adição de opção
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`
+- **Descrição**: Implementar método adicionarOpcao() que envia POST para /api/carteiras/{id}/opcoes/{nome}. Tratar erro 404 (opção não encontrada) e 409 (opção já existe na carteira).
+- **Critério de Done**: Opção adicionada com sucesso, erros 404 e 409 exibidos ao usuário
+
+### TASK-14: Implementar listagem de opções da carteira
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`
+- **Descrição**: Implementar método carregarOpcoesCarteira() ao selecionar carteira, exibir tabela com trackBy
+- **Critério de Done**: Tabela exibe opções, usa trackBy, atualiza ao adicionar nova opção
+
+### TASK-15: Invocar frontend-design para AdicionarOpcaoComponent
+- **Status**: PLANEJADO
+- **Arquivo**: N/A (design externo)
+- **Descrição**: Invocar frontend-design para definir layout da página, tabela, select e responsividade
+- **Critério de Done**: Design aprovado e aplicado no SCSS
+
+### TASK-16: Criar testes unitários para AdicionarOpcaoComponent
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.spec.ts`
+- **Descrição**: Testar carregamento de carteiras, validação de opção, adição, listagem, tratamento de erros
+- **Critério de Done**: Testes passam, cobertura > 80%
+
+### TASK-17: Configurar rotas para novas páginas
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/app.routes.ts`
+- **Descrição**: Adicionar rotas `/carteira/criar` → CriarCarteiraComponent e `/carteira/:id/adicionar-opcao` → AdicionarOpcaoComponent usando lazy loading
+- **Critério de Done**: Rotas funcionam, parâmetros de rota acessíveis
+
+### TASK-18: Atualizar menu de navegação
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/header-menu/header-menu.component.ts` ou `.html`
+- **Descrição**: Adicionar link "Criar Carteira" no menu de navegação
+- **Critério de Done**: Link visível e funcional
+
+### TASK-19: Atualizar CarteiraComponent para redirecionar
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/carteira/carteira.component.ts`
+- **Descrição**: Remover placeholder, adicionar botão/link para "Criar Nova Carteira" que redireciona para `/carteira/criar`
+- **Critério de Done**: Página de carteira redireciona corretamente
+
+### TASK-20: Executar testes e validações finais
+- **Status**: PLANEJADO
+- **Arquivo**: N/A (validação)
+- **Descrição**: Executar `ng test`, `ng lint`, `ng build` e validar que tudo passa
+- **Critério de Done**: Todos os comandos executam sem erros
+
+### TASK-21: Atualizar Docker (se necessário)
+- **Status**: PLANEJADO
+- **Arquivos**: `Dockerfile`, `docker-compose.yml`, `.dockerignore`
+- **Descrição**: Validar que Docker build funciona com as novas dependências (se houver)
+- **Critério de Done**: Docker build e docker-compose up funcionais
+
+### Tasks Técnicas (Refatoração e Infraestrutura)
+
+### TASK-22: Configurar environment files
+- **Status**: PLANEJADO
+- **Arquivos**: `src/environments/environment.ts`, `src/environments/environment.prod.ts`
+- **Descrição**: Criar arquivos de environment para gerenciar API base URL por ambiente
+- **Critério de Done**: Environment configurado, angular.json atualizado com fileReplacements
+
+### TASK-23: Atualizar services para usar environment
+- **Status**: PLANEJADO
+- **Arquivos**: `src/app/services/rolagem-api.service.ts`, `src/app/services/carteira-api.service.ts`
+- **Descrição**: Substituir URL base hardcoded por import de environment
+- **Critério de Done**: Services usam environment.apiBaseUrl
+
+### TASK-24: Refatorar RolagemApiService para usar inject()
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/services/rolagem-api.service.ts`
+- **Descrição**: Substituir constructor injection por `inject()` para HttpClient (ADR-005)
+- **Critério de Done**: Service usa `inject()`, testes continuam passando
+
+### TASK-25: Refatorar componentes existentes para usar inject()
+- **Status**: PLANEJADO
+- **Arquivos**: `src/app/components/painel-rolagem/painel-rolagem.component.ts`, `src/app/components/header-menu/header-menu.component.ts`
+- **Descrição**: Substituir constructor injection por `inject()` (ADR-005)
+- **Critério de Done**: Componentes usam `inject()`, testes continuam passando
