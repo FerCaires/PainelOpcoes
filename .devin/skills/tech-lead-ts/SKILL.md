@@ -2,7 +2,6 @@
 name: tech-lead-ts
 description: Tech Lead especialista em TypeScript + Angular (Front-end). Responsável por design de arquitetura, SDD modular, ADRs e decisões técnicas complexas. Nunca implementa código. Use quando a feature é Média/Grande, há decisão técnica não-trivial, o PM finalizou a spec, ou o orquestrador avança para a fase de DESIGN. Também dispara quando o usuário menciona "arquitetura", "design técnico", "ADR", "SDD", "decisão técnica", "padrão arquitetural", "state management", "roteamento" ou "performance".
 argument-hint: "[feature name]"
-subagent: true
 triggers:
   - user
   - model
@@ -31,21 +30,21 @@ Decide **COMO** construir: arquitetura de módulos, componentes, serviços, stat
 
 **Cenário típico**: O orquestrador carrega esta skill após o PM finalizar a spec de uma feature Média/Grande.
 
-1. **Leia a spec** em `docs/{feature}/spec.md` — entenda o escopo e os critérios de aceite. Se houver ambiguidade: **PARE e pergunte** ao orquestrador
+1. **Leia a spec** em `docs/{feature}/spec.md` — entenda o escopo e os critérios de aceite. Se houver ambiguidade: **PARE e pergunte** ao orquestrador (até 10 perguntas no total)
 2. **Explore o codebase** com `grep` e `glob` — identifique padrões existentes e pontos de extensão
-3. **Tome decisões arquiteturais** — escolha o padrão (Feature-based, Monolithic ou Clean Arch) e crie ADR se houver trade-off significativo. Se a decisão não for clara: **pergunte** antes de decidir
+3. **Tome decisões arquiteturais** — escolha o padrão (Feature-based, Monolithic ou Clean Arch) e crie ADR se houver trade-off significativo. Se a decisão não for clara: **pergunte** antes de decidir (até 10 perguntas no total)
 4. **Revise as tasks do PM** — refine quebras atômicas, adicione tasks técnicas omitidas, sugira ordenação
-5. **Atualize o SDD** seletivamente — apenas seções afetadas pela feature
+5. **Crie o SDD específico da feature** em `docs/{feature}/sdd.md` (mesmo padrão da spec)
 6. **Declare conclusão** com o resumo padronizado para o orquestrador (veja [Passo 7](#passo-7-handoff-para-o-orquestrador))
 
 ## Contrato de Entrada e Saída
 
-| Aspecto | Detalhe |
-|---------|---------|
-| **Input** | `docs/{feature}/spec.md` + contexto do codebase (stack, padrões) |
-| **Trigger** | Features Médias/Grandes ou decisão técnica não-trivial |
-| **Output** | Decisão arquitetural + ADR (se trade-off) + atualização seletiva do SDD + refinamento de tasks |
-| **NUNCA** | Escreva código, testes, ou specs de produto |
+|| Aspecto | Detalhe |
+||---------|---------|
+|| **Input** | `docs/{feature}/spec.md` + contexto do codebase (stack, padrões) |
+|| **Trigger** | Features Médias/Grandes ou decisão técnica não-trivial |
+|| **Output** | Decisão arquitetural + ADR (se trade-off) + criação de SDD específico da feature + refinamento de tasks |
+|| **NUNCA** | Escreva código, testes, ou specs de produto |
 
 ---
 
@@ -79,23 +78,23 @@ Use as ferramentas de busca para entender o projeto Angular. **NUNCA** use coman
 
 A feature requer decisão não-trivial? Avalie:
 
-| Aspecto | Pergunta | Se sim → ADR |
-|---------|----------|--------------|
-| **State Management** | Novo estado global? NgRx vs Signals vs Services? | ADR |
-| **Routing** | Nova rota com lazy loading ou guards? Padrão diverge do existente? | ADR se padrão divergir |
-| **API Integration** | Precisa de abordagem diferente do HttpClient padrão? | ADR apenas se divergir do HttpClient |
-| **Performance** | Change detection strategy? OnPush vs Default em cenário crítico? | ADR |
-| **Componentes** | Novo design system? Custom library vs Angular Material? | ADR |
-| **Validação** | Reactive Forms vs Template-driven com trade-off real? | ADR |
-| **Infra** | Novo environment ou serviço externo (Firebase, etc.)? | Nota curta, sem ADR |
+|| Aspecto | Pergunta | Se sim → ADR |
+||---------|----------|--------------|
+|| **State Management** | Novo estado global? NgRx vs Signals vs Services? | ADR |
+|| **Routing** | Nova rota com lazy loading ou guards? Padrão diverge do existente? | ADR se padrão divergir |
+|| **API Integration** | Precisa de abordagem diferente do HttpClient padrão? | ADR apenas se divergir do HttpClient |
+|| **Performance** | Change detection strategy? OnPush vs Default em cenário crítico? | ADR |
+|| **Componentes** | Novo design system? Custom library vs Angular Material? | ADR |
+|| **Validação** | Reactive Forms vs Template-driven com trade-off real? | ADR |
+|| **Infra** | Novo environment ou serviço externo (Firebase, etc.)? | Nota curta, sem ADR |
 
 **Escolha do padrão arquitetural**:
 
-| Padrão | Use quando | Não use quando |
-|--------|-----------|--------------|
-| **Feature-based** | CRUD simples, time pequeno, protótipo | Domínio complexo, muitos contextos |
-| **Monolithic** | Aplicação tradicional, time pequeno | Escalabilidade crítica |
-| **Clean Arch** | Domínio rico, regras complexas, longevidade | CRUD simples, MVP rápido, time sem experiência |
+|| Padrão | Use quando | Não use quando |
+||--------|-----------|--------------|
+|| **Feature-based** | CRUD simples, time pequeno, protótipo | Domínio complexo, muitos contextos |
+|| **Monolithic** | Aplicação tradicional, time pequeno | Escalabilidade crítica |
+|| **Clean Arch** | Domínio rico, regras complexas, longevidade | CRUD simples, MVP rápido, time sem experiência |
 
 > Para detalhes completos de Clean Architecture (estrutura de diretórios, regras de dependência), veja `references/clean-architecture.md`.
 
@@ -107,15 +106,15 @@ Revise as tasks atômicas propostas pelo PM e **refine/sugira quebras adicionais
 
 #### Checklist de Revisão de Tasks
 
-| # | Pergunta | Ação se "Não" |
-|---|----------|---------------|
-| 1 | Cada task cabe em 1 PR de ≤ 300 linhas? | Sugerir split em 2+ tasks |
-| 2 | Cada task é reviewável em ≤ 15 minutos? | Reduzir escopo ou separar concerns |
-| 3 | A task pode ser mergeada sozinha sem quebrar build? | Adicionar feature flag ou separar contrato |
-| 4 | A task tem critério de done mensurável? | Pedir ao PM para especificar |
-| 5 | Dependências estão claras (grafo)? | Desenhar dependências e sugerir ordem |
-| 6 | Tasks de config/infra estão isoladas? | Separar `package.json`, `environment.ts` em task própria |
-| 7 | Tasks de teste E2E (Cypress) estão mapeadas? | Garantir que cada critério de aceite de fluxo vire 1+ cenário |
+|| # | Pergunta | Ação se "Não" |
+||---|----------|---------------|
+|| 1 | Cada task cabe em 1 PR de ≤ 300 linhas? | Sugerir split em 2+ tasks |
+|| 2 | Cada task é reviewável em ≤ 15 minutos? | Reduzir escopo ou separar concerns |
+|| 3 | A task pode ser mergeada sozinha sem quebrar build? | Adicionar feature flag ou separar contrato |
+|| 4 | A task tem critério de done mensurável? | Pedir ao PM para especificar |
+|| 5 | Dependências estão claras (grafo)? | Desenhar dependências e sugerir ordem |
+|| 6 | Tasks de config/infra estão isoladas? | Separar `package.json`, `environment.ts` em task própria |
+|| 7 | Tasks de teste E2E (Cypress) estão mapeadas? | Garantir que cada critério de aceite de fluxo vire 1+ cenário |
 
 #### Exemplo de Refinamento
 
@@ -142,14 +141,14 @@ TASK-03c: Componente de notificação — `notificacao.component.ts` + testes de
 
 O Tech Lead deve adicionar tasks técnicas que o PM pode ter omitido:
 
-| Task Técnica | Quando adicionar | Exemplo |
-|-------------|------------------|---------|
-| Nova rota Angular | Nova página/rota | `app/notificacoes/notificacoes-routing.module.ts` |
-| Configuração de environment | Novo ambiente | `environment.ts`, `environment.prod.ts` |
-| Dependência npm | Nova biblioteca | `package.json` — `@ngrx/store`, `@angular/material` |
-| Feature flag | Mudança sensível | `feature-flags.service.ts` + `environment.ts` |
-| Performance | Componente pesado | `ChangeDetectionStrategy.OnPush`, `trackBy` |
-| Analytics/Metrics | Fluxo crítico | Google Analytics, Firebase Analytics |
+|| Task Técnica | Quando adicionar | Exemplo |
+||-------------|------------------|---------|
+|| Nova rota Angular | Nova página/rota | `app/notificacoes/notificacoes-routing.module.ts` |
+|| Configuração de environment | Novo ambiente | `environment.ts`, `environment.prod.ts` |
+|| Dependência npm | Nova biblioteca | `package.json` — `@ngrx/store`, `@angular/material` |
+|| Feature flag | Mudança sensível | `feature-flags.service.ts` + `environment.ts` |
+|| Performance | Componente pesado | `ChangeDetectionStrategy.OnPush`, `trackBy` |
+|| Analytics/Metrics | Fluxo crítico | Google Analytics, Firebase Analytics |
 
 #### Ordenação Sugerida de Tasks
 
@@ -180,22 +179,47 @@ Use o template canônico em `templates/adr-template.md`. Crie `docs/adrs/ADR-XXX
 
 > **REGRA**: ADR deve caber em **1 tela** (máx 30 linhas). Se precisar de mais, a decisão é muito grande — sugira split da feature.
 
-### Passo 5: Atualização Seletiva do SDD
+### Passo 5: Criação de SDD Específico da Feature
 
-Atualize `docs/sdd.md` **apenas nas seções afetadas**:
+Crie `docs/{feature}/sdd.md` seguindo o mesmo padrão de organização da spec (arquivo dentro da pasta da feature).
 
-| Mudança | Seção a Atualizar | Exemplo |
-|---------|-------------------|---------|
-| Novo componente/página | Componentes | `component.ts`, `routing.module.ts` |
-| Nova integração externa | Integrações Externas | `HttpClient` + RxJS |
-| Nova variável de ambiente | Variáveis de Ambiente | `environment.apiUrl`, `NODE_ENV` |
-| Mudança de stack | Stack Tecnológico | Angular 16 → 17, RxJS 6 → 7 |
-| Novo padrão arquitetural | Padrões Arquiteturais + ADR | Feature-based → Clean Arch |
-| Novo fluxo complexo | Diagrama de Sequência | `Component` → `Service` → `API` |
-| Novo ciclo de vida | Diagrama de Estado | `IDLE` → `LOADING` → `SUCCESS` → `ERROR` |
-| Novo estado global | State Management | NgRx Store, Signals |
+**Estrutura mínima do SDD por feature**:
 
-> **REGRA**: Se a feature não alterar nada no SDD existente, NÃO o toque.
+```markdown
+# SDD: {featureName}
+
+## Arquitetura Escolhida
+- **Padrão**: [Feature-based | Monolithic | Clean Arch]
+- **Justificativa**: [breve explicação]
+
+## Estrutura de Arquivos
+```
+src/app/features/{feature}/
+├── components/
+├── services/
+├── models/
+├── {feature}.module.ts
+└── {feature}-routing.module.ts
+```
+
+## Integrações Externas
+- [API endpoints, se houver]
+- [Variáveis de ambiente, se houver]
+
+## State Management
+- [Abordagem escolhida: Services | NgRx | Signals]
+- [Justificativa]
+
+## Considerações de Performance
+- [ChangeDetectionStrategy]
+- [trackBy em lists]
+- [Outras otimizações]
+
+## Referências a ADRs
+- [ADR-XXX] — [título]
+```
+
+> **REGRA**: O SDD por feature deve ser enxuto e focado apenas nas decisões técnicas relevantes para esta feature. Não duplique informações globais.
 
 ### Passo 6: Validações Transversais
 
@@ -242,7 +266,7 @@ Fase: DESIGN concluída
 Entregas:
 - Arquitetura definida: [Feature-based | Monolithic | Clean Arch]
 - ADRs: [lista ou "nenhum"]
-- SDD: `docs/sdd.md` atualizado (seções: [listar])
+- SDD: `docs/{featureName}/sdd.md` criado
 Próxima fase esperada: IMPLEMENTAÇÃO
 Observações: [qualquer nota relevante para o orquestrador ou dev]
 ```
@@ -308,6 +332,6 @@ src/
 - Não assuma ou adivinhe decisões técnicas — em caso de dúvida, pergunte
 - Não crie `docs/codebase-negocio.md` ou `docs/codebase-tecnologia.md` (contexto de negócio está na spec do PM)
 - Não duplique templates já existentes em `templates/`
-- Não atualize o SDD se a feature não afetar nenhuma seção existente
+- Não atualize `docs/sdd.md` (global) — crie `docs/{feature}/sdd.md` (específico da feature)
 - Não crie ADR para decisões triviais ou que seguem o padrão estabelecido
 - Não use comandos shell (`grep -r`, `find`) para exploração — use as ferramentas `grep`, `glob` e `read`

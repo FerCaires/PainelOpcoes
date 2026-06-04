@@ -14,16 +14,16 @@ import { CriarCarteiraComponent } from './criar-carteira.component';
 import { CarteiraApiService } from '../../services/carteira-api.service';
 import { Carteira } from '../../models/carteira.model';
 import { StatusCarteira } from '../../models/status-carteira.enum';
+import { CarteiraDuplicadaError } from '../../models/api-errors.model';
 
 describe('CriarCarteiraComponent', () => {
   let component: CriarCarteiraComponent;
   let fixture: ComponentFixture<CriarCarteiraComponent>;
   let apiService: jasmine.SpyObj<CarteiraApiService>;
-  let router: jasmine.SpyObj<Router>;
+  let router: Router;
 
   beforeEach(async () => {
     const apiSpy = jasmine.createSpyObj('CarteiraApiService', ['criarCarteira']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -39,7 +39,6 @@ describe('CriarCarteiraComponent', () => {
       ],
       providers: [
         { provide: CarteiraApiService, useValue: apiSpy },
-        { provide: Router, useValue: routerSpy },
         provideHttpClient()
       ]
     }).compileComponents();
@@ -47,7 +46,7 @@ describe('CriarCarteiraComponent', () => {
     fixture = TestBed.createComponent(CriarCarteiraComponent);
     component = fixture.componentInstance;
     apiService = TestBed.inject(CarteiraApiService) as jasmine.SpyObj<CarteiraApiService>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
@@ -121,6 +120,7 @@ describe('CriarCarteiraComponent', () => {
     };
 
     apiService.criarCarteira.and.returnValue(of(mockCarteira));
+    spyOn(router, 'navigate');
 
     component.form.get('nome')?.setValue('MinhaCarteira123');
     component.criar();
@@ -129,7 +129,7 @@ describe('CriarCarteiraComponent', () => {
   });
 
   it('should display error message on 409 conflict', () => {
-    const error = { status: 409 };
+    const error = new CarteiraDuplicadaError();
     apiService.criarCarteira.and.returnValue(throwError(() => error));
 
     component.form.get('nome')?.setValue('CarteiraExistente');

@@ -343,3 +343,82 @@
 - **Arquivo**: `README.md`
 - **Descrição**: Atualizar README.md com documentação das novas rotas (/carteira/criar, /carteira/:id/adicionar-opcao) e funcionalidades de carteira
 - **Critério de Done**: README atualizado com novas funcionalidades documentadas
+
+## Feature: atualizar-situacao-opcao
+
+> Refinadas na Fase 2 (Design) por Tech Lead TS. ADR-007 criado. Decisões do usuário (Fase 1): padronizar `nomeOpcao`, manter `<mat-select>` para carteiraId, `forkJoin` paralelo, `situacao` como enum, UX simples.
+
+### TASK-01: Criar enum SituacaoOpcao e padronizar model OpcaoCarteira
+- **Status**: PLANEJADO
+- **Arquivos**:
+  - `src/app/models/situacao-opcao.enum.ts` (novo)
+  - `src/app/models/opcao-carteira.model.ts` (migrar)
+- **Descrição**:
+  1. Criar `SituacaoOpcao` com 4 valores: `ABERTA = 'ABERTA'`, `EXERCIDA = 'EXERCIDA'`, `ROLADA = 'ROLADA'`, `FINALIZADA = 'FINALIZADA'`. Tipagem estrita, exportado.
+  2. Em `OpcaoCarteira`: renomear `nome: string` -> `nomeOpcao: string` (mantendo `readonly`).
+  3. Em `OpcaoCarteira`: migrar `situacao: string` -> `situacao: SituacaoOpcao`.
+- **Justificativa da fusão**: a renomeação e a migração do campo `situacao` são pré-requisitos da decisão #1 e #4 do usuário e ficam coesas com a criação do enum (model layer). Mantém a task em ≤ 50 linhas de diff.
+- **Critério de Done**: enum criado e importável; `OpcaoCarteira` com `nomeOpcao` e `situacao: SituacaoOpcao`; sem `any`.
+- **Commit**: `feat: atualizar-situacao-opcao - criar enum SituacaoOpcao e padronizar model OpcaoCarteira`
+
+### TASK-02: Adicionar PUT de situacao e mapping retrocompativel no CarteiraApiService
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/services/carteira-api.service.ts`
+- **Descrição**:
+  1. Adicionar `atualizarSituacaoOpcao(carteiraId: string, nomeOpcao: string, situacao: SituacaoOpcao): Observable<OpcaoCarteira>` que faz `PUT ${baseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}` com body `{ situacao }`, headers `Content-Type: application/json` (definidos implicitamente pelo `HttpClient.put` com objeto), e `catchError` no pipe RxJS propagando o erro (sem tratar status específico — erro 500 etc. vão para o componente, que loga e continua).
+  2. Em `listarOpcoesCarteira`: aplicar `pipe(map(...))` para normalizar a resposta — se a entrada vier com `nome` (legado) e sem `nomeOpcao`, copiar `nomeOpcao = entrada.nome`. Cast controlado de `situacao` para `SituacaoOpcao`. Tipo de entrada intermediário `Record<string, unknown>`; tipo de saída `OpcaoCarteira`. **Sem `any`**. Comentar inline o "porquê" do mapping (referência ao ADR-007).
+- **Critério de Done**: método compila, usa `inject()` (já herdado), erros propagados, body enviado como JSON, path params interpolados, mapping retrocompat funcional.
+- **Commit**: `feat: atualizar-situacao-opcao - adicionar PUT de situacao e mapping retrocompativel no service`
+
+### TASK-03: Testes do service (PUT e mapping)
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/services/carteira-api.service.spec.ts`
+- **Descrição**:
+  1. Atualizar mocks existentes: `nome: 'PETR4123'` -> `nomeOpcao: 'PETR4123'`; `situacao: 'ABERTA'` -> `situacao: SituacaoOpcao.ABERTA`. Ajustar imports.
+  2. Adicionar bloco `describe('atualizarSituacaoOpcao')`:
+     - PUT com URL `${baseUrl}/carteiras/{carteiraId}/opcoes/{nomeOpcao}`, método `PUT`, body `{ situacao: 'FINALIZADA' }`, desserialização do response 200 em `OpcaoCarteira`.
+     - Propagação de erro 500 com `status` preservado no `error.status`.
+  3. Adicionar bloco `describe('listarOpcoesCarteira mapping')`:
+     - Response com campo legado `nome` -> `opcao.nomeOpcao` preenchido.
+     - Response já canônico (com `nomeOpcao`) -> preservado.
+     - Response com `situacao` string -> cast para `SituacaoOpcao`.
+- **Critério de Done**: testes passam, cobertura > 80% no novo método e no mapping.
+- **Commit**: `test: atualizar-situacao-opcao - testes do PUT e mapping no CarteiraApiService`
+
+### TASK-04: UI de edicao em massa no AdicionarOpcaoComponent
+- **Status**: PLANEJADO
+- **Arquivos**:
+  - `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`
+  - `src/app/components/adicionar-opcao/adicionar-opcao.component.html`
+  - `src/app/components/adicionar-opcao/adicionar-opcao.component.scss`
+- **Descrição**:
+  1. Atualizar `trackByNome` para retornar `opcao.nomeOpcao` (mantém o nome do método; só troca o campo acessado).
+  2. Adicionar `Map<string, FormControl<SituacaoOpcao>>` (ou estrutura equivalente) com a `situacao` selecionada por linha, inicializado em `carregarOpcoesCarteira()` a partir de `opcao.situacao`.
+  3. Substituir a célula estática de `Situação` (`{{ opcao.situacao }}`) por `mat-select` (form-field inline com `<mat-select>`) ligado ao `FormControl` da linha, com as 4 opções do enum exibidas a partir de uma constante `SITUACOES_OPCAO = Object.values(SituacaoOpcao)`.
+  4. Adicionar flag `atualizandoEmMassa = false` e getter `podeAtualizarEmMassa: boolean` (`!atualizandoEmMassa && opcoesCarteira.length > 0`).
+  5. Adicionar botão único "Atualizar Situações" no rodapé da `<div class="tabela-container">`, com `[disabled]="!podeAtualizarEmMassa"`, sem spinner (UX simples, conforme decisão #5).
+  6. Implementar `atualizarSituacoesEmMassa()`:
+     - `this.atualizandoEmMassa = true; this.cdr.markForCheck();`
+     - Montar array de observables: `this.opcoesCarteira.map(opcao => this.api.atualizarSituacaoOpcao(carteiraId, opcao.nomeOpcao, this.situacoesSelecionadas.get(opcao.nomeOpcao)!.value).pipe(catchError(err => { console.error('Erro ao atualizar situacao da opcao', { carteiraId, nomeOpcao: opcao.nomeOpcao, status: err?.status }); return of(null); })))`.
+     - `forkJoin(requests).subscribe({ complete: () => { this.atualizandoEmMassa = false; this.cdr.markForCheck(); this.carregarOpcoesCarteira(); } })` (usar `finalize` para garantir reset da flag mesmo em erro inesperado).
+  7. Garantir `cdr.markForCheck()` após cada mutação de estado (OnPush).
+  8. SCSS: estilizar o `mat-select` inline na célula (largura 100% da célula, padding mínimo); estilizar o botão "Atualizar Situações" (mesmo padrão visual do botão de submit, mas com `color="accent"` ou similar para diferenciar).
+- **Critério de Done**: combo pré-selecionado com a `situacao` atual; alterar o combo não dispara requisição; clicar no botão dispara `forkJoin` com `catchError` por item; erro parcial loga no `console.error` com `carteiraId`, `nomeOpcao`, `status`; demais PUTs executam; ao final, `carregarOpcoesCarteira()` é chamado; botão desabilitado com lista vazia ou iteração em andamento; `OnPush` respeitado.
+- **Commit**: `feat: atualizar-situacao-opcao - UI de edicao em massa no AdicionarOpcaoComponent`
+
+### TASK-05: Testes do fluxo de atualizacao em massa no AdicionarOpcaoComponent
+- **Status**: PLANEJADO
+- **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.spec.ts`
+- **Descrição**:
+  1. Atualizar mocks existentes: `nome: 'PETR4123'` -> `nomeOpcao: 'PETR4123'`; `situacao: 'ABERTA'` -> `situacao: SituacaoOpcao.ABERTA`. Ajustar imports (adicionar `SituacaoOpcao`).
+  2. Atualizar spy do `CarteiraApiService` no `beforeEach` para incluir `atualizarSituacaoOpcao` no `jasmine.createSpyObj`.
+  3. Atualizar o teste `should track by nome in trackByNome` para usar `nomeOpcao` (esperando `opcao.nomeOpcao`).
+  4. Adicionar testes do novo fluxo:
+     - **Combo pré-selecionado**: dado GET retornando 2 opções com `situacao` ABERTA/EXERCIDA, o `Map` interno contém as 2 entradas com os valores corretos.
+     - **Clique no botão chama PUT por opção**: stub `atualizarSituacaoOpcao` retornando `of(mockOpcao)`, clicar no botão -> spy chamado 2x com a `situacao` correta e `nomeOpcao` correto.
+     - **Erro parcial continua iteração**: stub `atualizarSituacaoOpcao` retornando `throwError({ status: 500 })` para a 2ª opção; spy `console.error` chamado com `carteiraId`, `nomeOpcao` da 2ª opção e `status: 500`; spy chamado para a 1ª e 3ª opção; `carregarOpcoesCarteira` chamado ao final.
+     - **Recarregamento ao final**: `api.listarOpcoesCarteira` chamado após o `forkJoin` completar (já parcialmente coberto, reforçar).
+     - **Botão desabilitado com lista vazia**: `podeAtualizarEmMassa === false` quando `opcoesCarteira.length === 0`.
+     - **Botão desabilitado durante iteração**: durante o subscribe do `forkJoin` (simular observable que ainda não emitiu), `atualizandoEmMassa === true` e `podeAtualizarEmMassa === false`.
+- **Critério de Done**: testes passam, cobertura > 80% no novo fluxo.
+- **Commit**: `test: atualizar-situacao-opcao - testes do fluxo de atualizacao em massa no AdicionarOpcaoComponent`

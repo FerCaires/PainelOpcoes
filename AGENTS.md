@@ -8,6 +8,35 @@ Este arquivo define **como o desenvolvimento é orquestrado** e **quais padrões
 
 ---
 
+## Compatibilidade Devin ↔ OpenCode
+
+A fonte canônica dos agentes e skills vive em **`.devin/`** (formato Devin).
+Para usar o mesmo setup no **OpenCode**, rode o gerador:
+
+```bash
+npm run sync:agents
+```
+
+Isso cria/regenera:
+
+- `.opencode/agent/*.md` — agentes (4: `feature-workflow-ts`, `bug-workflow-ts`, `qa-engineer-ts`, `senior-dev-ts`)
+- `.opencode/skill/<name>/SKILL.md` — skills (5: `pm-analyst-ts`, `tech-lead-ts`, `bug-fixer-ts`, `frontend-design`, `write-a-skill`)
+- `opencode.json` — config raiz com `$schema`, `default_agent` e `skills.paths`
+
+**Regra**: edite **apenas** `.devin/`. `.opencode/` e `opencode.json` são gerados e ficam no `.gitignore`.
+
+**Mapeamento Devin → OpenCode:**
+| Devin | OpenCode | Notas |
+|-------|----------|-------|
+| `.devin/agents/<n>/AGENT.md` | `.opencode/agent/<n>.md` | `mode: all` por padrão |
+| `.devin/skills/<n>/SKILL.md` | `.opencode/skill/<n>/SKILL.md` | subpastas `templates/` e `references/` são copiadas |
+| `subagent: true` em skill | `.opencode/agent/<n>.md` | `mode: subagent` (não vira skill) |
+| `Read(p)` | `permission.read` | |
+| `Write(p)` | `permission.edit` | |
+| `Exec(c)` | `permission.bash` | literal; adicione `*` para casar args |
+
+---
+
 ## Convenções do Projeto
 
 ### TypeScript e Angular
@@ -44,7 +73,7 @@ Este arquivo define **como o desenvolvimento é orquestrado** e **quais padrões
 ### Documentação
 
 - Specs: `docs/{feature}/spec.md` (Média/Grande) ou `docs/specs/{feature}.md` (Pequena)
-- SDD global: `docs/sdd.md` (atualizado seletivamente pelo Tech Lead)
+- SDD por feature: `docs/{feature}/sdd.md` (criado pelo Tech Lead para features Médias/Grandes)
 - ADRs: `docs/adrs/ADR-XXX-{nome}.md` (apenas para decisões com trade-off)
 - Memória de tasks: `docs/memoria-tasks.md` (append-only, global)
 
@@ -63,10 +92,36 @@ Cada fase delega trabalho a um **subagente especializado** via `run_subagent`.
 | Fase | Subagente | Entregas | Aprovação |
 |------|-----------|----------|-----------|
 | 1. Planejamento | PM Analyst TS | `docs/{feature}/spec.md` | Obrigatória |
-| 2. Design Técnico | Tech Lead TS | ADRs, `docs/sdd.md` atualizado | Obrigatória |
+| 2. Design Técnico | Tech Lead TS | ADRs, `docs/{feature}/sdd.md` criado | Obrigatória |
 | 3. Implementação | Senior Dev TS | Código `.ts`, testes, Docker | Automática |
 | 4. Code Review | QA Engineer TS | PR revisada, CI verde | Automática |
 | 5. Merge | — | Branch mergeada | Manual (usuário) |
+
+---
+
+## Orquestração do Fluxo de Correção de Bugs
+
+A correção de bugs segue um fluxo de 3 fases, orquestrado automaticamente pelo `bug-workflow-ts`.
+Cada fase delega trabalho a um **subagente especializado** via `run_subagent`.
+
+```
+[RECEBIDA] → [ANÁLISE] → [IMPLEMENTAÇÃO] → [REVIEW] → [DONE]
+               Bug Fixer     Bug Fixer        QA
+```
+
+| Fase | Subagente | Entregas | Aprovação |
+|------|-----------|----------|-----------|
+| 1. Análise | Bug Fixer TS | Causa raiz identificada, plano de correção | Obrigatória |
+| 2. Implementação | Bug Fixer TS | Código corrigido, testes atualizados | Automática |
+| 3. Review | QA Engineer TS | PR revisada, CI verde | Automática |
+
+### Classificação de Complexidade
+
+| Complexidade | Critérios | Exemplo |
+|-------------|-----------|---------|
+| **Simples** | 1 arquivo, < 50 linhas, sem impacto em outros componentes | Corrigir validação de formulário |
+| **Médio** | 2-3 arquivos, < 100 linhas, impacto limitado | Corrigir tratamento de erro em service |
+| **Complexo** | 4+ arquivos, > 100 linhas, impacto em múltiplos componentes | Refatorar state management |
 
 ---
 
@@ -78,13 +133,13 @@ Cada fase delega trabalho a um **subagente especializado** via `run_subagent`.
 Usuário: "Preciso criar notificação por email"
 ```
 
-1. Se a demanda estiver vaga: **PARE e pergunte** (máx 3 perguntas). Só prossiga com escopo claro
+1. Se a demanda estiver vaga: **PARE e pergunte** (até 10 perguntas). Só prossiga com escopo claro
 2. Classifique a complexidade (Pequena/Média/Grande) e defina `featureName` em kebab-case
 3. Crie `docs/{featureName}/workflow-{featureName}.md` com estado inicial
 4. **Fase 1** — Invocar PM Analyst TS
 5. Após conclusão: **LER** `docs/{featureName}/spec.md`, **APRESENTAR** resumo ao usuário, **AGUARDAR** aprovação
 6. **Fase 2** — Invocar Tech Lead TS
-7. Após conclusão: **LER** ADRs e `docs/sdd.md`, **APRESENTAR** resumo, **AGUARDAR** aprovação
+7. Após conclusão: **LER** ADRs e `docs/{featureName}/sdd.md`, **APRESENTAR** resumo, **AGUARDAR** aprovação
 8. **Fase 3** — Invocar Senior Dev TS (uma task por vez)
 9. **Fase 4** — Invocar QA Engineer TS
 10. **Finalizar** — Workflow em DONE
@@ -129,7 +184,7 @@ Igual ao modo contínuo, mas pausa após **cada fase** para confirmação do usu
 Leia os artefatos relevantes antes de invocar:
 - `docs/{featureName}/workflow-{featureName}.md` (estado atual)
 - `docs/{featureName}/spec.md` (se existir)
-- `docs/sdd.md` (se existir)
+- `docs/{featureName}/sdd.md` (se existir)
 - Este `AGENTS.md` (convenções)
 
 ### Passo 2: Invocar
@@ -189,7 +244,7 @@ Você está atuando como **Tech Lead TS**.
 1. Leia a spec e explore o codebase com `grep`/`glob`
 2. Decida arquitetura (Feature-based, Monolithic ou Clean Arch)
 3. Crie ADRs em `docs/adrs/` apenas se houver trade-off significativo
-4. Atualize `docs/sdd.md` seletivamente (apenas seções afetadas)
+4. Crie `docs/{featureName}/sdd.md` (SDD específico da feature, seguindo padrão da spec)
 5. Revise e refine as tasks atômicas (quebre se > 300 linhas)
 6. Adicione tasks técnicas omitidas (rotas, environment, deps, performance)
 7. Atualize `docs/{featureName}/workflow-{featureName}.md` (DESIGN = CONCLUIDO)
@@ -204,7 +259,7 @@ Você está atuando como **Senior Dev TS**.
 
 **Feature**: {featureName}
 **Spec**: docs/{featureName}/spec.md
-**SDD**: docs/sdd.md
+**SDD**: docs/{featureName}/sdd.md
 **Tasks**: [lista da memoria-tasks.md com status PLANEJADO]
 
 **Instruções**:
@@ -236,6 +291,70 @@ Você está atuando como **QA Engineer TS**.
 6. Valide que `frontend-design` foi invocado (se UI significativa)
 7. Crie PR com `gh pr create` usando template profissional
 8. Atualize `docs/{featureName}/workflow-{featureName}.md` (REVIEW = CONCLUIDO)
+
+**Restrições**: NUNCA modifique código. Apenas sugira correções.
+```
+
+### Prompts para Fluxo de Bugs
+
+#### Bug - Fase 1: Análise (Bug Fixer TS)
+
+```markdown
+Você está atuando como **Bug Fixer TS**.
+
+**Bug**: {bugName}
+**Descrição**: {descricao}
+**Complexidade**: {complexidade}
+**Stack**: TypeScript + Angular
+
+**Instruções**:
+1. Leia `AGENTS.md` para convenções do projeto
+2. Analise o bug: leia código relevante, execute testes, identifique a causa raiz
+3. Documente a causa raiz em `docs/bugs/{bugName}/workflow-{bugName}.md`
+4. Defina o plano de correção (arquivos a modificar, abordagem)
+5. Atualize `docs/bugs/{bugName}/workflow-{bugName}.md` (ANALISE = CONCLUIDO)
+
+**Restrições**: NUNCA escreva código de correção nesta fase. Apenas análise e documentação. Use português (BR).
+```
+
+#### Bug - Fase 2: Implementação (Bug Fixer TS)
+
+```markdown
+Você está atuando como **Bug Fixer TS**.
+
+**Bug**: {bugName}
+**Workflow**: docs/bugs/{bugName}/workflow-{bugName}.md
+**Causa Raiz**: [inserir causa raiz da análise]
+**Stack**: TypeScript + Angular
+
+**Instruções**:
+1. Leia a causa raiz documentada no workflow
+2. Implemente a correção com TDD (RED → GREEN → REFACTOR)
+3. Siga convenções do AGENTS.md: `inject()`, Services, HttpClient, OnPush, sem `any`
+4. Mínimo de mudanças necessárias (princípio YAGNI)
+5. 1 commit por correção: `fix: {feature} - {resumo do bug}`
+6. Valide: `ng test`, `ng lint`, `ng build`
+7. Atualize `docs/bugs/{bugName}/workflow-{bugName}.md` (IMPLEMENTACAO = CONCLUIDO)
+
+**Restrições**: NUNCA escreva specs, SDDs ou ADRs. NUNCA use constructor injection. NUNCA faça refatorações não relacionadas ao bug.
+```
+
+#### Bug - Fase 3: Review (QA Engineer TS)
+
+```markdown
+Você está atuando como **QA Engineer TS**.
+
+**Bug**: {bugName}
+**Branch**: fix/{bugName}
+**Workflow**: docs/bugs/{bugName}/workflow-{bugName}.md
+
+**Instruções**:
+1. Execute `ng test`, `ng lint`, `ng build` e valide
+2. Valide que o bug foi corrigido (causa raiz resolvida)
+3. Revise código: sem `any`, `inject()` em vez de constructor, OnPush, HttpClient
+4. Valide que testes foram adicionados/atualizados para prevenir regressão
+5. Crie PR com `gh pr create` usando template profissional (título: `fix: {feature} - {resumo}`)
+6. Atualize `docs/bugs/{bugName}/workflow-{bugName}.md` (REVIEW = CONCLUIDO)
 
 **Restrições**: NUNCA modifique código. Apenas sugira correções.
 ```
@@ -283,6 +402,48 @@ Você está atuando como **QA Engineer TS**.
 
 ---
 
+## Arquivo de Workflow para Bugs (Template)
+
+`docs/bugs/{bugName}/workflow-{bugName}.md`:
+
+```markdown
+# Workflow: {bugName}
+
+## Status Geral
+- **Fase Atual**: [ANALISE | IMPLEMENTACAO | REVIEW | DONE]
+- **Complexidade**: [Simples | Medio | Complexo]
+- **Inicio**: YYYY-MM-DD
+
+## Fases
+
+### 1. Analise (Bug Fixer TS)
+- **Status**: [PENDENTE | EM_ANDAMENTO | CONCLUIDO | BLOQUEADO]
+- **Entregas**: Causa raiz identificada, plano de correcao
+- **Observacoes**:
+
+### 2. Implementacao (Bug Fixer TS)
+- **Status**: [PENDENTE | EM_ANDAMENTO | CONCLUIDO | BLOQUEADO]
+- **Entregas**: Codigo corrigido, testes atualizados
+- **Observacoes**:
+
+### 3. Review (QA Engineer TS)
+- **Status**: [PENDENTE | EM_ANDAMENTO | CONCLUIDO | BLOQUEADO]
+- **Entregas**: PR criada e aprovada, CI verde
+- **Observacoes**:
+
+## Causa Raiz
+- **Arquivo**: `path/to/file.ts`
+- **Linha**: X
+- **Problema**: [descricao tecnica]
+- **Por que acontece**: [explicacao]
+
+## Historico de Transicoes
+| Data | De | Para | Nota |
+|------|-----|------|------|
+```
+
+---
+
 ## Princípio da Dúvida (OBRIGATÓRIO)
 
 **Sempre que houver dúvida ou ambiguidade, PARE e pergunte.** Nunca assuma, nunca invente, nunca adivinhe.
@@ -293,7 +454,7 @@ Você está atuando como **QA Engineer TS**.
 - Código com comportamento ambíguo? Pergunte antes de implementar
 - PR com mudanças não documentadas? Pergunte antes de aprovar
 
-> Apresente no máximo 3 perguntas por vez, com opções de múltipla escolha quando possível.
+> Apresente até 10 perguntas por vez, com opções de múltipla escolha quando possível.
 
 ---
 
@@ -305,6 +466,7 @@ Você está atuando como **QA Engineer TS**.
 - NUNCA execute `git push` sem confirmação do usuário
 - NUNCA assuma ou adivinhe — em caso de dúvida, pergunte
 - NUNCA crie `docs/codebase-negocio.md` ou `docs/codebase-tecnologia.md`
+- NUNCA crie `docs/sdd.md` (global) — crie `docs/{feature}/sdd.md` (específico da feature)
 - NUNCA use constructor injection (sempre `inject()`)
 - NUNCA use `npm test` (sempre `ng test`)
 - NUNCA permita `any` sem justificativa documentada

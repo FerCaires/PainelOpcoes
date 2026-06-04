@@ -5,6 +5,7 @@ import { CarteiraApiService } from './carteira-api.service';
 import { Carteira } from '../models/carteira.model';
 import { OpcaoCarteira } from '../models/opcao-carteira.model';
 import { StatusCarteira } from '../models/status-carteira.enum';
+import { SituacaoOpcao } from '../models/situacao-opcao.enum';
 
 describe('CarteiraApiService', () => {
   let service: CarteiraApiService;
@@ -140,10 +141,55 @@ describe('CarteiraApiService', () => {
     });
   });
 
-  describe('listarOpcoesCarteira', () => {
-    it('should call GET /api/carteiras/{id}/opcoes', () => {
+  describe('atualizarSituacaoOpcao', () => {
+    it('should call PUT /api/carteiras/{id}/opcoes/{nome} with correct body', () => {
       const carteiraId = '1';
-      const mockResponse: OpcaoCarteira[] = [
+      const nomeOpcao = 'BBASG223';
+      const situacao = SituacaoOpcao.FINALIZADA;
+      const mockResponse: OpcaoCarteira = {
+        nomeOpcao: 'BBASG223',
+        vencimento: '2026-07-17',
+        strike: 21.89,
+        premio: 0.14,
+        situacao: SituacaoOpcao.FINALIZADA
+      };
+
+      service.atualizarSituacaoOpcao(carteiraId, nomeOpcao, situacao).subscribe((res) => {
+        expect(res).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(
+        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+      );
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({ situacao: 'FINALIZADA' });
+      req.flush(mockResponse);
+    });
+
+    it('should propagate error 500 with status preserved', () => {
+      const carteiraId = '1';
+      const nomeOpcao = 'BBASG223';
+      const situacao = SituacaoOpcao.FINALIZADA;
+      const errorResponse = { status: 500, statusText: 'Internal Server Error' };
+
+      service.atualizarSituacaoOpcao(carteiraId, nomeOpcao, situacao).subscribe({
+        next: () => fail('should have failed'),
+        error: (error: { status: number }) => {
+          expect(error.status).toBe(500);
+        }
+      });
+
+      const req = httpMock.expectOne(
+        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+      );
+      req.flush('ERRO_INTERNO', errorResponse);
+    });
+  });
+
+  describe('listarOpcoesCarteira mapping', () => {
+    it('should map legacy field nome to nomeOpcao', () => {
+      const carteiraId = '1';
+      const payloadLegado = [
         {
           nome: 'PETR4123',
           vencimento: '2024-06-19',
@@ -153,15 +199,60 @@ describe('CarteiraApiService', () => {
         }
       ];
 
-      service.listarOpcoesCarteira(carteiraId).subscribe((res: OpcaoCarteira[]) => {
-        expect(res).toEqual(mockResponse);
+      service.listarOpcoesCarteira(carteiraId).subscribe((res) => {
+        expect(res.length).toBe(1);
+        expect(res[0].nomeOpcao).toBe('PETR4123');
       });
 
       const req = httpMock.expectOne(
         `http://localhost:8080/api/carteiras/${carteiraId}/opcoes`
       );
-      expect(req.request.method).toBe('GET');
-      req.flush(mockResponse);
+      req.flush(payloadLegado);
+    });
+
+    it('should preserve canonical field nomeOpcao', () => {
+      const carteiraId = '1';
+      const payloadCanonico = [
+        {
+          nomeOpcao: 'BBASG223',
+          vencimento: '2026-07-17',
+          strike: 21.89,
+          premio: 0.14,
+          situacao: 'FINALIZADA'
+        }
+      ];
+
+      service.listarOpcoesCarteira(carteiraId).subscribe((res) => {
+        expect(res.length).toBe(1);
+        expect(res[0].nomeOpcao).toBe('BBASG223');
+      });
+
+      const req = httpMock.expectOne(
+        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes`
+      );
+      req.flush(payloadCanonico);
+    });
+
+    it('should cast situacao string to SituacaoOpcao enum', () => {
+      const carteiraId = '1';
+      const payload = [
+        {
+          nomeOpcao: 'BBASG223',
+          vencimento: '2026-07-17',
+          strike: 21.89,
+          premio: 0.14,
+          situacao: 'ABERTA'
+        }
+      ];
+
+      service.listarOpcoesCarteira(carteiraId).subscribe((res) => {
+        expect(res[0].situacao).toBe(SituacaoOpcao.ABERTA);
+      });
+
+      const req = httpMock.expectOne(
+        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes`
+      );
+      req.flush(payload);
     });
   });
 });

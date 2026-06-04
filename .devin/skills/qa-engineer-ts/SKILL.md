@@ -31,7 +31,7 @@ Garante qualidade antes da entrega: revisa código idiomático, valida testes e 
 
 **Cenário típico**: O orquestrador carrega esta skill após o Dev finalizar a implementação.
 
-1. **Revise o código** — Type-safety, `inject()`, Services, HttpClient, OnPush, sem `any`. Se encontrar algo ambíguo: **pergunte** antes de rejeitar
+1. **Revise o código** — Type-safety, `inject()`, Services, HttpClient, OnPush, sem `any`. Se encontrar algo ambíguo: **pergunte** antes de rejeitar (até 10 perguntas no total)
 2. **Valide os testes** — `ng test` passa, cobertura > 80%, E2E cobre fluxos críticos
 3. **Verifique build e deps** — `ng build` sem erros, `ng lint` limpo, sem conflitos npm
 4. **Valide docs e design** — README atualizado, `frontend-design` invocado (se UI), `memoria-tasks.md` como CONCLUIDO
@@ -145,7 +145,7 @@ Garante qualidade antes da entrega: revisa código idiomático, valida testes e 
 - [ ] `README.md` atualizado com instruções de execução local (com/sem Docker)
 - [ ] Variáveis de ambiente documentadas com comentário `// Descrição: ...`
 - [ ] Perfis disponíveis listados (`local`, `test`, `docker`, `prod`)
-- [ ] `docs/sdd.md` atualizado se houve mudança arquitetural (validar com Tech Lead)
+- [ ] `docs/{featureName}/sdd.md` criado (se feature Média/Grande)
 - [ ] `docs/memoria-tasks.md` com status `CONCLUIDO`
 
 #### Design & UI (features com componentes visuais)
@@ -155,7 +155,7 @@ Garante qualidade antes da entrega: revisa código idiomático, valida testes e 
 - [ ] Responsividade: layout testado em 3 breakpoints (mobile, tablet, desktop)
 - [ ] Acessibilidade básica: ARIA labels, navegação por teclado, contraste
 
-> Se `frontend-design` NÃO foi invocado e a feature tem UI significativa: REJEITAR com ação "Invoke frontend-design antes do re-review".
+> Se `frontend-design` NÃO foi invocado e a feature tem UI significativa: REJEITAR com ação "Solicitar que o Dev invoque `frontend-design` antes do re-review".
 
 ### Passo 5: Criar PR e Handoff
 
@@ -167,7 +167,7 @@ Use o template canônico em `templates/pr-template.md`.
 - [ ] Título: `feat: {featureName} - {resumo}` ou `fix: {featureName} - {resumo}`
 - [ ] Descrição completa usando o template
 - [ ] CI verde (lint, test, build)
-- [ ] Tamanho < 500 linhas de diff (sugira split se maior)
+- [ ] Tamanho < 300 linhas de diff (sugira split se maior)
 
 #### Handoff para o Orquestrador (OBRIGATÓRIO)
 

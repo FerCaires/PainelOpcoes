@@ -1,7 +1,9 @@
+import { SituacaoOpcao } from './situacao-opcao.enum';
+
 export interface OpcaoCarteira {
-  readonly nome: string;
+  readonly nomeOpcao: string;
   readonly vencimento: string;
   readonly strike: number;
   readonly premio: number;
-  readonly situacao: string;
+  readonly situacao: SituacaoOpcao;
 }

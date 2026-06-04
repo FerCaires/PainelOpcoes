@@ -16,31 +16,37 @@ import { CarteiraApiService } from '../../services/carteira-api.service';
 import { Carteira } from '../../models/carteira.model';
 import { OpcaoCarteira } from '../../models/opcao-carteira.model';
 import { StatusCarteira } from '../../models/status-carteira.enum';
+import { SituacaoOpcao } from '../../models/situacao-opcao.enum';
 import { OpcaoNaoEncontradaError, OpcaoJaExisteNaCarteiraError } from '../../models/api-errors.model';
 
 describe('AdicionarOpcaoComponent', () => {
   let component: AdicionarOpcaoComponent;
   let fixture: ComponentFixture<AdicionarOpcaoComponent>;
   let apiService: jasmine.SpyObj<CarteiraApiService>;
+  let consoleSpy: jasmine.Spy;
+
+  const mockCarteiras: Carteira[] = [
+    {
+      id: '1',
+      nome: 'Carteira1',
+      status: StatusCarteira.ATIVA,
+      createdAt: '2024-01-01T00:00:00',
+      updatedAt: '2024-01-01T00:00:00'
+    }
+  ];
 
   beforeEach(async () => {
     const apiSpy = jasmine.createSpyObj('CarteiraApiService', [
       'listarCarteirasAtivas',
       'adicionarOpcao',
-      'listarOpcoesCarteira'
+      'listarOpcoesCarteira',
+      'atualizarSituacaoOpcao'
     ]);
-    const mockCarteiras: Carteira[] = [
-      {
-        id: '1',
-        nome: 'Carteira1',
-        status: StatusCarteira.ATIVA,
-        createdAt: '2024-01-01T00:00:00',
-        updatedAt: '2024-01-01T00:00:00'
-      }
-    ];
     apiSpy.listarCarteirasAtivas.and.returnValue(of(mockCarteiras));
     apiSpy.adicionarOpcao.and.returnValue(of(void 0));
     apiSpy.listarOpcoesCarteira.and.returnValue(of([]));
+
+    consoleSpy = spyOn(console, 'error');
 
     await TestBed.configureTestingModule({
       imports: [
@@ -203,11 +209,11 @@ describe('AdicionarOpcaoComponent', () => {
   it('should update opcoesCarteira when listing succeeds', () => {
     const mockOpcoes: OpcaoCarteira[] = [
       {
-        nome: 'PETR4123',
+        nomeOpcao: 'PETR4123',
         vencimento: '2024-06-19',
         strike: 33.29,
         premio: 1.74,
-        situacao: 'ABERTA'
+        situacao: SituacaoOpcao.ABERTA
       }
     ];
     apiService.listarOpcoesCarteira.and.returnValue(of(mockOpcoes));
@@ -229,15 +235,119 @@ describe('AdicionarOpcaoComponent', () => {
     expect(component.erro).toBe('Erro ao carregar opções da carteira. Tente novamente.');
   });
 
-  it('should track by nome in trackByNome', () => {
+  it('should track by nomeOpcao in trackByNome', () => {
     const opcao: OpcaoCarteira = {
-      nome: 'PETR4123',
+      nomeOpcao: 'PETR4123',
       vencimento: '2024-06-19',
       strike: 33.29,
       premio: 1.74,
-      situacao: 'ABERTA'
+      situacao: SituacaoOpcao.ABERTA
     };
 
     expect(component.trackByNome(0, opcao)).toBe('PETR4123');
+  });
+
+  describe('atualizacao em massa', () => {
+    const mockOpcoes: OpcaoCarteira[] = [
+      {
+        nomeOpcao: 'BBASG223',
+        vencimento: '2026-07-17',
+        strike: 21.89,
+        premio: 0.14,
+        situacao: SituacaoOpcao.ABERTA
+      },
+      {
+        nomeOpcao: 'PETR4123',
+        vencimento: '2026-08-20',
+        strike: 33.29,
+        premio: 1.74,
+        situacao: SituacaoOpcao.EXERCIDA
+      }
+    ];
+
+    beforeEach(() => {
+      apiService.listarOpcoesCarteira.and.returnValue(of(mockOpcoes));
+      component.form.get('carteiraId')?.setValue('1');
+      component.carregarOpcoesCarteira();
+    });
+
+    it('should initialize combo with current situacao for each option', () => {
+      expect(component.situacoesSelecionadas.size).toBe(2);
+      expect(component.situacoesSelecionadas.get('BBASG223')?.value).toBe(SituacaoOpcao.ABERTA);
+      expect(component.situacoesSelecionadas.get('PETR4123')?.value).toBe(SituacaoOpcao.EXERCIDA);
+    });
+
+    it('should have podeAtualizarEmMassa true when lista is loaded', () => {
+      expect(component.podeAtualizarEmMassa).toBeTrue();
+    });
+
+    it('should have podeAtualizarEmMassa false when lista is empty', () => {
+      component.opcoesCarteira = [];
+      expect(component.podeAtualizarEmMassa).toBeFalse();
+    });
+
+    it('should call PUT for each option when button is clicked', () => {
+      apiService.atualizarSituacaoOpcao.and.returnValue(of(mockOpcoes[0]));
+
+      component.atualizarSituacoesEmMassa();
+
+      expect(apiService.atualizarSituacaoOpcao).toHaveBeenCalledWith(
+        '1', 'BBASG223', SituacaoOpcao.ABERTA
+      );
+      expect(apiService.atualizarSituacaoOpcao).toHaveBeenCalledWith(
+        '1', 'PETR4123', SituacaoOpcao.EXERCIDA
+      );
+    });
+
+    it('should log error and continue when one PUT fails', () => {
+      const mockOpcaoAtualizada: OpcaoCarteira = {
+        nomeOpcao: 'BBASG223',
+        vencimento: '2026-07-17',
+        strike: 21.89,
+        premio: 0.14,
+        situacao: SituacaoOpcao.FINALIZADA
+      };
+
+      apiService.atualizarSituacaoOpcao.and.callFake(
+        (carteiraId: string, nomeOpcao: string, situacao: SituacaoOpcao) => {
+          if (nomeOpcao === 'PETR4123') {
+            return throwError(() => ({ status: 500 }));
+          }
+          return of(mockOpcaoAtualizada);
+        }
+      );
+
+      component.atualizarSituacoesEmMassa();
+
+      expect(apiService.atualizarSituacaoOpcao).toHaveBeenCalledWith(
+        '1', 'BBASG223', SituacaoOpcao.ABERTA
+      );
+      expect(apiService.atualizarSituacaoOpcao).toHaveBeenCalledWith(
+        '1', 'PETR4123', SituacaoOpcao.EXERCIDA
+      );
+      expect(consoleSpy).toHaveBeenCalledWith('Erro ao atualizar situacao da opcao', {
+        carteiraId: '1',
+        nomeOpcao: 'PETR4123',
+        status: 500
+      });
+    });
+
+    it('should call carregarOpcoesCarteira after all PUTs complete', () => {
+      apiService.atualizarSituacaoOpcao.and.returnValue(of(mockOpcoes[0]));
+      apiService.listarOpcoesCarteira.calls.reset();
+
+      component.atualizarSituacoesEmMassa();
+
+      expect(apiService.listarOpcoesCarteira).toHaveBeenCalledWith('1');
+    });
+
+    it('should disable button during iteration', () => {
+      apiService.atualizarSituacaoOpcao.and.returnValue(of(mockOpcoes[0]));
+
+      component.atualizarSituacoesEmMassa();
+
+      expect(component.atualizandoEmMassa).toBeFalse();
+      expect(component.podeAtualizarEmMassa).toBeTrue();
+    });
   });
 });
