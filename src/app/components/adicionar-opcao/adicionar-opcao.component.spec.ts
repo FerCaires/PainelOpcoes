@@ -9,12 +9,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AdicionarOpcaoComponent } from './adicionar-opcao.component';
 import { CarteiraApiService } from '../../services/carteira-api.service';
 import { Carteira } from '../../models/carteira.model';
 import { OpcaoCarteira } from '../../models/opcao-carteira.model';
 import { StatusCarteira } from '../../models/status-carteira.enum';
+import { OpcaoNaoEncontradaError, OpcaoJaExisteNaCarteiraError } from '../../models/api-errors.model';
 
 describe('AdicionarOpcaoComponent', () => {
   let component: AdicionarOpcaoComponent;
@@ -53,7 +55,11 @@ describe('AdicionarOpcaoComponent', () => {
         MatProgressSpinnerModule,
         NoopAnimationsModule
       ],
-      providers: [{ provide: CarteiraApiService, useValue: apiSpy }, provideHttpClient()]
+      providers: [
+        { provide: CarteiraApiService, useValue: apiSpy },
+        { provide: ActivatedRoute, useValue: {} },
+        provideHttpClient()
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdicionarOpcaoComponent);
@@ -137,7 +143,7 @@ describe('AdicionarOpcaoComponent', () => {
   });
 
   it('should display error message on 404 (opcao not found)', () => {
-    const error = { status: 404 };
+    const error = new OpcaoNaoEncontradaError();
     apiService.adicionarOpcao.and.returnValue(throwError(() => error));
 
     component.form.get('nomeOpcao')?.setValue('OPCAO999');
@@ -149,7 +155,7 @@ describe('AdicionarOpcaoComponent', () => {
   });
 
   it('should display error message on 409 (opcao ja existe)', () => {
-    const error = { status: 409 };
+    const error = new OpcaoJaExisteNaCarteiraError();
     apiService.adicionarOpcao.and.returnValue(throwError(() => error));
 
     component.form.get('nomeOpcao')?.setValue('PETR4123');

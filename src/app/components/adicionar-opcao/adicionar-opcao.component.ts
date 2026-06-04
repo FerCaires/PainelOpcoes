@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,6 +36,7 @@ import { HeaderMenuComponent } from '../header-menu/header-menu.component';
 export class AdicionarOpcaoComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(CarteiraApiService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   form!: FormGroup;
   carteiras: Carteira[] = [];
@@ -61,14 +62,17 @@ export class AdicionarOpcaoComponent implements OnInit {
 
   private carregarCarteirasAtivas(): void {
     this.carregando = true;
+    this.cdr.markForCheck();
     this.api.listarCarteirasAtivas().subscribe({
       next: (carteiras) => {
         this.carteiras = carteiras;
         this.carregando = false;
+        this.cdr.markForCheck();
       },
-      error: (err) => {
+      error: () => {
         this.erro = 'Erro ao carregar carteiras. Tente novamente.';
         this.carregando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -98,6 +102,7 @@ export class AdicionarOpcaoComponent implements OnInit {
 
     this.carregando = true;
     this.erro = undefined;
+    this.cdr.markForCheck();
 
     this.api.adicionarOpcao(carteiraId, nomeOpcao).subscribe({
       next: () => {
@@ -114,6 +119,7 @@ export class AdicionarOpcaoComponent implements OnInit {
         } else {
           this.erro = 'Erro ao adicionar opção. Tente novamente.';
         }
+        this.cdr.markForCheck();
       }
     });
   }
@@ -123,15 +129,18 @@ export class AdicionarOpcaoComponent implements OnInit {
     if (!carteiraId) return;
 
     this.carregando = true;
+    this.cdr.markForCheck();
     this.api.listarOpcoesCarteira(carteiraId).subscribe({
       next: (opcoes) => {
         this.opcoesCarteira = opcoes;
         this.dataSource.data = opcoes;
         this.carregando = false;
+        this.cdr.markForCheck();
       },
-      error: (err) => {
+      error: () => {
         this.erro = 'Erro ao carregar opções da carteira. Tente novamente.';
         this.carregando = false;
+        this.cdr.markForCheck();
       }
     });
   }
