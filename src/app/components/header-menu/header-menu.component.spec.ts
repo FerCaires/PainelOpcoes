@@ -23,8 +23,8 @@ describe('HeaderMenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('deve ter 4 itens de menu', () => {
-    expect(component.menuItems.length).toBe(4);
+  it('deve ter 3 itens de menu', () => {
+    expect(component.menuItems.length).toBe(3);
   });
 
   it('deve renderizar logo', () => {
@@ -34,7 +34,7 @@ describe('HeaderMenuComponent', () => {
 
   it('deve renderizar todos os links de menu', () => {
     const links = fixture.nativeElement.querySelectorAll('.nav-link');
-    expect(links.length).toBe(4);
+    expect(links.length).toBe(3);
   });
 
   it('deve ter link Home', () => {
@@ -55,10 +55,10 @@ describe('HeaderMenuComponent', () => {
     expect(walletLink).toBeTruthy();
   });
 
-  it('deve ter link Criar Carteira', () => {
+  it('não deve ter link Criar Carteira no menu', () => {
     const links = fixture.nativeElement.querySelectorAll('.nav-link');
-    const createWalletLink = Array.from(links).find((el: any) => el.textContent.includes('Criar Carteira'));
-    expect(createWalletLink).toBeTruthy();
+    const createWalletLink = Array.from<HTMLElement>(links).find((el) => el.textContent?.includes('Criar Carteira'));
+    expect(createWalletLink).toBeFalsy();
   });
 
   it('deve renderizar botão hamburger em mobile', () => {
