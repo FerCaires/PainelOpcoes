@@ -90,7 +90,31 @@ export class AdicionarOpcaoComponent implements OnInit {
   }
 
   adicionarOpcao(): void {
-    // Implementação será feita na TASK-13
+    if (this.form.invalid) return;
+
+    const carteiraId = this.form.value.carteiraId;
+    const nomeOpcao = this.form.value.nomeOpcao;
+
+    this.carregando = true;
+    this.erro = undefined;
+
+    this.api.adicionarOpcao(carteiraId, nomeOpcao).subscribe({
+      next: () => {
+        this.carregando = false;
+        this.form.get('nomeOpcao')?.setValue('');
+        this.carregarOpcoesCarteira();
+      },
+      error: (err) => {
+        this.carregando = false;
+        if (err.status === 404) {
+          this.erro = 'Opção não encontrada no sistema';
+        } else if (err.status === 409) {
+          this.erro = 'Opção já existe na carteira';
+        } else {
+          this.erro = 'Erro ao adicionar opção. Tente novamente.';
+        }
+      }
+    });
   }
 
   carregarOpcoesCarteira(): void {
