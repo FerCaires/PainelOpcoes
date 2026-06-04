@@ -6,12 +6,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CarteiraApiService } from '../../services/carteira-api.service';
 import { Carteira } from '../../models/carteira.model';
 import { OpcaoCarteira } from '../../models/opcao-carteira.model';
 import { OpcaoNaoEncontradaError, OpcaoJaExisteNaCarteiraError } from '../../models/api-errors.model';
+import { HeaderMenuComponent } from '../header-menu/header-menu.component';
 
 @Component({
   selector: 'app-adicionar-opcao',
@@ -25,7 +26,8 @@ import { OpcaoNaoEncontradaError, OpcaoJaExisteNaCarteiraError } from '../../mod
     MatButtonModule,
     MatCardModule,
     MatTableModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    HeaderMenuComponent
   ],
   templateUrl: './adicionar-opcao.component.html',
   styleUrls: ['./adicionar-opcao.component.scss'],
@@ -38,6 +40,7 @@ export class AdicionarOpcaoComponent implements OnInit {
   form!: FormGroup;
   carteiras: Carteira[] = [];
   opcoesCarteira: OpcaoCarteira[] = [];
+  dataSource = new MatTableDataSource<OpcaoCarteira>([]);
   carregando = false;
   erro?: string;
 
@@ -123,6 +126,7 @@ export class AdicionarOpcaoComponent implements OnInit {
     this.api.listarOpcoesCarteira(carteiraId).subscribe({
       next: (opcoes) => {
         this.opcoesCarteira = opcoes;
+        this.dataSource.data = opcoes;
         this.carregando = false;
       },
       error: (err) => {

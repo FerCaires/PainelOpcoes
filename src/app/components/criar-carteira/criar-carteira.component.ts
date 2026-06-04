@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { CarteiraApiService } from '../../services/carteira-api.service';
 import { CarteiraDuplicadaError } from '../../models/api-errors.model';
+import { HeaderMenuComponent } from '../header-menu/header-menu.component';
 
 @Component({
   selector: 'app-criar-carteira',
@@ -20,7 +21,8 @@ import { CarteiraDuplicadaError } from '../../models/api-errors.model';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    HeaderMenuComponent
   ],
   templateUrl: './criar-carteira.component.html',
   styleUrls: ['./criar-carteira.component.scss'],
