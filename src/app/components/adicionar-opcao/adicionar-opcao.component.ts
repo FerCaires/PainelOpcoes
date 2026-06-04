@@ -1,0 +1,85 @@
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CarteiraApiService } from '../../services/carteira-api.service';
+import { Carteira } from '../../models/carteira.model';
+import { OpcaoCarteira } from '../../models/opcao-carteira.model';
+
+@Component({
+  selector: 'app-adicionar-opcao',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatTableModule,
+    MatProgressSpinnerModule
+  ],
+  templateUrl: './adicionar-opcao.component.html',
+  styleUrls: ['./adicionar-opcao.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class AdicionarOpcaoComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly api = inject(CarteiraApiService);
+
+  form: FormGroup;
+  carteiras: Carteira[] = [];
+  opcoesCarteira: OpcaoCarteira[] = [];
+  carregando = false;
+  erro?: string;
+
+  colunasTabela = ['nome', 'vencimento', 'strike', 'premio', 'situacao'];
+
+  constructor() {
+    this.form = this.fb.group({
+      nomeOpcao: ['', [
+        Validators.required,
+        Validators.minLength(5),
+        Validators.maxLength(8),
+        Validators.pattern(/^[a-zA-Z0-9]+$/)
+      ]],
+      carteiraId: ['', Validators.required]
+    });
+  }
+
+  get nomeOpcaoControl() {
+    return this.form.get('nomeOpcao')!;
+  }
+
+  get nomeOpcaoInvalido(): boolean {
+    const ctrl = this.nomeOpcaoControl;
+    return ctrl.touched && ctrl.dirty && (ctrl.hasError('required') || ctrl.hasError('minlength') || ctrl.hasError('maxlength') || ctrl.hasError('pattern'));
+  }
+
+  get carteiraIdControl() {
+    return this.form.get('carteiraId')!;
+  }
+
+  get podeAdicionar(): boolean {
+    return this.form.valid && !this.carregando;
+  }
+
+  adicionarOpcao(): void {
+    // Implementação será feita na TASK-13
+  }
+
+  carregarOpcoesCarteira(): void {
+    // Implementação será feita na TASK-14
+  }
+
+  trackByNome(index: number, opcao: OpcaoCarteira): string {
+    return opcao.nome;
+  }
+}

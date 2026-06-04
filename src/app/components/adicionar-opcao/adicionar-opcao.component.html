@@ -1,0 +1,86 @@
+<div class="adicionar-opcao-container">
+  <mat-card class="card">
+    <mat-card-header>
+      <mat-card-title>Adicionar Opção à Carteira</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="adicionarOpcao()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Carteira</mat-label>
+          <mat-select formControlName="carteiraId" (selectionChange)="carregarOpcoesCarteira()">
+            <mat-option *ngFor="let carteira of carteiras" [value]="carteira.id">
+              {{ carteira.nome }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="carteiraIdControl.hasError('required')">
+            Carteira é obrigatória
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome da Opção</mat-label>
+          <input matInput formControlName="nomeOpcao" placeholder="Ex: PETR4123" />
+          <mat-error *ngIf="nomeOpcaoControl.hasError('required')">
+            Nome da opção é obrigatório
+          </mat-error>
+          <mat-error *ngIf="nomeOpcaoControl.hasError('minlength')">
+            Nome deve ter no mínimo 5 caracteres
+          </mat-error>
+          <mat-error *ngIf="nomeOpcaoControl.hasError('maxlength')">
+            Nome deve ter no máximo 8 caracteres
+          </mat-error>
+          <mat-error *ngIf="nomeOpcaoControl.hasError('pattern')">
+            Nome deve conter apenas letras e números
+          </mat-error>
+        </mat-form-field>
+
+        <div *ngIf="erro" class="error-message">
+          {{ erro }}
+        </div>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="!podeAdicionar"
+          class="full-width">
+          <span *ngIf="!carregando">Adicionar Opção</span>
+          <span *ngIf="carregando">Adicionando...</span>
+        </button>
+      </form>
+
+      <div *ngIf="opcoesCarteira.length > 0" class="tabela-container">
+        <h3>Opções da Carteira</h3>
+        <table mat-table [dataSource]="opcoesCarteira" class="full-width">
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let opcao">{{ opcao.nome }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="vencimento">
+            <th mat-header-cell *matHeaderCellDef>Vencimento</th>
+            <td mat-cell *matCellDef="let opcao">{{ opcao.vencimento }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="strike">
+            <th mat-header-cell *matHeaderCellDef>Strike</th>
+            <td mat-cell *matCellDef="let opcao">{{ opcao.strike | number:'1.2-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="premio">
+            <th mat-header-cell *matHeaderCellDef>Prêmio</th>
+            <td mat-cell *matCellDef="let opcao">{{ opcao.premio | number:'1.2-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="situacao">
+            <th mat-header-cell *matHeaderCellDef>Situação</th>
+            <td mat-cell *matCellDef="let opcao">{{ opcao.situacao }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunasTabela; trackBy: trackByNome"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
