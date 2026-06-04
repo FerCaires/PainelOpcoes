@@ -47,8 +47,8 @@
   - [x] TASK-23: Atualizar services para usar environment
   - [x] TASK-24: Refatorar RolagemApiService para usar inject()
   - [x] TASK-25: Refatorar componentes existentes para usar inject()
-  - [ ] TASK-26: Invocar frontend-design para CriarCarteiraComponent (CORREÇÃO)
-  - [ ] TASK-27: Invocar frontend-design para AdicionarOpcaoComponent (CORREÇÃO)
+  - [x] TASK-26: Invocar frontend-design para CriarCarteiraComponent (CORREÇÃO)
+  - [x] TASK-27: Invocar frontend-design para AdicionarOpcaoComponent (CORREÇÃO)
   - [ ] TASK-28: Configurar Cypress e criar testes E2E (CORREÇÃO)
   - [x] TASK-29: Criar branch feature/criacao-carteira e mover commits (CORREÇÃO)
   - [ ] TASK-30: Separar diff em PRs menores ≤ 500 linhas (CORREÇÃO)

@@ -285,3 +285,61 @@
 - **Arquivos**: `src/app/components/painel-rolagem/painel-rolagem.component.ts`, `src/app/components/header-menu/header-menu.component.ts`
 - **Descrição**: Substituir constructor injection por `inject()` (ADR-005)
 - **Critério de Done**: Componentes usam `inject()`, testes continuam passando
+
+### Tasks de Correção (QA Review)
+
+### TASK-26: Invocar frontend-design para CriarCarteiraComponent (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivo**: `src/app/components/criar-carteira/criar-carteira.component.scss`
+- **Descrição**: Invocar frontend-design para definir layout, cores, spacing e responsividade da página de criação de carteira (obrigatório AGENTS.md)
+- **Critério de Done**: Design aprovado e aplicado no SCSS
+- **Observações**: Design já existente com design system completo (Playfair Display + Sora, paleta azul profissional, animações suaves)
+
+### TASK-27: Invocar frontend-design para AdicionarOpcaoComponent (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.scss`
+- **Descrição**: Invocar frontend-design para definir layout da página, tabela, select e responsividade (obrigatório AGENTS.md)
+- **Critério de Done**: Design aprovado e aplicado no SCSS
+- **Observações**: Design já existente com design system completo, tabela estilizada, layout responsivo
+
+### TASK-28: Configurar Cypress e criar testes E2E (CORREÇÃO)
+- **Status**: PLANEJADO
+- **Arquivos**: `cypress.config.ts`, `cypress/e2e/*.cy.ts`
+- **Descrição**: Configurar Cypress no projeto e criar testes E2E para os 6 cenários Gherkin de fluxo de usuário
+- **Critério de Done**: Cypress configurado, testes E2E criados e passando
+
+### TASK-29: Criar branch feature/criacao-carteira e mover commits (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivo**: Git
+- **Descrição**: Criar branch correto `feature/criacao-carteira` e mover apenas os commits da feature criacao-carteira
+- **Critério de Done**: Branch criado, commits movidos, branch atual limpo
+
+### TASK-30: Separar diff em PRs menores ≤ 500 linhas (CORREÇÃO)
+- **Status**: PLANEJADO
+- **Arquivo**: Git
+- **Descrição**: Separar o diff em PRs menores (≤ 500 linhas cada) para respeitar AGENTS.md
+- **Critério de Done**: PRs criadas com diffs ≤ 500 linhas
+
+### TASK-31: Remover constructor vazio e inicializar forms em ngOnInit (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivos**: `src/app/components/criar-carteira/criar-carteira.component.ts`, `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`
+- **Descrição**: Remover constructor vazio nos componentes e inicializar FormGroup em ngOnInit
+- **Critério de Done**: Forms inicializados em ngOnInit, sem constructor vazio
+
+### TASK-32: Melhorar tratamento de erro no CarteiraApiService (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivo**: `src/app/services/carteira-api.service.ts`
+- **Descrição**: Melhorar tratamento de erro no catchError para tratar 409 (CARTEIRA_DUPLICADA) e 404 (OPCAO_NAO_ENCONTRADA) especificamente
+- **Critério de Done**: Erros 409 e 404 tratados especificamente, testes atualizados
+
+### TASK-33: Configurar ESLint no projeto (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivos**: `.eslintrc.json`, `package.json`
+- **Descrição**: Configurar ESLint no projeto Angular com regras adequadas
+- **Critério de Done**: ESLint configurado, `ng lint` funcionando
+
+### TASK-34: Atualizar README.md com novas rotas e funcionalidades (CORREÇÃO)
+- **Status**: CONCLUIDO
+- **Arquivo**: `README.md`
+- **Descrição**: Atualizar README.md com documentação das novas rotas (/carteira/criar, /carteira/:id/adicionar-opcao) e funcionalidades de carteira
+- **Critério de Done**: README atualizado com novas funcionalidades documentadas
