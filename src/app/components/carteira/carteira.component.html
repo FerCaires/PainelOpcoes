@@ -1,12 +1,23 @@
 <app-header-menu></app-header-menu>
 
 <main class="carteira">
-  <section class="placeholder">
-    <div class="placeholder-content">
-      <div class="placeholder-icon">💼</div>
-      <h1>Carteira</h1>
-      <p>Esta funcionalidade está em desenvolvimento.</p>
-      <p class="subtitle">Em breve você poderá gerenciar suas posições de opções aqui.</p>
-    </div>
+  <section class="carteira-container">
+    <mat-card class="card">
+      <mat-card-header>
+        <mat-card-title>Gerenciar Carteiras</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="description">
+          Crie e gerencie suas carteiras de opções para organizar suas posições.
+        </p>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="criarNovaCarteira()"
+          class="create-button">
+          Criar Nova Carteira
+        </button>
+      </mat-card-content>
+    </mat-card>
   </section>
 </main>

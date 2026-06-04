@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 import { CarteiraComponent } from './carteira.component';
 import { HeaderMenuComponent } from '../header-menu/header-menu.component';
 
 describe('CarteiraComponent', () => {
   let component: CarteiraComponent;
   let fixture: ComponentFixture<CarteiraComponent>;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -14,6 +16,7 @@ describe('CarteiraComponent', () => {
 
     fixture = TestBed.createComponent(CarteiraComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
@@ -26,24 +29,26 @@ describe('CarteiraComponent', () => {
     expect(headerMenu).toBeTruthy();
   });
 
-  it('deve exibir título "Carteira"', () => {
-    const h1 = fixture.nativeElement.querySelector('h1');
-    expect(h1?.textContent).toContain('Carteira');
+  it('deve exibir título "Gerenciar Carteiras"', () => {
+    const title = fixture.nativeElement.querySelector('mat-card-title');
+    expect(title?.textContent).toContain('Gerenciar Carteiras');
   });
 
-  it('deve exibir mensagem de desenvolvimento', () => {
-    const paragraphs = fixture.nativeElement.querySelectorAll('p');
-    const devMessage = Array.from(paragraphs).find((el: any) => el.textContent.includes('desenvolvimento'));
-    expect(devMessage).toBeTruthy();
+  it('deve exibir botão Criar Nova Carteira', () => {
+    const button = fixture.nativeElement.querySelector('.create-button');
+    expect(button).toBeTruthy();
+    expect(button?.textContent).toContain('Criar Nova Carteira');
   });
 
-  it('deve exibir ícone de carteira', () => {
-    const icon = fixture.nativeElement.querySelector('.placeholder-icon');
-    expect(icon?.textContent).toContain('💼');
+  it('deve navegar para /carteira/criar ao clicar no botão', () => {
+    spyOn(router, 'navigate');
+    component.criarNovaCarteira();
+    expect(router.navigate).toHaveBeenCalledWith(['/carteira/criar']);
   });
 
-  it('deve renderizar placeholder-content', () => {
-    const placeholder = fixture.nativeElement.querySelector('.placeholder-content');
-    expect(placeholder).toBeTruthy();
+  it('deve exibir descrição', () => {
+    const description = fixture.nativeElement.querySelector('.description');
+    expect(description).toBeTruthy();
+    expect(description?.textContent).toContain('Crie e gerencie suas carteiras');
   });
 });
