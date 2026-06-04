@@ -9,10 +9,11 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { AdicionarOpcaoComponent } from './adicionar-opcao.component';
 import { CarteiraApiService } from '../../services/carteira-api.service';
 import { Carteira } from '../../models/carteira.model';
+import { OpcaoCarteira } from '../../models/opcao-carteira.model';
 import { StatusCarteira } from '../../models/status-carteira.enum';
 
 describe('AdicionarOpcaoComponent', () => {
@@ -21,7 +22,11 @@ describe('AdicionarOpcaoComponent', () => {
   let apiService: jasmine.SpyObj<CarteiraApiService>;
 
   beforeEach(async () => {
-    const apiSpy = jasmine.createSpyObj('CarteiraApiService', ['listarCarteirasAtivas']);
+    const apiSpy = jasmine.createSpyObj('CarteiraApiService', [
+      'listarCarteirasAtivas',
+      'adicionarOpcao',
+      'listarOpcoesCarteira'
+    ]);
     const mockCarteiras: Carteira[] = [
       {
         id: '1',
@@ -32,6 +37,8 @@ describe('AdicionarOpcaoComponent', () => {
       }
     ];
     apiSpy.listarCarteirasAtivas.and.returnValue(of(mockCarteiras));
+    apiSpy.adicionarOpcao.and.returnValue(of(void 0));
+    apiSpy.listarOpcoesCarteira.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -79,5 +86,152 @@ describe('AdicionarOpcaoComponent', () => {
     component.form.get('carteiraId')?.setValue('1');
     fixture.detectChanges();
     expect(component.podeAdicionar).toBeTrue();
+  });
+
+  it('should validate required field for nomeOpcao', () => {
+    const control = component.form.get('nomeOpcao');
+    control?.setValue('');
+    expect(control?.hasError('required')).toBeTrue();
+  });
+
+  it('should validate minlength for nomeOpcao', () => {
+    const control = component.form.get('nomeOpcao');
+    control?.setValue('PETR');
+    expect(control?.hasError('minlength')).toBeTrue();
+  });
+
+  it('should validate maxlength for nomeOpcao', () => {
+    const control = component.form.get('nomeOpcao');
+    control?.setValue('PETR412345');
+    expect(control?.hasError('maxlength')).toBeTrue();
+  });
+
+  it('should validate pattern for nomeOpcao', () => {
+    const control = component.form.get('nomeOpcao');
+    control?.setValue('PETR@123');
+    expect(control?.hasError('pattern')).toBeTrue();
+  });
+
+  it('should call apiService.adicionarOpcao when form is valid', () => {
+    component.form.get('nomeOpcao')?.setValue('PETR4123');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+
+    expect(apiService.adicionarOpcao).toHaveBeenCalledWith('1', 'PETR4123');
+  });
+
+  it('should clear nomeOpcao field after successful addition', () => {
+    component.form.get('nomeOpcao')?.setValue('PETR4123');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+
+    expect(component.form.get('nomeOpcao')?.value).toBe('');
+  });
+
+  it('should call carregarOpcoesCarteira after successful addition', () => {
+    component.form.get('nomeOpcao')?.setValue('PETR4123');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+
+    expect(apiService.listarOpcoesCarteira).toHaveBeenCalledWith('1');
+  });
+
+  it('should display error message on 404 (opcao not found)', () => {
+    const error = { status: 404 };
+    apiService.adicionarOpcao.and.returnValue(throwError(() => error));
+
+    component.form.get('nomeOpcao')?.setValue('OPCAO999');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+    fixture.detectChanges();
+
+    expect(component.erro).toBe('Opção não encontrada no sistema');
+  });
+
+  it('should display error message on 409 (opcao ja existe)', () => {
+    const error = { status: 409 };
+    apiService.adicionarOpcao.and.returnValue(throwError(() => error));
+
+    component.form.get('nomeOpcao')?.setValue('PETR4123');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+    fixture.detectChanges();
+
+    expect(component.erro).toBe('Opção já existe na carteira');
+  });
+
+  it('should display generic error message on other errors', () => {
+    const error = { status: 500 };
+    apiService.adicionarOpcao.and.returnValue(throwError(() => error));
+
+    component.form.get('nomeOpcao')?.setValue('PETR4123');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+    fixture.detectChanges();
+
+    expect(component.erro).toBe('Erro ao adicionar opção. Tente novamente.');
+  });
+
+  it('should not call api when form is invalid', () => {
+    component.form.get('nomeOpcao')?.setValue('PETR');
+    component.form.get('carteiraId')?.setValue('1');
+    component.adicionarOpcao();
+
+    expect(apiService.adicionarOpcao).not.toHaveBeenCalled();
+  });
+
+  it('should call listarOpcoesCarteira when carteira is selected', () => {
+    component.form.get('carteiraId')?.setValue('1');
+    component.carregarOpcoesCarteira();
+
+    expect(apiService.listarOpcoesCarteira).toHaveBeenCalledWith('1');
+  });
+
+  it('should not call listarOpcoesCarteira when carteiraId is empty', () => {
+    component.form.get('carteiraId')?.setValue('');
+    component.carregarOpcoesCarteira();
+
+    expect(apiService.listarOpcoesCarteira).not.toHaveBeenCalled();
+  });
+
+  it('should update opcoesCarteira when listing succeeds', () => {
+    const mockOpcoes: OpcaoCarteira[] = [
+      {
+        nome: 'PETR4123',
+        vencimento: '2024-06-19',
+        strike: 33.29,
+        premio: 1.74,
+        situacao: 'ABERTA'
+      }
+    ];
+    apiService.listarOpcoesCarteira.and.returnValue(of(mockOpcoes));
+
+    component.form.get('carteiraId')?.setValue('1');
+    component.carregarOpcoesCarteira();
+
+    expect(component.opcoesCarteira).toEqual(mockOpcoes);
+  });
+
+  it('should display error message when listing opcoes fails', () => {
+    const error = { status: 500 };
+    apiService.listarOpcoesCarteira.and.returnValue(throwError(() => error));
+
+    component.form.get('carteiraId')?.setValue('1');
+    component.carregarOpcoesCarteira();
+    fixture.detectChanges();
+
+    expect(component.erro).toBe('Erro ao carregar opções da carteira. Tente novamente.');
+  });
+
+  it('should track by nome in trackByNome', () => {
+    const opcao: OpcaoCarteira = {
+      nome: 'PETR4123',
+      vencimento: '2024-06-19',
+      strike: 33.29,
+      premio: 1.74,
+      situacao: 'ABERTA'
+    };
+
+    expect(component.trackByNome(0, opcao)).toBe('PETR4123');
   });
 });
