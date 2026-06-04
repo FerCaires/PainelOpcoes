@@ -6,6 +6,11 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Carteira } from '../models/carteira.model';
 import { OpcaoCarteira } from '../models/opcao-carteira.model';
+import {
+  CarteiraDuplicadaError,
+  OpcaoNaoEncontradaError,
+  OpcaoJaExisteNaCarteiraError
+} from '../models/api-errors.model';
 
 @Injectable({ providedIn: 'root' })
 export class CarteiraApiService {
@@ -15,6 +20,9 @@ export class CarteiraApiService {
   criarCarteira(nome: string): Observable<Carteira> {
     return this.http.post<Carteira>(`${this.baseUrl}/carteiras`, { nome }).pipe(
       catchError((error) => {
+        if (error.status === 409) {
+          return throwError(() => new CarteiraDuplicadaError());
+        }
         return throwError(() => error);
       })
     );
@@ -36,6 +44,12 @@ export class CarteiraApiService {
       {}
     ).pipe(
       catchError((error) => {
+        if (error.status === 404) {
+          return throwError(() => new OpcaoNaoEncontradaError());
+        }
+        if (error.status === 409) {
+          return throwError(() => new OpcaoJaExisteNaCarteiraError());
+        }
         return throwError(() => error);
       })
     );

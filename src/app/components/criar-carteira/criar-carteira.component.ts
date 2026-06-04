@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { CarteiraApiService } from '../../services/carteira-api.service';
+import { CarteiraDuplicadaError } from '../../models/api-errors.model';
 
 @Component({
   selector: 'app-criar-carteira',
@@ -72,8 +73,8 @@ export class CriarCarteiraComponent implements OnInit {
       },
       error: (err) => {
         this.carregando = false;
-        if (err.status === 409) {
-          this.erro = 'Nome de carteira já existe';
+        if (err instanceof CarteiraDuplicadaError) {
+          this.erro = err.message;
         } else {
           this.erro = 'Erro ao criar carteira. Tente novamente.';
         }

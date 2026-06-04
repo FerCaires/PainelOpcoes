@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CarteiraApiService } from '../../services/carteira-api.service';
 import { Carteira } from '../../models/carteira.model';
 import { OpcaoCarteira } from '../../models/opcao-carteira.model';
+import { OpcaoNaoEncontradaError, OpcaoJaExisteNaCarteiraError } from '../../models/api-errors.model';
 
 @Component({
   selector: 'app-adicionar-opcao',
@@ -103,10 +104,10 @@ export class AdicionarOpcaoComponent implements OnInit {
       },
       error: (err) => {
         this.carregando = false;
-        if (err.status === 404) {
-          this.erro = 'Opção não encontrada no sistema';
-        } else if (err.status === 409) {
-          this.erro = 'Opção já existe na carteira';
+        if (err instanceof OpcaoNaoEncontradaError) {
+          this.erro = err.message;
+        } else if (err instanceof OpcaoJaExisteNaCarteiraError) {
+          this.erro = err.message;
         } else {
           this.erro = 'Erro ao adicionar opção. Tente novamente.';
         }
