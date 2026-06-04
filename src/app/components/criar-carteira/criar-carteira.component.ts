@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,16 +25,16 @@ import { CarteiraApiService } from '../../services/carteira-api.service';
   styleUrls: ['./criar-carteira.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CriarCarteiraComponent {
+export class CriarCarteiraComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(CarteiraApiService);
   private readonly router = inject(Router);
 
-  form: FormGroup;
+  form!: FormGroup;
   carregando = false;
   erro?: string;
 
-  constructor() {
+  ngOnInit(): void {
     this.form = this.fb.group({
       nome: ['', [
         Validators.required,

@@ -34,7 +34,7 @@ export class AdicionarOpcaoComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(CarteiraApiService);
 
-  form: FormGroup;
+  form!: FormGroup;
   carteiras: Carteira[] = [];
   opcoesCarteira: OpcaoCarteira[] = [];
   carregando = false;
@@ -42,7 +42,7 @@ export class AdicionarOpcaoComponent implements OnInit {
 
   colunasTabela = ['nome', 'vencimento', 'strike', 'premio', 'situacao'];
 
-  constructor() {
+  ngOnInit(): void {
     this.form = this.fb.group({
       nomeOpcao: ['', [
         Validators.required,
@@ -52,9 +52,6 @@ export class AdicionarOpcaoComponent implements OnInit {
       ]],
       carteiraId: ['', Validators.required]
     });
-  }
-
-  ngOnInit(): void {
     this.carregarCarteirasAtivas();
   }
 
