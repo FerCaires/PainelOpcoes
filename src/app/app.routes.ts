@@ -20,6 +20,18 @@ export const routes: Routes = [
     data: { title: 'Carteira' }
   },
   {
+    path: 'carteira/criar',
+    loadComponent: () => import('./components/criar-carteira/criar-carteira.component')
+      .then(m => m.CriarCarteiraComponent),
+    data: { title: 'Criar Carteira' }
+  },
+  {
+    path: 'carteira/:id/adicionar-opcao',
+    loadComponent: () => import('./components/adicionar-opcao/adicionar-opcao.component')
+      .then(m => m.AdicionarOpcaoComponent),
+    data: { title: 'Adicionar Opção à Carteira' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }
