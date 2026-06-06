@@ -16,6 +16,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { PainelRolagemComponent } from './painel-rolagem.component';
 import { RolagemApiService } from '../../services/rolagem-api.service';
 import { TipoRolagem } from '../../models/tipo-rolagem.enum';
+import { Modalidade } from '../../models/modalidade.enum';
 import { BuscaRolagemResponse } from '../../models/busca-rolagem-response.model';
 
 class MockRolagemApiService {
@@ -61,6 +62,7 @@ describe('PainelRolagemComponent', () => {
   it('should have default form values', () => {
     expect(component.form.value.quantidadeVencimentos).toBe(2);
     expect(component.form.value.tipoRolagem).toBe(TipoRolagem.POSITIVA_AUMENTO_STRIKE);
+    expect(component.form.value.modalidade).toBe(Modalidade.EUROPEIA);
     expect(component.form.value.opcao).toBe('');
   });
 
@@ -103,7 +105,7 @@ describe('PainelRolagemComponent', () => {
       strike: 33.29,
       premio: 1.74,
       rolagens: [
-        { data: '2026-07-17', opcoes: [{ nome: 'BBSEG334', premio: 2.24, strike: 33.43, delta: 0.5 }] }
+        { data: '2026-07-17', opcoes: [{ nome: 'BBSEG334', premio: 2.24, strike: 33.43, delta: 0.5, modalidade: Modalidade.AMERICANA }] }
       ]
     };
 

@@ -10,6 +10,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { TipoRolagem } from '../../models/tipo-rolagem.enum';
+import { Modalidade } from '../../models/modalidade.enum';
 import { BuscaRolagemRequest } from '../../models/busca-rolagem-request.model';
 import { BuscaRolagemResponse } from '../../models/busca-rolagem-response.model';
 import { RolagemVencimento } from '../../models/rolagem-vencimento.model';
@@ -40,18 +41,20 @@ export class PainelRolagemComponent {
   private readonly api = inject(RolagemApiService);
   form: FormGroup;
   tiposRolagem = Object.values(TipoRolagem);
+  modalidades = Object.values(Modalidade);
   vencimentos = [1, 2, 3];
   resultado?: BuscaRolagemResponse;
   carregando = false;
   erro?: string;
 
-  colunasTabela = ['nome', 'vencimento', 'strike', 'premio', 'delta'];
+  colunasTabela = ['nome', 'vencimento', 'strike', 'premio', 'delta', 'modalidade'];
 
   constructor() {
     this.form = this.fb.group({
       opcao: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(8)]],
       quantidadeVencimentos: [2, Validators.required],
-      tipoRolagem: [TipoRolagem.POSITIVA_AUMENTO_STRIKE, Validators.required]
+      tipoRolagem: [TipoRolagem.POSITIVA_AUMENTO_STRIKE, Validators.required],
+      modalidade: [Modalidade.EUROPEIA, Validators.required]
     });
   }
 

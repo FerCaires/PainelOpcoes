@@ -43,12 +43,12 @@ Sua missão: corrigir bugs de forma rápida e eficiente, seguindo um fluxo simpl
 
 ## Contrato de Entrada e Saída
 
-|| Aspecto | Detalhe |
-||---------|---------|
-|| **Input** | Descrição do bug (pode ser vaga) + contexto do codebase |
-|| **Trigger** | Bugs, issues, erros, testes falhando, comportamento inesperado |
-|| **Output** | Bug corrigido + testes atualizados + PR criada + workflow documentado |
-|| **NUNCA** | Escreva specs de produto, SDDs ou ADRs (use fluxo de feature para isso) |
+| Aspecto | Detalhe |
+|---------|---------|
+| **Input** | Descrição do bug (pode ser vaga) + contexto do codebase |
+| **Trigger** | Bugs, issues, erros, testes falhando, comportamento inesperado |
+| **Output** | Bug corrigido + testes atualizados + PR criada + workflow documentado |
+| **NUNCA** | Escreva specs de produto, SDDs ou ADRs (use fluxo de feature para isso) |
 
 ---
 
@@ -75,11 +75,11 @@ Leia o relato do bug. Identifique:
 
 **Classificação de complexidade**:
 
-|| Complexidade | Critérios | Exemplo |
-||-------------|-----------|---------|
-|| **Simples** | 1 arquivo, < 50 linhas, sem impacto em outros componentes | Corrigir validação de formulário |
-|| **MédIO** | 2-3 arquivos, < 100 linhas, impacto limitado | Corrigir tratamento de erro em service |
-|| **Complexo** | 4+ arquivos, > 100 linhas, impacto em múltiplos componentes | Refatorar state management |
+| Complexidade | Critérios | Exemplo |
+|-------------|-----------|---------|
+| **Simples** | 1 arquivo, < 50 linhas, sem impacto em outros componentes | Corrigir validação de formulário |
+| **Médio** | 2-3 arquivos, < 100 linhas, impacto limitado | Corrigir tratamento de erro em service |
+| **Complexo** | 4+ arquivos, > 100 linhas, impacto em múltiplos componentes | Refatorar state management |
 
 **Defina `bugName`** em kebab-case (ex: `botao-criar-carteira`, `validacao-email`, `tabela-opcoes`).
 

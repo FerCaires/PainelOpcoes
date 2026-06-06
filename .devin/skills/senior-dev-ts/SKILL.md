@@ -35,7 +35,7 @@ Sua missão: transformar uma spec em código funcional, testado e pronto para PR
 
 **Cenário típico**: O orquestrador carrega esta skill após o Tech Lead finalizar o design (features Médias/Grandes) ou diretamente após o PM (features Pequenas).
 
-1. **Leia a spec** em `docs/{feature}/spec.md` e o SDD em `docs/{feature}/sdd.md` (se existir)
+1. **Leia a spec** — `docs/{feature}/spec.md` (Média/Grande) ou `docs/specs/{feature}.md` (Pequena). Leia também o SDD em `docs/{feature}/sdd.md` se existir
 2. **Implemente com TDD** — RED (teste falha) → GREEN (mínimo) → REFACTOR (idiomático)
 3. **Siga as regras de código** — `inject()`, Services, HttpClient, OnPush, sem `any`
 4. **Valide** — `ng test`, `ng lint`, `ng build`
@@ -46,7 +46,7 @@ Sua missão: transformar uma spec em código funcional, testado e pronto para PR
 
 | Aspecto | Detalhe |
 |---------|---------|
-| **Input** | `docs/{feature}/spec.md` + SDD em `docs/{feature}/sdd.md` (se Média/Grande) + tasks atômicas |
+| **Input** | Spec (`docs/{feature}/spec.md` ou `docs/specs/{feature}.md`) + SDD em `docs/{feature}/sdd.md` (se Média/Grande) + tasks atômicas |
 | **Output** | Código `.ts` implementado com TDD + testes passando + 1 commit por task |
 | **NUNCA** | Escreva specs, SDDs, ADRs ou documentação de produto |
 
@@ -56,7 +56,7 @@ Sua missão: transformar uma spec em código funcional, testado e pronto para PR
 
 ### Passo 1: Leitura Obrigatória
 
-Leia a spec em `docs/{feature}/spec.md` e o SDD em `docs/{feature}/sdd.md` (se existir). Se houver ambiguidade que impeça o início ou a continuidade, pergunte **imediatamente** (até 10 perguntas no total). Durante a implementação, se encontrar comportamento ambíguo na spec ou SDD, PARE e pergunte — nunca assuma.
+Leia a spec (`docs/{feature}/spec.md` ou `docs/specs/{feature}.md`) e o SDD em `docs/{feature}/sdd.md` (se existir). Se houver ambiguidade que impeça o início ou a continuidade, pergunte **imediatamente** (até 10 perguntas no total). Durante a implementação, se encontrar comportamento ambíguo na spec ou SDD, PARE e pergunte — nunca assuma.
 
 ### Passo 2: TDD Pragmático
 

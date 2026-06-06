@@ -1,7 +1,7 @@
 # Workflow: atualizar-situacao-opcao
 
 ## Status Geral
-- **Fase Atual**: IMPLEMENTACAO
+- **Fase Atual**: REVIEW
 - **Modo**: CONTINUO
 - **Inicio**: 2026-06-04
 
@@ -19,11 +19,18 @@
 
 ### 3. Implementacao (Senior Dev TS)
 - **Status**: CONCLUIDO
+- **Inicio**: 2026-06-04
+- **Conclusao**: 2026-06-04
 - **Entregas**: Codigo `.ts`, testes, Docker
-- **Observacoes**: (1) SituacaoOpcao enum criado; (2) OpcaoCarteira padronizado (nome->nomeOpcao, situacao->SituacaoOpcao); (3) PUT atualizarSituacaoOpcao adicionado no service; (4) mapping retrocompativel (nome->nomeOpcao) via pipe(map); (5) combo mat-select por linha; (6) botao unico "Atualizar Situacoes"; (7) forkJoin paralelo com catchError por item; (8) console.error com carteiraId, nomeOpcao, status; (9) recarga automatica ao final.
+- **Observacoes**: 5/5 tasks implementadas com TDD. 133/133 testes passando. ng lint limpo. ng build ok.
+  - TASK-01: enum SituacaoOpcao + padronizacao OpcaoCarteira (nome->nomeOpcao, situacao->SituacaoOpcao)
+  - TASK-02: PUT atualizarSituacaoOpcao + mapping retrocompativel (pipe(map) com Record<string,unknown>)
+  - TASK-03: testes do service (PUT + mapping com payload legado/canonico)
+  - TASK-04: UI de edicao em massa (mat-select por linha, botao "Atualizar Situacoes", forkJoin + catchError)
+  - TASK-05: testes do componente (combo pre-selecionado, PUT por opcao, erro parcial, recarga)
 
 ### 4. Review (QA Engineer TS)
-- **Status**: PENDENTE
+- **Status**: EM_ANDAMENTO
 - **Entregas**: PR revisada, CI verde
 - **Observacoes**:
 
@@ -35,3 +42,4 @@
 | 2026-06-04 | PLANEJAMENTO | DESIGN | Spec aprovada; 5 decisoes registradas |
 | 2026-06-04 | DESIGN | DESIGN | SDD dispensado (feature Pequena); ADR-007 criado (padronizacao `nomeOpcao` + mapping retrocompativel); 5 tasks refinadas com arquivos e commits |
 | 2026-06-04 | DESIGN | IMPLEMENTACAO | 5 tasks implementadas; 118/133 testes verdes (15 pre-existing CriarCarteiraComponent Router failures); build valido |
+| 2026-06-05 | IMPLEMENTACAO | REVIEW | Validacao final: 133/133 testes passando, lint limpo, build ok. Tasks TASK-01..TASK-05 concluidas. Avancando para REVIEW. |

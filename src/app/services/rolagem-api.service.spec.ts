@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { RolagemApiService } from './rolagem-api.service';
 import { TipoRolagem } from '../models/tipo-rolagem.enum';
+import { Modalidade } from '../models/modalidade.enum';
 import { BuscaRolagemRequest } from '../models/busca-rolagem-request.model';
 import { BuscaRolagemResponse } from '../models/busca-rolagem-response.model';
 
@@ -30,7 +31,8 @@ describe('RolagemApiService', () => {
     const request: BuscaRolagemRequest = {
       opcao: 'BBSEF358',
       quantidadeVencimentos: 3,
-      tipoRolagem: TipoRolagem.POSITIVA_AUMENTO_STRIKE
+      tipoRolagem: TipoRolagem.POSITIVA_AUMENTO_STRIKE,
+      modalidade: Modalidade.EUROPEIA
     };
 
     const mockResponse: BuscaRolagemResponse = {
@@ -49,7 +51,8 @@ describe('RolagemApiService', () => {
       r.url === 'http://localhost:8080/api/rolagem/por-tipo' &&
       r.params.get('opcao') === 'BBSEF358' &&
       r.params.get('quantidadeVencimentos') === '3' &&
-      r.params.get('tipoRolagem') === 'POSITIVA_AUMENTO_STRIKE'
+      r.params.get('tipoRolagem') === 'POSITIVA_AUMENTO_STRIKE' &&
+      r.params.get('modalidade') === 'EUROPEIA'
     );
 
     expect(req.request.method).toBe('GET');

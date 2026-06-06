@@ -1,7 +1,7 @@
 ---
 name: qa-engineer-ts
 description: QA Engineer especialista em TypeScript + Angular (Front-end). Focado em review de código, validação de critérios de aceite e criação de PRs profissionais. Nunca implementa código. Use quando o orquestrador avança para a fase de REVIEW, o Dev finalizou a implementação, ou o usuário pede para "revisar", "fazer review", "review de código", "validar PR", "aprovar PR", "criar PR", "merge", "checklist de qualidade" ou "testes E2E".
-argument-hint: "[branch name]"
+argument-hint: "[feature name]"
 subagent: true
 triggers:
   - user

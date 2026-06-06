@@ -39,12 +39,12 @@ Decide **COMO** construir: arquitetura de módulos, componentes, serviços, stat
 
 ## Contrato de Entrada e Saída
 
-|| Aspecto | Detalhe |
-||---------|---------|
-|| **Input** | `docs/{feature}/spec.md` + contexto do codebase (stack, padrões) |
-|| **Trigger** | Features Médias/Grandes ou decisão técnica não-trivial |
-|| **Output** | Decisão arquitetural + ADR (se trade-off) + criação de SDD específico da feature + refinamento de tasks |
-|| **NUNCA** | Escreva código, testes, ou specs de produto |
+| Aspecto | Detalhe |
+|---------|---------|
+| **Input** | `docs/{feature}/spec.md` + contexto do codebase (stack, padrões) |
+| **Trigger** | Features Médias/Grandes ou decisão técnica não-trivial |
+| **Output** | Decisão arquitetural + ADR (se trade-off) + criação de SDD específico da feature + refinamento de tasks |
+| **NUNCA** | Escreva código, testes, ou specs de produto |
 
 ---
 
@@ -78,23 +78,23 @@ Use as ferramentas de busca para entender o projeto Angular. **NUNCA** use coman
 
 A feature requer decisão não-trivial? Avalie:
 
-|| Aspecto | Pergunta | Se sim → ADR |
-||---------|----------|--------------|
-|| **State Management** | Novo estado global? NgRx vs Signals vs Services? | ADR |
-|| **Routing** | Nova rota com lazy loading ou guards? Padrão diverge do existente? | ADR se padrão divergir |
-|| **API Integration** | Precisa de abordagem diferente do HttpClient padrão? | ADR apenas se divergir do HttpClient |
-|| **Performance** | Change detection strategy? OnPush vs Default em cenário crítico? | ADR |
-|| **Componentes** | Novo design system? Custom library vs Angular Material? | ADR |
-|| **Validação** | Reactive Forms vs Template-driven com trade-off real? | ADR |
-|| **Infra** | Novo environment ou serviço externo (Firebase, etc.)? | Nota curta, sem ADR |
+| Aspecto | Pergunta | Se sim → ADR |
+|---------|----------|--------------|
+| **State Management** | Novo estado global? NgRx vs Signals vs Services? | ADR |
+| **Routing** | Nova rota com lazy loading ou guards? Padrão diverge do existente? | ADR se padrão divergir |
+| **API Integration** | Precisa de abordagem diferente do HttpClient padrão? | ADR apenas se divergir do HttpClient |
+| **Performance** | Change detection strategy? OnPush vs Default em cenário crítico? | ADR |
+| **Componentes** | Novo design system? Custom library vs Angular Material? | ADR |
+| **Validação** | Reactive Forms vs Template-driven com trade-off real? | ADR |
+| **Infra** | Novo environment ou serviço externo (Firebase, etc.)? | Nota curta, sem ADR |
 
 **Escolha do padrão arquitetural**:
 
-|| Padrão | Use quando | Não use quando |
-||--------|-----------|--------------|
-|| **Feature-based** | CRUD simples, time pequeno, protótipo | Domínio complexo, muitos contextos |
-|| **Monolithic** | Aplicação tradicional, time pequeno | Escalabilidade crítica |
-|| **Clean Arch** | Domínio rico, regras complexas, longevidade | CRUD simples, MVP rápido, time sem experiência |
+| Padrão | Use quando | Não use quando |
+|--------|-----------|--------------|
+| **Feature-based** | CRUD simples, time pequeno, protótipo | Domínio complexo, muitos contextos |
+| **Monolithic** | Aplicação tradicional, time pequeno | Escalabilidade crítica |
+| **Clean Arch** | Domínio rico, regras complexas, longevidade | CRUD simples, MVP rápido, time sem experiência |
 
 > Para detalhes completos de Clean Architecture (estrutura de diretórios, regras de dependência), veja `references/clean-architecture.md`.
 
@@ -106,15 +106,15 @@ Revise as tasks atômicas propostas pelo PM e **refine/sugira quebras adicionais
 
 #### Checklist de Revisão de Tasks
 
-|| # | Pergunta | Ação se "Não" |
-||---|----------|---------------|
-|| 1 | Cada task cabe em 1 PR de ≤ 300 linhas? | Sugerir split em 2+ tasks |
-|| 2 | Cada task é reviewável em ≤ 15 minutos? | Reduzir escopo ou separar concerns |
-|| 3 | A task pode ser mergeada sozinha sem quebrar build? | Adicionar feature flag ou separar contrato |
-|| 4 | A task tem critério de done mensurável? | Pedir ao PM para especificar |
-|| 5 | Dependências estão claras (grafo)? | Desenhar dependências e sugerir ordem |
-|| 6 | Tasks de config/infra estão isoladas? | Separar `package.json`, `environment.ts` em task própria |
-|| 7 | Tasks de teste E2E (Cypress) estão mapeadas? | Garantir que cada critério de aceite de fluxo vire 1+ cenário |
+| # | Pergunta | Ação se "Não" |
+|---|----------|---------------|
+| 1 | Cada task cabe em 1 PR de ≤ 300 linhas? | Sugerir split em 2+ tasks |
+| 2 | Cada task é reviewável em ≤ 15 minutos? | Reduzir escopo ou separar concerns |
+| 3 | A task pode ser mergeada sozinha sem quebrar build? | Adicionar feature flag ou separar contrato |
+| 4 | A task tem critério de done mensurável? | Pedir ao PM para especificar |
+| 5 | Dependências estão claras (grafo)? | Desenhar dependências e sugerir ordem |
+| 6 | Tasks de config/infra estão isoladas? | Separar `package.json`, `environment.ts` em task própria |
+| 7 | Tasks de teste E2E (Cypress) estão mapeadas? | Garantir que cada critério de aceite de fluxo vire 1+ cenário |
 
 #### Exemplo de Refinamento
 
@@ -141,14 +141,14 @@ TASK-03c: Componente de notificação — `notificacao.component.ts` + testes de
 
 O Tech Lead deve adicionar tasks técnicas que o PM pode ter omitido:
 
-|| Task Técnica | Quando adicionar | Exemplo |
-||-------------|------------------|---------|
-|| Nova rota Angular | Nova página/rota | `app/notificacoes/notificacoes-routing.module.ts` |
-|| Configuração de environment | Novo ambiente | `environment.ts`, `environment.prod.ts` |
-|| Dependência npm | Nova biblioteca | `package.json` — `@ngrx/store`, `@angular/material` |
-|| Feature flag | Mudança sensível | `feature-flags.service.ts` + `environment.ts` |
-|| Performance | Componente pesado | `ChangeDetectionStrategy.OnPush`, `trackBy` |
-|| Analytics/Metrics | Fluxo crítico | Google Analytics, Firebase Analytics |
+| Task Técnica | Quando adicionar | Exemplo |
+|-------------|------------------|---------|
+| Nova rota Angular | Nova página/rota | `app/notificacoes/notificacoes-routing.module.ts` |
+| Configuração de environment | Novo ambiente | `environment.ts`, `environment.prod.ts` |
+| Dependência npm | Nova biblioteca | `package.json` — `@ngrx/store`, `@angular/material` |
+| Feature flag | Mudança sensível | `feature-flags.service.ts` + `environment.ts` |
+| Performance | Componente pesado | `ChangeDetectionStrategy.OnPush`, `trackBy` |
+| Analytics/Metrics | Fluxo crítico | Google Analytics, Firebase Analytics |
 
 #### Ordenação Sugerida de Tasks
 

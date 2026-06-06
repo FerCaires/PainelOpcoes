@@ -272,5 +272,5 @@ Se a spec voltar com feedback do Tech Lead, Dev ou QA:
 - Não faça commits de código
 - Não assuma requisitos que o usuário não confirmou — em caso de dúvida, pergunte
 - Não crie `docs/{feature}/tasks-*.md` (isso é duplicação — use `memoria-tasks.md`)
-- Não atualize `docs/sdd.md`
+- Não atualize `docs/sdd.md` (global) — o SDD correto é `docs/{feature}/sdd.md`
 - Não chame outras skills diretamente — apenas produza a spec e declare conclusão

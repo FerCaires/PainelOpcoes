@@ -349,7 +349,7 @@
 > Refinadas na Fase 2 (Design) por Tech Lead TS. ADR-007 criado. Decisões do usuário (Fase 1): padronizar `nomeOpcao`, manter `<mat-select>` para carteiraId, `forkJoin` paralelo, `situacao` como enum, UX simples.
 
 ### TASK-01: Criar enum SituacaoOpcao e padronizar model OpcaoCarteira
-- **Status**: PLANEJADO
+- **Status**: CONCLUIDO
 - **Arquivos**:
   - `src/app/models/situacao-opcao.enum.ts` (novo)
   - `src/app/models/opcao-carteira.model.ts` (migrar)
@@ -359,10 +359,12 @@
   3. Em `OpcaoCarteira`: migrar `situacao: string` -> `situacao: SituacaoOpcao`.
 - **Justificativa da fusão**: a renomeação e a migração do campo `situacao` são pré-requisitos da decisão #1 e #4 do usuário e ficam coesas com a criação do enum (model layer). Mantém a task em ≤ 50 linhas de diff.
 - **Critério de Done**: enum criado e importável; `OpcaoCarteira` com `nomeOpcao` e `situacao: SituacaoOpcao`; sem `any`.
+- **Data de Conclusão**: 2026-06-04
 - **Commit**: `feat: atualizar-situacao-opcao - criar enum SituacaoOpcao e padronizar model OpcaoCarteira`
 
 ### TASK-02: Adicionar PUT de situacao e mapping retrocompativel no CarteiraApiService
-- **Status**: PLANEJADO
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-06-04
 - **Arquivo**: `src/app/services/carteira-api.service.ts`
 - **Descrição**:
   1. Adicionar `atualizarSituacaoOpcao(carteiraId: string, nomeOpcao: string, situacao: SituacaoOpcao): Observable<OpcaoCarteira>` que faz `PUT ${baseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}` com body `{ situacao }`, headers `Content-Type: application/json` (definidos implicitamente pelo `HttpClient.put` com objeto), e `catchError` no pipe RxJS propagando o erro (sem tratar status específico — erro 500 etc. vão para o componente, que loga e continua).
@@ -371,7 +373,8 @@
 - **Commit**: `feat: atualizar-situacao-opcao - adicionar PUT de situacao e mapping retrocompativel no service`
 
 ### TASK-03: Testes do service (PUT e mapping)
-- **Status**: PLANEJADO
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-06-04
 - **Arquivo**: `src/app/services/carteira-api.service.spec.ts`
 - **Descrição**:
   1. Atualizar mocks existentes: `nome: 'PETR4123'` -> `nomeOpcao: 'PETR4123'`; `situacao: 'ABERTA'` -> `situacao: SituacaoOpcao.ABERTA`. Ajustar imports.
@@ -386,7 +389,8 @@
 - **Commit**: `test: atualizar-situacao-opcao - testes do PUT e mapping no CarteiraApiService`
 
 ### TASK-04: UI de edicao em massa no AdicionarOpcaoComponent
-- **Status**: PLANEJADO
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-06-04
 - **Arquivos**:
   - `src/app/components/adicionar-opcao/adicionar-opcao.component.ts`
   - `src/app/components/adicionar-opcao/adicionar-opcao.component.html`
@@ -407,7 +411,8 @@
 - **Commit**: `feat: atualizar-situacao-opcao - UI de edicao em massa no AdicionarOpcaoComponent`
 
 ### TASK-05: Testes do fluxo de atualizacao em massa no AdicionarOpcaoComponent
-- **Status**: PLANEJADO
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-06-04
 - **Arquivo**: `src/app/components/adicionar-opcao/adicionar-opcao.component.spec.ts`
 - **Descrição**:
   1. Atualizar mocks existentes: `nome: 'PETR4123'` -> `nomeOpcao: 'PETR4123'`; `situacao: 'ABERTA'` -> `situacao: SituacaoOpcao.ABERTA`. Ajustar imports (adicionar `SituacaoOpcao`).
