@@ -32,6 +32,13 @@ export const routes: Routes = [
     data: { title: 'Adicionar Opção à Carteira' }
   },
   {
+    path: 'simulacao-meta-premio',
+    loadComponent: () =>
+      import('./components/simulacao-meta-premio/simulacao-meta-premio.component')
+        .then(m => m.SimulacaoMetaPremioComponent),
+    data: { title: 'Meta de Prêmio' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

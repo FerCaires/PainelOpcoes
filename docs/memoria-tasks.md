@@ -427,3 +427,17 @@
      - **Botão desabilitado durante iteração**: durante o subscribe do `forkJoin` (simular observable que ainda não emitiu), `atualizandoEmMassa === true` e `podeAtualizarEmMassa === false`.
 - **Critério de Done**: testes passam, cobertura > 80% no novo fluxo.
 - **Commit**: `test: atualizar-situacao-opcao - testes do fluxo de atualizacao em massa no AdicionarOpcaoComponent`
+
+## Feature: simulacao-meta-premio (F-024)
+
+### TASK-01 a TASK-47
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-10-01
+- **Arquivos**:
+  - `src/app/models/tipo-opcao.enum.ts`, `moneyness.enum.ts`, `tipo-notional.enum.ts`, `acao.model.ts`, `simulacao-opcao-item.model.ts`, `simulacao-meta-premio-response.model.ts`, `api-errors.model.ts`
+  - `src/app/utils/formatacao.ts`, `maior-que-zero.validator.ts`, `simulacao-meta-premio-mensagens.ts`
+  - `src/app/services/acao-api.service.ts`, `simulacao-meta-premio-api.service.ts`
+  - `src/app/components/simulacao-meta-premio/`
+  - `src/app/app.routes.ts`, `src/app/components/header-menu/`
+- **Descrição**: Tela `/simulacao-meta-premio` com menu **Meta de Prêmio**, consumo de `GET /acoes` e `GET /simulacao-meta-premio`, formatação pt-BR e tratamento de erros da spec F-024 (AC-01..AC-18).
+- **Critério de Done**: `ng lint` limpo, `ng build` ok, testes da feature passando em ChromiumHeadless
