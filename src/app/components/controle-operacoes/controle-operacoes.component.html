@@ -1,0 +1,447 @@
+<app-header-menu></app-header-menu>
+
+<main class="controle-operacoes">
+  <section class="controle-operacoes-container">
+    <mat-card class="card">
+      <mat-card-header>
+        <mat-card-title>Controle de Operações</mat-card-title>
+        <mat-card-subtitle>
+          Lance vendas de opções, importe a planilha e acompanhe os resumos sem recalcular no painel.
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <section class="cadastro" aria-label="Cadastro de lançamento">
+          <div class="cadastro-cabecalho">
+            <div>
+              <h2 class="secao-titulo">Cadastro de lançamento</h2>
+              <p class="secao-ajuda">Recolhido por padrão para a tela ficar limpa. Abra só quando for lançar ou editar.</p>
+            </div>
+            <button
+              *ngIf="!cadastroAberto()"
+              mat-raised-button
+              type="button"
+              class="botao-cadastro"
+              [attr.aria-expanded]="false"
+              aria-controls="formulario-lancamento"
+              (click)="abrirCadastro()">
+              Novo lançamento
+            </button>
+            <button
+              *ngIf="cadastroAberto() && !emEdicao()"
+              mat-stroked-button
+              type="button"
+              class="botao-fechar-cadastro"
+              [attr.aria-expanded]="true"
+              aria-controls="formulario-lancamento"
+              (click)="fecharCadastro()">
+              Fechar cadastro
+            </button>
+          </div>
+
+          <form
+            *ngIf="cadastroAberto()"
+            id="formulario-lancamento"
+            [formGroup]="form"
+            (ngSubmit)="salvar()"
+            class="formulario-cadastro">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Ticker</mat-label>
+              <input
+                matInput
+                formControlName="nomeOpcao"
+                maxlength="12"
+                autocomplete="off"
+                aria-label="Ticker da opção" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Corretora</mat-label>
+              <input matInput formControlName="corretora" maxlength="40" aria-label="Corretora" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Data aplicação</mat-label>
+              <input matInput type="date" formControlName="dataAplicacao" aria-label="Data aplicação" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Tipo</mat-label>
+              <mat-select formControlName="tipo" aria-label="Tipo">
+                <mat-option *ngFor="let tipo of tiposOpcao" [value]="tipo">{{ tipo }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Ativo</mat-label>
+              <input
+                matInput
+                formControlName="nomeAcao"
+                maxlength="12"
+                autocomplete="off"
+                aria-label="Ativo" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Strike</mat-label>
+              <input matInput type="number" formControlName="strike" min="0" step="any" aria-label="Strike" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Prêmio</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="valorPremio"
+                min="0"
+                step="any"
+                aria-label="Prêmio" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Quantidade</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="quantidade"
+                min="1"
+                step="1"
+                aria-label="Quantidade" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Data finalização</mat-label>
+              <input
+                matInput
+                type="date"
+                formControlName="dataFinalizacao"
+                aria-label="Data finalização" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Custo</mat-label>
+              <input matInput type="number" formControlName="custo" min="0" step="any" aria-label="Custo" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Valor IR</mat-label>
+              <input matInput type="number" formControlName="valorIr" min="0" step="any" aria-label="Valor IR" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Data pag. IR</mat-label>
+              <input
+                matInput
+                type="date"
+                formControlName="dataPagamentoIr"
+                aria-label="Data pagamento IR" />
+            </mat-form-field>
+
+            <mat-checkbox formControlName="irPago" class="check">IR pago</mat-checkbox>
+            <mat-checkbox formControlName="exercido" class="check">Exercido</mat-checkbox>
+
+            <div class="acoes-formulario">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                class="botao-salvar"
+                [disabled]="!podeSalvar()">
+                Salvar
+              </button>
+              <button
+                *ngIf="emEdicao()"
+                mat-stroked-button
+                type="button"
+                class="botao-cancelar"
+                (click)="cancelarEdicao()">
+                Cancelar
+              </button>
+              <button
+                *ngIf="emEdicao()"
+                mat-stroked-button
+                color="warn"
+                type="button"
+                class="botao-excluir"
+                [disabled]="!podeExcluir()"
+                (click)="confirmarExclusao()">
+                Excluir
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="importacao" aria-label="Importar planilha">
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            (change)="selecionarArquivo($event)"
+            aria-label="Arquivo CSV" />
+          <button
+            mat-stroked-button
+            type="button"
+            class="botao-importar"
+            [disabled]="!podeImportar()"
+            (click)="importar()">
+            Importar
+          </button>
+        </section>
+
+        <div
+          *ngIf="emOperacao()"
+          class="loading"
+          role="status"
+          aria-live="polite"
+          aria-label="Carregando">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <p *ngIf="erroLista()" class="erro-lista" role="alert">{{ erroLista() }}</p>
+        <p *ngIf="erroCadastro()" class="erro-cadastro" role="alert">{{ erroCadastro() }}</p>
+        <p *ngIf="erroExclusao()" class="erro-exclusao" role="alert">{{ erroExclusao() }}</p>
+        <p *ngIf="erroImportacao()" class="erro-importacao" role="alert">{{ erroImportacao() }}</p>
+
+        <section *ngIf="resultadoImportacao() as resultado" class="relatorio" role="status">
+          <dl class="totais">
+            <div>
+              <dt>Criadas</dt>
+              <dd>{{ resultado.totalCriadas }}</dd>
+            </div>
+            <div>
+              <dt>Atualizadas</dt>
+              <dd>{{ resultado.totalAtualizadas }}</dd>
+            </div>
+            <div>
+              <dt>Ignoradas</dt>
+              <dd>{{ resultado.totalIgnoradas }}</dd>
+            </div>
+          </dl>
+          <ul *ngIf="resultado.erros.length > 0" class="erros-importacao">
+            <li *ngFor="let erro of resultado.erros">
+              Linha {{ erro.linha }}: {{ erro.mensagem }}
+            </li>
+          </ul>
+        </section>
+
+        <section *ngIf="resumo() as resumo" class="resumos" aria-label="Resumos">
+          <h2 class="secao-titulo">Resumos</h2>
+          <ng-container *ngTemplateOutlet="filtrosTpl; context: { rotulo: 'Filtros do resumo' }"></ng-container>
+
+          <dl class="totais">
+            <div>
+              <dt>Acumulado</dt>
+              <dd>{{ formatarDinheiro(resumo.acumulado) }}</dd>
+            </div>
+          </dl>
+
+          <div class="graficos">
+            <app-grafico-barras-resumo
+              *ngIf="barrasMes().length > 0"
+              titulo="Lucro por mês"
+              [itens]="barrasMes()" />
+            <app-grafico-barras-resumo
+              *ngIf="barrasAno().length > 0"
+              titulo="Lucro por ano"
+              [itens]="barrasAno()" />
+            <app-grafico-barras-resumo
+              *ngIf="barrasAtivo().length > 0"
+              titulo="Lucro por ativo"
+              [itens]="barrasAtivo()" />
+          </div>
+
+          <div *ngIf="resumo.porMes.length > 0" class="tabela-wrapper">
+            <table class="tabela resumo-tabela">
+              <thead>
+                <tr>
+                  <th>Mês</th>
+                  <th>Lucro</th>
+                  <th>Rendimento</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of resumo.porMes">
+                  <td>{{ item.anoMes }}</td>
+                  <td>{{ formatarDinheiro(item.lucro) }}</td>
+                  <td>{{ formatarRendimento(item.rendimento) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="resumo.porAno.length > 0" class="tabela-wrapper">
+            <table class="tabela resumo-tabela">
+              <thead>
+                <tr>
+                  <th>Ano</th>
+                  <th>Lucro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of resumo.porAno">
+                  <td>{{ item.ano }}</td>
+                  <td>{{ formatarDinheiro(item.lucro) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="resumo.porAtivo.length > 0" class="tabela-wrapper">
+            <table class="tabela resumo-tabela">
+              <thead>
+                <tr>
+                  <th>Ativo</th>
+                  <th>Lucro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of resumo.porAtivo">
+                  <td>{{ item.nomeAcao }}</td>
+                  <td>{{ formatarDinheiro(item.lucro) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="operacoes" aria-label="Operações">
+          <h2 class="secao-titulo">Operações</h2>
+          <ng-container *ngTemplateOutlet="filtrosTpl; context: { rotulo: 'Filtros da tabela' }"></ng-container>
+
+          <p *ngIf="listaVazia()" class="msg-lista-vazia">{{ msgListaVazia() }}</p>
+
+          <div *ngIf="operacoes().length > 0" class="tabela-wrapper">
+            <table
+              mat-table
+              [dataSource]="operacoes()"
+              [trackBy]="trackById"
+              class="tabela">
+              <ng-container matColumnDef="nomeOpcao">
+                <th mat-header-cell *matHeaderCellDef>Ticker</th>
+                <td mat-cell *matCellDef="let row">{{ row.nomeOpcao }}</td>
+              </ng-container>
+              <ng-container matColumnDef="corretora">
+                <th mat-header-cell *matHeaderCellDef>Corretora</th>
+                <td mat-cell *matCellDef="let row">{{ row.corretora || '—' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="dataAplicacao">
+                <th mat-header-cell *matHeaderCellDef>Data aplicação</th>
+                <td mat-cell *matCellDef="let row">{{ formatarData(row.dataAplicacao) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let row">{{ row.tipo }}</td>
+              </ng-container>
+              <ng-container matColumnDef="nomeAcao">
+                <th mat-header-cell *matHeaderCellDef>Ativo</th>
+                <td mat-cell *matCellDef="let row">{{ row.nomeAcao }}</td>
+              </ng-container>
+              <ng-container matColumnDef="strike">
+                <th mat-header-cell *matHeaderCellDef>Strike</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.strike) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="precoAtual">
+                <th mat-header-cell *matHeaderCellDef>Preço atual</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.precoAtual) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="valorPremio">
+                <th mat-header-cell *matHeaderCellDef>Prêmio</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.valorPremio) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="quantidade">
+                <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+                <td mat-cell *matCellDef="let row">{{ row.quantidade }}</td>
+              </ng-container>
+              <ng-container matColumnDef="dataFinalizacao">
+                <th mat-header-cell *matHeaderCellDef>Data finalização</th>
+                <td mat-cell *matCellDef="let row">{{ formatarData(row.dataFinalizacao) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="margemNecessaria">
+                <th mat-header-cell *matHeaderCellDef>Margem</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.margemNecessaria) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="dataPagamentoIr">
+                <th mat-header-cell *matHeaderCellDef>Data pag. IR</th>
+                <td mat-cell *matCellDef="let row">{{ formatarData(row.dataPagamentoIr) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="custo">
+                <th mat-header-cell *matHeaderCellDef>Custo</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.custo) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="valorIr">
+                <th mat-header-cell *matHeaderCellDef>Valor IR</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.valorIr) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="irPago">
+                <th mat-header-cell *matHeaderCellDef>IR pago</th>
+                <td mat-cell *matCellDef="let row">{{ formatarSimNao(row.irPago) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="lucroLiquido">
+                <th mat-header-cell *matHeaderCellDef>Lucro líquido</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.lucroLiquido) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="exercido">
+                <th mat-header-cell *matHeaderCellDef>Exercido</th>
+                <td mat-cell *matCellDef="let row">{{ formatarSimNao(row.exercido) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="rendimento">
+                <th mat-header-cell *matHeaderCellDef>Rendimento</th>
+                <td mat-cell *matCellDef="let row">{{ formatarRendimento(row.rendimento) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="totalAcumulado">
+                <th mat-header-cell *matHeaderCellDef>Total</th>
+                <td mat-cell *matCellDef="let row">{{ formatarDinheiro(row.totalAcumulado) }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: colunasTabela"
+                (click)="selecionarOperacao(row)"
+                [class.selecionada]="idEdicao() === row.id"></tr>
+            </table>
+          </div>
+        </section>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</main>
+
+<ng-template #filtrosTpl let-rotulo="rotulo">
+  <div class="filtros" role="group" [attr.aria-label]="rotulo">
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Ação</mat-label>
+      <mat-select
+        [value]="filtroAcao()"
+        [disabled]="emOperacao()"
+        (selectionChange)="alterarFiltroAcao($event.value)"
+        aria-label="Filtro ação">
+        <mat-option [value]="null">Todos</mat-option>
+        <mat-option *ngFor="let acao of acoesVistas()" [value]="acao">{{ acao }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Mês</mat-label>
+      <mat-select
+        [value]="filtroMes()"
+        [disabled]="emOperacao()"
+        (selectionChange)="alterarFiltroMes($event.value)"
+        aria-label="Filtro mês">
+        <mat-option [value]="null">Todos</mat-option>
+        <mat-option *ngFor="let mes of meses" [value]="mes.valor">{{ mes.nome }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo">
+      <mat-label>Ano</mat-label>
+      <mat-select
+        [value]="filtroAno()"
+        [disabled]="emOperacao()"
+        (selectionChange)="alterarFiltroAno($event.value)"
+        aria-label="Filtro ano">
+        <mat-option [value]="null">Todos</mat-option>
+        <mat-option *ngFor="let ano of anosVistos()" [value]="ano">{{ ano }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</ng-template>

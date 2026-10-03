@@ -4,6 +4,7 @@ import {
   formatarDataIso,
   formatarMonetario,
   formatarPercentual,
+  formatarPercentual3,
   formatarTipoNotional
 } from './formatacao';
 
@@ -35,6 +36,15 @@ describe('formatacao', () => {
   it('formata percentual negativo com hífen ASCII', () => {
     expect(formatarPercentual(-0.0028)).toBe('-0,28%');
     expect(formatarPercentual(-0.0028).charCodeAt(0)).toBe(45);
+  });
+
+  it('formata percentual com 3 casas a partir da razão', () => {
+    expect(formatarPercentual3(0.024072)).toBe('2,407%');
+  });
+
+  it('formata percentual de 3 casas negativo com hífen ASCII', () => {
+    expect(formatarPercentual3(-0.024072)).toBe('-2,407%');
+    expect(formatarPercentual3(-0.024072).charCodeAt(0)).toBe(45);
   });
 
   it('mapeia tipoNotional ACOES para Ações', () => {

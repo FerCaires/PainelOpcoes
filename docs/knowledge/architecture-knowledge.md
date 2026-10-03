@@ -49,7 +49,9 @@ src/
 │   │   ├── criar-carteira/           # rota /carteira/criar (lazy)
 │   │   ├── adicionar-opcao/          # rota /carteira/:id/adicionar-opcao (lazy)
 │   │   ├── simulacao-meta-premio/    # rota /simulacao-meta-premio (lazy) — F-024
-│   │   └── gestao-acoes/             # rota /acoes (lazy) — F-027
+│   │   ├── gestao-acoes/             # rota /acoes (lazy) — F-027
+│   │   ├── controle-operacoes/       # rota /controle-operacoes (lazy) — F-029 / F-030
+│   │   └── grafico-barras-resumo/    # SVG de lucro — F-030
 │   ├── models/                       # interfaces e enums (sem pasta features/)
 │   ├── services/                     # HttpClient, providedIn: 'root'
 │   ├── utils/                        # funções puras (formatação, validators) — F-024
@@ -74,6 +76,7 @@ Convenções de arquivo de componente: `{nome}.component.ts` + `.html` + `.scss`
 | Componente | Local | Propósito | Notas |
 |------------|-------|-----------|-------|
 | `HeaderMenuComponent` | `components/header-menu/` | Navegação compartilhada | Importar no template de **toda** tela de produto. Não remover nem renomear itens existentes ao incluir um novo (BR-UI-08). Já usa `inject()` e signals. |
+| `GraficoBarrasResumoComponent` | `components/grafico-barras-resumo/` | Barras SVG de lucro | F-030. `input()` titulo + itens `{rotulo, valor}`. Sem Chart.js. Lucro negativo para baixo. |
 | `AppComponent` | `app.component.ts` | Bootstrap | Apenas `RouterOutlet`. Não colocar header aqui. |
 | `environment.apiBaseUrl` | `src/environments/` | Base HTTP | Sempre concatenar paths a partir daqui. Sem URL hardcoded nova. Sem env var extra. |
 | `ApiError` | `models/api-errors.model.ts` | Classe base de erro de API | Estender para erros de domínio com `mensagem` (ex.: `CarteiraDuplicadaError`, `SimulacaoMetaPremioError`). |
@@ -89,6 +92,7 @@ Convenções de arquivo de componente: `{nome}.component.ts` + `.html` + `.scss`
 | `AcaoApiService` | `GET /acoes`, `POST /acoes` | F-024 `listar`: falha → genérico, **sem** ler `mensagem`. F-027 `criar`: 4xx → `mensagem` (BR-UI-28); 5xx/rede → genérico de cadastro |
 | `SimulacaoMetaPremioApiService` | `GET /simulacao-meta-premio` | F-024. 4xx com envelope → `SimulacaoMetaPremioError` com `mensagem`; 5xx/rede → mensagem genérica da spec |
 | `AtualizacaoApiService` | `POST /atualizacao/executar` | F-027. Qualquer falha → mensagem genérica de cotações |
+| `OperacaoApiService` | `GET/POST /operacoes`, `PUT/DELETE /operacoes/{id}`, `POST /operacoes/importar` | F-029. GET com `HttpParams` opcionais; GET falha genérica; 4xx de escrita/import → `OperacaoErro.mensagem` |
 
 Padrão de serviço novo:
 
@@ -172,6 +176,11 @@ O Painel **não** possui schema, migration, IndexedDB nem cache de simulação. 
 | POST | `/acoes` | `AcaoApiService.criar` (F-027) |
 | POST | `/atualizacao/executar` | `AtualizacaoApiService` (F-027) |
 | GET | `/simulacao-meta-premio` | `SimulacaoMetaPremioApiService` (F-024 / F-026) |
+| GET | `/operacoes` | `OperacaoApiService` (F-029). Query opcional `nomeAcao`, `ano`, `mes` |
+| POST | `/operacoes` | `OperacaoApiService.criar` |
+| PUT | `/operacoes/{id}` | `OperacaoApiService.atualizar` |
+| DELETE | `/operacoes/{id}` | `OperacaoApiService.excluir` |
+| POST | `/operacoes/importar` | `OperacaoApiService.importar` (`FormData` campo `file`) |
 
 Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
 
@@ -185,6 +194,7 @@ Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
 | `painel-rolagem` | eager | `PainelRolagemComponent` | Busca de Rolagens |
 | `simulacao-meta-premio` | **lazy** `loadComponent` | `SimulacaoMetaPremioComponent` | Meta de Prêmio |
 | `acoes` | **lazy** `loadComponent` | `GestaoAcoesComponent` | Ações |
+| `controle-operacoes` | **lazy** `loadComponent` | `ControleOperacoesComponent` | Controle |
 | `carteira` | lazy | `CarteiraComponent` | Carteira |
 | `carteira/criar` | lazy | `CriarCarteiraComponent` | (fluxo Carteira) |
 | `carteira/:id/adicionar-opcao` | lazy | `AdicionarOpcaoComponent` | (fluxo Carteira) |
@@ -192,7 +202,7 @@ Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
 
 Telas novas de produto: **lazy `loadComponent`**, no padrão carteira — não eager como `painel-rolagem` (débito histórico da landing).
 
-Ordem do menu (F-027): Home, Busca de Rolagens, Meta de Prêmio, Ações, Carteira.
+Ordem do menu (F-029): Home, Busca de Rolagens, Meta de Prêmio, Ações, Carteira, Controle.
 
 ---
 
@@ -275,3 +285,5 @@ ADRs de feature vivem no `architecture.md` da feature quando o trade-off for peq
 - 2026-10-01 · F-024: rota lazy `/simulacao-meta-premio`; item de menu "Meta de Prêmio"; `AcaoApiService` + `SimulacaoMetaPremioApiService`; models/enums de simulação; `SimulacaoMetaPremioError`; `src/app/utils/` para formatação e validator `maiorQueZero`; padrão signals + OnPush para tela nova; sem persistência, sem interceptor, sem env var nova.
 - 2026-10-02 · F-026: seletor de modo na mesma tela; `SimulacaoRequest`; validators `multiploDeCem`; sem rota nova.
 - 2026-10-02 · F-027: rota lazy `/acoes`; item de menu "Ações"; `AcaoApiService.criar`; `AtualizacaoApiService`; `AcaoCadastroError`; `dataAtualizacao` opcional em `Acao`; sem DELETE no cliente.
+- 2026-10-03 · F-029: rota lazy `/controle-operacoes`; `OperacaoApiService`; models de operação/resumo/importação.
+- 2026-10-03 · F-030: `GraficoBarrasResumoComponent` (SVG, sem Chart.js); cadastro com `*ngIf` + signal; filtros duplicados na UI com estado único.

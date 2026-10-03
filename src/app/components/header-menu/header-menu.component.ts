@@ -23,7 +23,8 @@ export class HeaderMenuComponent {
     { label: 'Busca de Rolagens', route: '/painel-rolagem', icon: '🔍' },
     { label: 'Meta de Prêmio', route: '/simulacao-meta-premio', icon: '🎯' },
     { label: 'Ações', route: '/acoes', icon: '📈' },
-    { label: 'Carteira', route: '/carteira', icon: '💼' }
+    { label: 'Carteira', route: '/carteira', icon: '💼' },
+    { label: 'Controle', route: '/controle-operacoes', icon: '📋' }
   ];
 
   readonly isMenuOpen = signal(false);

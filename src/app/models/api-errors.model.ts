@@ -43,3 +43,10 @@ export class AcaoCadastroError extends ApiError {
     this.name = 'AcaoCadastroError';
   }
 }
+
+export class OperacaoErro extends ApiError {
+  constructor(message: string, status: number, code?: string) {
+    super(message, status, code);
+    this.name = 'OperacaoErro';
+  }
+}

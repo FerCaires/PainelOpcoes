@@ -56,6 +56,10 @@ Os termos abaixo coincidem com o glossário do backend. Não inventar sinônimos
 | **Rolagem** | Substituição de uma opção próxima do vencimento por outra com vencimento posterior | Simulação |
 | **Landing** | Página inicial educativa do Painel (Home). Não concentra telas operacionais de simulação | Tela de simulação |
 | **Atualização de cotações** | Processo do backend que busca opções/prêmios na API externa e grava `precoSpot`; na UI é disparo manual em `/acoes` | Simulação |
+| **Operação** | Lançamento de venda de opção na tela Controle: ticker da opção, ativo, strike, prêmio, quantidade, datas, IR informado, custo; lucro/margem/rendimento vêm da API | Simulação; item da Carteira |
+| **IR informado** | Valor de IR lançado pelo investidor (default 0); o Painel não calcula IR | Lucro líquido |
+| **Importação de planilha** | Envio do CSV de operações para `POST /api/operacoes/importar`; a UI não interpreta o arquivo | Cadastro manual |
+| **Resumo de operações** | Agregados devolvidos em `GET /api/operacoes`: acumulado, por mês, por ano, por ativo — já recortados pelo filtro da query | Recálculo no cliente |
 
 ---
 
@@ -111,6 +115,9 @@ Demais regras backend (BR-01 a BR-13, BR-26) não são reimplementadas na UI.
 | BR-UI-26 | A UI **não** oferece exclusão nem desativação de ação, mesmo existindo `DELETE /api/acoes` na API | F-027 |
 | BR-UI-27 | Atualização de cotações na tela de Ações é disparo **manual** via `POST /api/atualizacao/executar` (todas as ações). Não dispara sozinha no cadastro | F-027 |
 | BR-UI-28 | `POST /api/acoes` 4xx com envelope: exibir `mensagem`. `GET /api/acoes` permanece genérico (BR-UI-13). 5xx/rede de cadastro ou atualização: mensagem genérica do fluxo | F-027 |
+| BR-UI-29 | Na tela Controle, o formulário de cadastro de lançamento inicia recolhido. O investidor abre e fecha sob demanda. Clicar numa linha abre o cadastro em edição. Fechar em edição descarta o rascunho (equivale a Cancelar) | F-030 |
+| BR-UI-30 | Filtros Ação, Mês e Ano aparecem no painel de resumos **e** acima da tabela de operações. São o mesmo conjunto de valores (não filtrar resumo e tabela de formas distintas). Mudança dispara `GET /api/operacoes` com query só dos filtros diferentes de Todos | F-029; F-030 |
+| BR-UI-31 | Gráficos de barras de lucro (mês, ano, ativo) usam `resumo.porMes` / `porAno` / `porAtivo` na ordem da API, sem recálculo. Complementam as tabelas de resumo; não as substituem. Série vazia → sem gráfico daquela série. Lucro negativo é visível | F-030 |
 
 ### Regras históricas da tela de Rolagens (permanecem)
 
@@ -142,6 +149,7 @@ Aplicam-se **somente** ao formulário de busca de rolagens, não à simulação 
 | `/carteira/:id/adicionar-opcao` | Adição de opções à carteira | (fluxo de Carteira) |
 | `/simulacao-meta-premio` | Simulação de meta de prêmio | Meta de Prêmio |
 | `/acoes` | Gestão de ações (inclusão + atualizar cotações) | Ações |
+| `/controle-operacoes` | Controle de operações (lançamento, importação CSV, resumos, gráficos) | Controle |
 
 ### Campos JSON da API
 
@@ -203,6 +211,7 @@ Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). 
 | Seletor de ação (simulação) | `GET /api/acoes` | Campos usados na UI: `nomeAcao`, `nomeCompleto` (também vem `precoSpot`, possivelmente nulo) |
 | Gestão de ações | `GET /api/acoes`, `POST /api/acoes`, `POST /api/atualizacao/executar` | Inclusão (ticker 5 chars + nome); sem DELETE na UI; atualização manual de cotações |
 | Simulação de meta de prêmio | `GET /api/simulacao-meta-premio` | Query: `nomeAcao`, `tipo`, `modo` (`META_PREMIO` \| `GARANTIA` \| `QUANTIDADE_ACOES`) e o parâmetro do modo (`metaPremio`, `garantia` ou `quantidadeAcoes`) |
+| Controle de operações | `GET/POST /api/operacoes`, `PUT/DELETE /api/operacoes/{id}`, `POST /api/operacoes/importar` | GET query opcional `nomeAcao`, `ano`, `mes`. Resumo acompanha o filtro. UI não parseia CSV |
 
 Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demais telas).
 
@@ -221,6 +230,8 @@ Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demai
 | F-024 — simulacaoMetaPremio | Tela e item de menu para simular meta de prêmio mensal (consome F-023) | Meta de Prêmio, Simulação, Notional, TipoNotional, Moneyness, ROI |
 | F-026 — modosSimulacaoPremio | Seletor de modo (meta / garantia / quantidade) na mesma tela (consome F-025) | Modo de Simulação, Garantia |
 | F-027 — gestaoAcoes | Tela e item de menu para incluir ações e atualizar cotações | Ação (cadastro), Atualização de cotações |
+| F-029 — controleOperacoes | Tela Controle: listar, cadastrar, editar, excluir, importar CSV, resumos e filtros no servidor | Operação, IR informado, Importação de planilha, Resumo de operações |
+| F-030 — uxControleOperacoes | Cadastro recolhível, filtros junto de resumos e tabela, gráficos de lucro | BR-UI-29, BR-UI-30, BR-UI-31 |
 
 ---
 
@@ -230,3 +241,5 @@ Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demai
 - 2026-10-01 · Gate 1 W-02: BR-UI-13 restrita — envelope `mensagem` só na simulação; `GET /api/acoes` sempre mensagem genérica.
 - 2026-10-02 · F-026: modos de simulação na tela Meta de Prêmio; BR-UI-23 e BR-UI-24.
 - 2026-10-02 · F-027: tela `/acoes` para incluir ações e disparar atualização de cotações; BR-UI-25 a BR-UI-28; sem exclusão na UI.
+- 2026-10-03 · F-029 registrada no knowledge (tela Controle; rota `/controle-operacoes`; termos Operação, IR informado, Importação, Resumo).
+- 2026-10-03 · F-030: BR-UI-29 (cadastro recolhido), BR-UI-30 (filtros nos resumos e na tabela, mesmo estado), BR-UI-31 (gráficos de lucro sem recálculo).

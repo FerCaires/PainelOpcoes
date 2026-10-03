@@ -33,6 +33,16 @@ export function formatarPercentual(razao: number): string {
   return `${formatado}%`;
 }
 
+const FORMATADOR_PERCENTUAL_3 = new Intl.NumberFormat('pt-BR', {
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3
+});
+
+export function formatarPercentual3(razao: number): string {
+  const formatado = FORMATADOR_PERCENTUAL_3.format(razao * 100).replace(/\u2212/g, '-');
+  return `${formatado}%`;
+}
+
 export function formatarTipoNotional(tipo: TipoNotional): string {
   return tipo === TipoNotional.ACOES ? 'Ações' : 'Caixa';
 }

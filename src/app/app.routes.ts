@@ -46,6 +46,13 @@ export const routes: Routes = [
     data: { title: 'Ações' }
   },
   {
+    path: 'controle-operacoes',
+    loadComponent: () =>
+      import('./components/controle-operacoes/controle-operacoes.component')
+        .then(m => m.ControleOperacoesComponent),
+    data: { title: 'Controle de Operações' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

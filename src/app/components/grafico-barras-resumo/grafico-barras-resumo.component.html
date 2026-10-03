@@ -1,0 +1,40 @@
+<figure class="grafico">
+  <figcaption class="titulo">{{ titulo() }}</figcaption>
+  <svg
+    class="canvas"
+    [attr.viewBox]="'0 0 ' + largura + ' ' + altura"
+    role="img"
+    [attr.aria-label]="ariaLabel()"
+    preserveAspectRatio="xMidYMid meet">
+    <line
+      class="eixo"
+      [attr.x1]="0"
+      [attr.x2]="largura"
+      [attr.y1]="layout().linhaZero"
+      [attr.y2]="layout().linhaZero" />
+    <g *ngFor="let barra of layout().barras; trackBy: trackRotulo">
+      <rect
+        [attr.x]="barra.x"
+        [attr.y]="barra.y"
+        [attr.width]="barra.largura"
+        [attr.height]="barra.altura"
+        [class.positiva]="!barra.negativo"
+        [class.negativa]="barra.negativo">
+        <title>{{ barra.rotulo }}: {{ formatarValor(barra.valor) }}</title>
+      </rect>
+      <text
+        *ngIf="!ocultarValores()"
+        class="valor"
+        [attr.x]="barra.x + barra.largura / 2"
+        [attr.y]="barra.negativo ? barra.y + barra.altura + 14 : barra.y - 6">
+        {{ formatarValor(barra.valor) }}
+      </text>
+      <text
+        class="rotulo"
+        [attr.x]="barra.x + barra.largura / 2"
+        [attr.y]="altura - 10">
+        {{ formatarRotulo(barra.rotulo) }}
+      </text>
+    </g>
+  </svg>
+</figure>
