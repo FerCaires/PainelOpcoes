@@ -10,6 +10,7 @@ import { Modalidade } from '../../models/modalidade.enum';
 import { Moneyness } from '../../models/moneyness.enum';
 import { TipoNotional } from '../../models/tipo-notional.enum';
 import { TipoOpcao } from '../../models/tipo-opcao.enum';
+import { ModoSimulacao } from '../../models/modo-simulacao.enum';
 import { SimulacaoMetaPremioResponse } from '../../models/simulacao-meta-premio-response.model';
 import { SimulacaoMetaPremioError } from '../../models/api-errors.model';
 import {
@@ -98,7 +99,7 @@ describe('SimulacaoMetaPremioComponent', () => {
   }
 
   function preencherFormularioValido(): void {
-    component.form.setValue({
+    component.form.patchValue({
       nomeAcao: 'BBAS3',
       metaPremio: 1000,
       tipo: TipoOpcao.CALL
@@ -110,14 +111,19 @@ describe('SimulacaoMetaPremioComponent', () => {
     return (fixture.nativeElement as HTMLElement).textContent ?? '';
   }
 
-  it('inicia com tipo vazio e Simular desabilitado', async () => {
+  it('inicia com tipo vazio, modo Meta de prêmio e Simular desabilitado', async () => {
     await configurar();
     fixture.detectChanges();
 
     expect(component.form.controls.tipo.value).toBeNull();
+    expect(component.form.controls.modo.value).toBe(ModoSimulacao.META_PREMIO);
+    expect(component.modoAtual()).toBe(ModoSimulacao.META_PREMIO);
     expect(component.podeSimular()).toBeFalse();
     const botao = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
     expect(botao.disabled).toBeTrue();
+    expect(textoDaPagina()).toContain('Meta de prêmio');
+    expect(textoDaPagina()).toContain('Garantia');
+    expect(textoDaPagina()).toContain('Quantidade de ações');
   });
 
   it('mostra spinner enquanto carrega ações', async () => {
@@ -377,7 +383,168 @@ describe('SimulacaoMetaPremioComponent', () => {
 
     expect(nova.componentInstance.form.controls.tipo.value).toBeNull();
     expect(nova.componentInstance.form.controls.nomeAcao.value).toBeNull();
+    expect(nova.componentInstance.form.controls.modo.value).toBe(ModoSimulacao.META_PREMIO);
     expect(nova.componentInstance.resultado()).toBeUndefined();
     expect(acaoApi.listar.calls.count()).toBe(2);
+  });
+
+  it('mostra campo Garantia e envia modo GARANTIA ao simular', async () => {
+    await configurar();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('input[formControlName="metaPremio"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('input[formControlName="garantia"]')).toBeFalsy();
+
+    component.form.controls.modo.setValue(ModoSimulacao.GARANTIA);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('input[formControlName="metaPremio"]')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('input[formControlName="garantia"]')).toBeTruthy();
+    expect(component.podeSimular()).toBeFalse();
+
+    component.form.patchValue({
+      nomeAcao: 'BBAS3',
+      garantia: 30000,
+      tipo: TipoOpcao.CALL
+    });
+    fixture.detectChanges();
+
+    expect(textoDaPagina()).toContain('Garantia');
+    expect(component.podeSimular()).toBeTrue();
+    component.simular();
+
+    expect(simulacaoApi.simular).toHaveBeenCalledWith({
+      nomeAcao: 'BBAS3',
+      tipo: TipoOpcao.CALL,
+      modo: ModoSimulacao.GARANTIA,
+      garantia: 30000
+    });
+  });
+
+  it('mostra cabeçalho Garantia no resultado do modo GARANTIA', async () => {
+    await configurar();
+    simulacaoApi.simular.and.returnValue(
+      of({
+        ...respostaCall,
+        modo: ModoSimulacao.GARANTIA,
+        metaPremio: null,
+        garantia: 30000
+      })
+    );
+    fixture.detectChanges();
+    component.form.controls.modo.setValue(ModoSimulacao.GARANTIA);
+    fixture.detectChanges();
+    component.form.patchValue({
+      nomeAcao: 'BBAS3',
+      garantia: 30000,
+      tipo: TipoOpcao.CALL
+    });
+    component.simular();
+    fixture.detectChanges();
+
+    const stats = fixture.nativeElement.querySelector('.stats')?.textContent ?? '';
+    expect(stats).toContain('Garantia');
+    expect(stats).not.toContain('Meta');
+  });
+
+  it('envia quantidadeAcoes e mostra Quantidade no cabeçalho', async () => {
+    await configurar();
+    simulacaoApi.simular.and.returnValue(
+      of({
+        ...respostaCall,
+        modo: ModoSimulacao.QUANTIDADE_ACOES,
+        metaPremio: null,
+        quantidadeAcoesInformada: 700
+      })
+    );
+    fixture.detectChanges();
+    component.form.controls.modo.setValue(ModoSimulacao.QUANTIDADE_ACOES);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('input[formControlName="metaPremio"]')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('input[formControlName="garantia"]')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('input[formControlName="quantidadeAcoes"]')).toBeTruthy();
+    component.form.patchValue({
+      nomeAcao: 'BBAS3',
+      quantidadeAcoes: 700,
+      tipo: TipoOpcao.CALL
+    });
+    fixture.detectChanges();
+    component.simular();
+    fixture.detectChanges();
+
+    expect(simulacaoApi.simular).toHaveBeenCalledWith({
+      nomeAcao: 'BBAS3',
+      tipo: TipoOpcao.CALL,
+      modo: ModoSimulacao.QUANTIDADE_ACOES,
+      quantidadeAcoes: 700
+    });
+    expect(textoDaPagina()).toContain('Quantidade');
+  });
+
+  it('desabilita Simular quando quantidade não é múltiplo de 100', async () => {
+    await configurar();
+    fixture.detectChanges();
+    component.form.controls.modo.setValue(ModoSimulacao.QUANTIDADE_ACOES);
+    fixture.detectChanges();
+    component.form.patchValue({
+      nomeAcao: 'BBAS3',
+      quantidadeAcoes: 250,
+      tipo: TipoOpcao.CALL
+    });
+    fixture.detectChanges();
+
+    expect(component.podeSimular()).toBeFalse();
+    expect(simulacaoApi.simular).not.toHaveBeenCalled();
+  });
+
+  it('limpa resultado ao trocar o modo', async () => {
+    await configurar();
+    fixture.detectChanges();
+    preencherFormularioValido();
+    component.simular();
+    fixture.detectChanges();
+    expect(component.resultado()).toBeTruthy();
+
+    component.form.controls.modo.setValue(ModoSimulacao.GARANTIA);
+    fixture.detectChanges();
+
+    expect(component.resultado()).toBeUndefined();
+    expect(component.erroSimulacao()).toBeUndefined();
+  });
+
+  it('exibe mensagem de 422 GARANTIA_INVALIDA', async () => {
+    await configurar();
+    simulacaoApi.simular.and.returnValue(
+      throwError(
+        () => new SimulacaoMetaPremioError('garantia deve ser maior que zero', 422, 'GARANTIA_INVALIDA')
+      )
+    );
+    fixture.detectChanges();
+    component.form.controls.modo.setValue(ModoSimulacao.GARANTIA);
+    fixture.detectChanges();
+    component.form.patchValue({
+      nomeAcao: 'BBAS3',
+      garantia: 30000,
+      tipo: TipoOpcao.CALL
+    });
+    component.simular();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.erro-simulacao')?.textContent.trim()).toBe(
+      'garantia deve ser maior que zero'
+    );
+    expect(fixture.nativeElement.querySelector('table')).toBeFalsy();
+  });
+
+  it('envia modo META_PREMIO na simulação padrão', async () => {
+    await configurar();
+    fixture.detectChanges();
+    preencherFormularioValido();
+    component.simular();
+
+    expect(simulacaoApi.simular).toHaveBeenCalledWith({
+      nomeAcao: 'BBAS3',
+      tipo: TipoOpcao.CALL,
+      modo: ModoSimulacao.META_PREMIO,
+      metaPremio: 1000
+    });
   });
 });

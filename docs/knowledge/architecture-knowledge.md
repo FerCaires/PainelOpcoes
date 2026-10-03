@@ -165,7 +165,7 @@ O Painel **não** possui schema, migration, IndexedDB nem cache de simulação. 
 | POST | `/carteiras/{id}/opcoes/{nomeOpcao}` | `CarteiraApiService` |
 | PUT | `/carteiras/{id}/opcoes/{nomeOpcao}` | `CarteiraApiService` |
 | GET | `/acoes` | `AcaoApiService` (F-024) |
-| GET | `/simulacao-meta-premio` | `SimulacaoMetaPremioApiService` (F-024) |
+| GET | `/simulacao-meta-premio` | `SimulacaoMetaPremioApiService` (F-024 / F-026) |
 
 Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
 
@@ -266,3 +266,4 @@ ADRs de feature vivem no `architecture.md` da feature quando o trade-off for peq
 
 - 2026-10-01 · Knowledge base de arquitetura do frontend criada a partir do código (`src/app`, environments, rotas, serviços, `api-errors`), `docs/sdd.md`, ADR-005/006/007 e `AGENTS.md`.
 - 2026-10-01 · F-024: rota lazy `/simulacao-meta-premio`; item de menu "Meta de Prêmio"; `AcaoApiService` + `SimulacaoMetaPremioApiService`; models/enums de simulação; `SimulacaoMetaPremioError`; `src/app/utils/` para formatação e validator `maiorQueZero`; padrão signals + OnPush para tela nova; sem persistência, sem interceptor, sem env var nova.
+- 2026-10-02 · F-026: seletor de modo na mesma tela; `SimulacaoRequest`; validators `multiploDeCem`; sem rota nova.

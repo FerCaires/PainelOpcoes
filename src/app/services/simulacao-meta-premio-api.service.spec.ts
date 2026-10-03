@@ -7,6 +7,7 @@ import { Modalidade } from '../models/modalidade.enum';
 import { Moneyness } from '../models/moneyness.enum';
 import { TipoNotional } from '../models/tipo-notional.enum';
 import { TipoOpcao } from '../models/tipo-opcao.enum';
+import { ModoSimulacao } from '../models/modo-simulacao.enum';
 import { SimulacaoMetaPremioResponse } from '../models/simulacao-meta-premio-response.model';
 import { MSG_FALHA_SIMULACAO } from '../utils/simulacao-meta-premio-mensagens';
 
@@ -59,22 +60,79 @@ describe('SimulacaoMetaPremioApiService', () => {
     httpMock.verify();
   });
 
+  const requestMeta = {
+    nomeAcao: 'BBAS3',
+    tipo: TipoOpcao.CALL,
+    modo: ModoSimulacao.META_PREMIO,
+    metaPremio: 1000
+  };
+
   it('envia query params sem locale', () => {
-    service.simular('BBAS3', 1000, TipoOpcao.CALL).subscribe();
+    service.simular(requestMeta).subscribe();
 
     const req = httpMock.expectOne(
       (r) =>
         r.url === url &&
         r.params.get('nomeAcao') === 'BBAS3' &&
         r.params.get('metaPremio') === '1000' &&
-        r.params.get('tipo') === 'CALL'
+        r.params.get('tipo') === 'CALL' &&
+        r.params.get('modo') === 'META_PREMIO'
     );
     expect(req.request.method).toBe('GET');
     req.flush(respostaComItem);
   });
 
+  it('envia garantia sem metaPremio no modo GARANTIA', () => {
+    service
+      .simular({
+        nomeAcao: 'BBAS3',
+        tipo: TipoOpcao.CALL,
+        modo: ModoSimulacao.GARANTIA,
+        garantia: 30000
+      })
+      .subscribe();
+
+    const req = httpMock.expectOne(
+      (r) =>
+        r.url === url &&
+        r.params.get('modo') === 'GARANTIA' &&
+        r.params.get('garantia') === '30000' &&
+        r.params.get('metaPremio') === null &&
+        r.params.get('quantidadeAcoes') === null
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({ ...respostaComItem, modo: ModoSimulacao.GARANTIA, metaPremio: null, garantia: 30000 });
+  });
+
+  it('envia quantidadeAcoes no modo QUANTIDADE_ACOES', () => {
+    service
+      .simular({
+        nomeAcao: 'BBAS3',
+        tipo: TipoOpcao.CALL,
+        modo: ModoSimulacao.QUANTIDADE_ACOES,
+        quantidadeAcoes: 700
+      })
+      .subscribe();
+
+    const req = httpMock.expectOne(
+      (r) =>
+        r.url === url &&
+        r.params.get('modo') === 'QUANTIDADE_ACOES' &&
+        r.params.get('quantidadeAcoes') === '700' &&
+        r.params.get('metaPremio') === null &&
+        r.params.get('garantia') === null
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      ...respostaComItem,
+      modo: ModoSimulacao.QUANTIDADE_ACOES,
+      metaPremio: null,
+      quantidadeAcoesInformada: 700
+    });
+  });
+
   it('emite o corpo 200 com a opção recebida', () => {
-    service.simular('BBAS3', 1000, TipoOpcao.CALL).subscribe((res) => {
+    service.simular(requestMeta).subscribe((res) => {
       expect(res.opcoes[0].nome).toBe('BBAS3J423');
     });
 
@@ -88,7 +146,7 @@ describe('SimulacaoMetaPremioApiService', () => {
       opcoes: []
     };
 
-    service.simular('BBAS3', 1000, TipoOpcao.CALL).subscribe((res) => {
+    service.simular(requestMeta).subscribe((res) => {
       expect(res.quantidadeOperacoes).toBe(0);
       expect(res.opcoes).toEqual([]);
     });
@@ -97,7 +155,7 @@ describe('SimulacaoMetaPremioApiService', () => {
   });
 
   it('propaga mensagem do envelope em 404', () => {
-    service.simular('XPTO9', 1000, TipoOpcao.CALL).subscribe({
+    service.simular({ ...requestMeta, nomeAcao: 'XPTO9' }).subscribe({
       next: () => fail('deveria falhar'),
       error: (err: SimulacaoMetaPremioError) => {
         expect(err).toBeInstanceOf(SimulacaoMetaPremioError);
@@ -119,8 +177,34 @@ describe('SimulacaoMetaPremioApiService', () => {
     );
   });
 
+  it('propaga mensagem do envelope em 422 GARANTIA_INVALIDA', () => {
+    service
+      .simular({
+        nomeAcao: 'BBAS3',
+        tipo: TipoOpcao.CALL,
+        modo: ModoSimulacao.GARANTIA,
+        garantia: 0
+      })
+      .subscribe({
+        next: () => fail('deveria falhar'),
+        error: (err: SimulacaoMetaPremioError) => {
+          expect(err.message).toBe('garantia deve ser maior que zero');
+          expect(err.code).toBe('GARANTIA_INVALIDA');
+          expect(err.status).toBe(422);
+        }
+      });
+
+    httpMock.expectOne((r) => r.url === url).flush(
+      {
+        erro: 'GARANTIA_INVALIDA',
+        mensagem: 'garantia deve ser maior que zero'
+      },
+      { status: 422, statusText: 'Unprocessable Entity' }
+    );
+  });
+
   it('propaga mensagem do envelope em 422 META_PREMIO_INVALIDA', () => {
-    service.simular('BBAS3', -1, TipoOpcao.CALL).subscribe({
+    service.simular({ ...requestMeta, metaPremio: -1 }).subscribe({
       next: () => fail('deveria falhar'),
       error: (err: SimulacaoMetaPremioError) => {
         expect(err.message).toBe('metaPremio deve ser maior que zero');
@@ -138,7 +222,7 @@ describe('SimulacaoMetaPremioApiService', () => {
   });
 
   it('usa mensagem genérica quando 4xx não tem mensagem', () => {
-    service.simular('BBAS3', 1000, TipoOpcao.CALL).subscribe({
+    service.simular(requestMeta).subscribe({
       next: () => fail('deveria falhar'),
       error: (err: Error) => {
         expect(err.message).toBe(MSG_FALHA_SIMULACAO);
@@ -152,7 +236,7 @@ describe('SimulacaoMetaPremioApiService', () => {
   });
 
   it('usa mensagem genérica em HTTP 500', () => {
-    service.simular('BBAS3', 1000, TipoOpcao.CALL).subscribe({
+    service.simular(requestMeta).subscribe({
       next: () => fail('deveria falhar'),
       error: (err: Error) => {
         expect(err.message).toBe(MSG_FALHA_SIMULACAO);
@@ -166,7 +250,7 @@ describe('SimulacaoMetaPremioApiService', () => {
   });
 
   it('usa mensagem genérica em falha de rede', () => {
-    service.simular('BBAS3', 1000, TipoOpcao.CALL).subscribe({
+    service.simular(requestMeta).subscribe({
       next: () => fail('deveria falhar'),
       error: (err: Error) => {
         expect(err.message).toBe(MSG_FALHA_SIMULACAO);

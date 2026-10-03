@@ -50,6 +50,8 @@ Os termos abaixo coincidem com o glossário do backend. Não inventar sinônimos
 | **ROI da Operação** | `premioEstimado / notional` (razão decimal, ex: 0,0363 = 3,63%) | ROI anualizado |
 | **ROI Anualizado Simples** | `roiOperacao × 12` (estimativa linear, sem composição) | ROI da Operação |
 | **Meta de Prêmio (metaPremio)** | Objetivo mensal de receita em BRL via venda de opções sobre uma única ação | |
+| **Garantia** | Capital de cobertura já disponível informado na simulação. CALL: valor das ações a spot. PUT: caixa no strike. Campo canônico da API: `garantia` | Notional (calculado) |
+| **Modo de Simulação** | Entrada da simulação: `META_PREMIO`, `GARANTIA` ou `QUANTIDADE_ACOES` | |
 | **Simulação** | Cálculo hipotético e stateless feito pelo backend; o Painel não persiste nem executa a operação (BR-14) | Carteira |
 | **Rolagem** | Substituição de uma opção próxima do vencimento por outra com vencimento posterior | Simulação |
 | **Landing** | Página inicial educativa do Painel (Home). Não concentra telas operacionais de simulação | Tela de simulação |
@@ -102,6 +104,8 @@ Demais regras backend (BR-01 a BR-13, BR-26) não são reimplementadas na UI.
 | BR-UI-20 | Layout responsivo. Em viewport estreita, tabela com scroll horizontal. Acessibilidade WCAG 2.1 AA (contraste mínimo 4.5:1, foco visível, navegação por teclado) | landing-page RNF; F-024 |
 | BR-UI-21 | A aplicação não exige autenticação | SDD; API aberta |
 | BR-UI-22 | Sem persistência local da simulação (espelha BR-14 no cliente): sair da rota descarta resultado, erro e estado de formulário da simulação | F-024 |
+| BR-UI-23 | A simulação por garantia ou quantidade de ações ocorre na mesma tela e rota da Meta de Prêmio; não há item de menu extra | F-026 |
+| BR-UI-24 | O seletor de modo inicia em Meta de prêmio. Trocar o modo limpa resultado, erro e o campo numérico inativo | F-026 |
 
 ### Regras históricas da tela de Rolagens (permanecem)
 
@@ -191,7 +195,7 @@ Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). 
 | Rolagens | `GET /api/rolagem/por-tipo` | Query: `opcao`, `quantidadeVencimentos`, `tipoRolagem` |
 | Carteiras | `GET/POST /api/carteiras` e sub-recursos de opções | Persistência no backend |
 | Seletor de ação (simulação) | `GET /api/acoes` | Campos usados na UI: `nomeAcao`, `nomeCompleto` (também vem `precoSpot`, possivelmente nulo) |
-| Simulação de meta de prêmio | `GET /api/simulacao-meta-premio` | Query obrigatória: `nomeAcao`, `metaPremio`, `tipo` (`CALL` \| `PUT`) |
+| Simulação de meta de prêmio | `GET /api/simulacao-meta-premio` | Query: `nomeAcao`, `tipo`, `modo` (`META_PREMIO` \| `GARANTIA` \| `QUANTIDADE_ACOES`) e o parâmetro do modo (`metaPremio`, `garantia` ou `quantidadeAcoes`) |
 
 Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demais telas).
 
@@ -208,6 +212,7 @@ Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demai
 | ajuste-botao-buscar | Alinhamento visual do botão de busca de rolagens | — |
 | atualizar-situacao-opcao | Edição em massa da situação das opções na carteira | Situação |
 | F-024 — simulacaoMetaPremio | Tela e item de menu para simular meta de prêmio mensal (consome F-023) | Meta de Prêmio, Simulação, Notional, TipoNotional, Moneyness, ROI |
+| F-026 — modosSimulacaoPremio | Seletor de modo (meta / garantia / quantidade) na mesma tela (consome F-025) | Modo de Simulação, Garantia |
 
 ---
 
@@ -215,3 +220,4 @@ Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demai
 
 - 2026-10-01 · Knowledge base do frontend inicializada a partir do SDD do Painel, rotas/menu existentes, glossário e BR-14 a BR-27 do backend (por referência). Regras BR-UI-01 a BR-UI-22 introduzidas pela F-024 (Tela de Simulação de Meta de Prêmio) e pela generalização das convenções de data, dinheiro, header e erros já usadas no Painel.
 - 2026-10-01 · Gate 1 W-02: BR-UI-13 restrita — envelope `mensagem` só na simulação; `GET /api/acoes` sempre mensagem genérica.
+- 2026-10-02 · F-026: modos de simulação na tela Meta de Prêmio; BR-UI-23 e BR-UI-24.

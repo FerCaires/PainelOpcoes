@@ -6,49 +6,92 @@
       <mat-card-header>
         <mat-card-title>Meta de Prêmio</mat-card-title>
         <mat-card-subtitle>
-          Quantas ações ou quanto caixa para extrair a meta neste vencimento mensal?
+          Simule pela meta, pela garantia disponível ou pela quantidade de ações neste vencimento mensal.
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
-        <form [formGroup]="form" (ngSubmit)="simular()" class="formulario">
-          <mat-form-field appearance="outline" class="campo">
-            <mat-label>Ação</mat-label>
-            <mat-select formControlName="nomeAcao">
-              <mat-option *ngFor="let acao of acoes()" [value]="acao.nomeAcao">
-                {{ acao.nomeAcao }} — {{ acao.nomeCompleto }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+        <form [formGroup]="form" (ngSubmit)="simular()" class="formulario-completo">
+          <mat-button-toggle-group
+            formControlName="modo"
+            class="modos"
+            name="modo"
+            aria-label="Modo de simulação">
+            <mat-button-toggle [value]="modosSimulacao.META_PREMIO">Meta de prêmio</mat-button-toggle>
+            <mat-button-toggle [value]="modosSimulacao.GARANTIA">Garantia</mat-button-toggle>
+            <mat-button-toggle [value]="modosSimulacao.QUANTIDADE_ACOES">Quantidade de ações</mat-button-toggle>
+          </mat-button-toggle-group>
 
-          <mat-form-field appearance="outline" class="campo">
-            <mat-label>Meta de prêmio</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="metaPremio"
-              step="any"
-              min="0"
-              inputmode="decimal" />
-          </mat-form-field>
+          <div class="formulario">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Ação</mat-label>
+              <mat-select formControlName="nomeAcao">
+                <mat-option *ngFor="let acao of acoes()" [value]="acao.nomeAcao">
+                  {{ acao.nomeAcao }} — {{ acao.nomeCompleto }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo">
-            <mat-label>Tipo</mat-label>
-            <mat-select formControlName="tipo">
-              <mat-option *ngFor="let tipo of tiposOpcao" [value]="tipo">
-                {{ tipo }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field
+              *ngIf="modoAtual() === modosSimulacao.META_PREMIO"
+              appearance="outline"
+              class="campo">
+              <mat-label>Meta de prêmio</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="metaPremio"
+                step="any"
+                min="0"
+                inputmode="decimal" />
+            </mat-form-field>
 
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            class="botao-simular"
-            [disabled]="!podeSimular()">
-            Simular
-          </button>
+            <mat-form-field
+              *ngIf="modoAtual() === modosSimulacao.GARANTIA"
+              appearance="outline"
+              class="campo">
+              <mat-label>Garantia</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="garantia"
+                step="any"
+                min="0"
+                inputmode="decimal" />
+            </mat-form-field>
+
+            <mat-form-field
+              *ngIf="modoAtual() === modosSimulacao.QUANTIDADE_ACOES"
+              appearance="outline"
+              class="campo">
+              <mat-label>Quantidade de ações</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="quantidadeAcoes"
+                step="100"
+                min="100"
+                inputmode="numeric" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Tipo</mat-label>
+              <mat-select formControlName="tipo">
+                <mat-option *ngFor="let tipo of tiposOpcao" [value]="tipo">
+                  {{ tipo }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              class="botao-simular"
+              [disabled]="!podeSimular()">
+              Simular
+            </button>
+          </div>
         </form>
 
         <div
@@ -118,9 +161,17 @@
                 <dt>Spot</dt>
                 <dd>{{ formatarMonetario(resultado.precoSpot) }}</dd>
               </div>
-              <div>
+              <div *ngIf="modoDoResultado(resultado) === modosSimulacao.META_PREMIO && resultado.metaPremio !== null && resultado.metaPremio !== undefined">
                 <dt>Meta</dt>
                 <dd>{{ formatarMonetario(resultado.metaPremio) }}</dd>
+              </div>
+              <div *ngIf="modoDoResultado(resultado) === modosSimulacao.GARANTIA && resultado.garantia !== null && resultado.garantia !== undefined">
+                <dt>Garantia</dt>
+                <dd>{{ formatarMonetario(resultado.garantia) }}</dd>
+              </div>
+              <div *ngIf="modoDoResultado(resultado) === modosSimulacao.QUANTIDADE_ACOES && resultado.quantidadeAcoesInformada !== null && resultado.quantidadeAcoesInformada !== undefined">
+                <dt>Quantidade</dt>
+                <dd>{{ resultado.quantidadeAcoesInformada }}</dd>
               </div>
               <div>
                 <dt>Tipo</dt>

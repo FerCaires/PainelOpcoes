@@ -11,7 +11,7 @@
 - **Stack**: TypeScript 5.x / Angular 17+ / RxJS 7+ / Angular Material / Karma + Jasmine (`ng test`) / Cypress (E2E) / Docker
 - **Style**: SPA frontend que consome a API REST `CarteiraOpcoes` (`http://localhost:8080/api`)
 - **Started**: 2024-06-01
-- **Last updated**: 2026-10-01
+- **Last updated**: 2026-10-02
 
 ---
 
@@ -20,6 +20,7 @@
 | ID | Feature | Status | Spec | Arch | Tasks | Completed |
 |----|---------|--------|------|------|-------|-----------|
 | F-024 | Tela de Simulação de Meta de Prêmio | 🟡 in-progress | docs/simulacaoMetaPremio/spec.md | docs/simulacaoMetaPremio/architecture.md | docs/simulacaoMetaPremio/tasks.md | — |
+| F-026 | Modos de Simulação na tela Meta de Prêmio | 🟡 in-progress | docs/modosSimulacaoPremio/spec.md | docs/modosSimulacaoPremio/architecture.md | docs/modosSimulacaoPremio/tasks.md | — |
 
 ---
 
@@ -51,11 +52,28 @@
 
 ---
 
+### F-026 · Modos de Simulação na tela Meta de Prêmio
+
+- **Status**: 🟡 in-progress
+- **Summary**: Seletor de modo (meta / garantia / quantidade) na mesma rota `/simulacao-meta-premio`; consome F-025
+- **Completed on**: —
+- **Stack involved**: TypeScript / Angular
+- **Current stage**: Implementation complete — awaiting REVIEW (sem commit/PR até pedido do usuário)
+- **Key files produced**:
+  - `docs/modosSimulacaoPremio/spec.md`
+  - `docs/modosSimulacaoPremio/architecture.md`
+  - `docs/modosSimulacaoPremio/tasks.md`
+  - `modo-simulacao.enum.ts`, `simulacao-request.model.ts`, `multiplo-de-cem.validator.ts`
+- **Backend dependency**: F-025 em `CarteiraOpcoesDevin`
+
+---
+
 ## Tasks registry
 
 | Task ID | Feature | Title | Lang | Complexity | Status | Reviewer verdict |
 |---------|---------|-------|------|------------|--------|------------------|
 | TASK-01..47 | F-024 | Tela de simulação de meta de prêmio | TypeScript | XS–M | ✅ done | — |
+| TASK-01..07 | F-026 | Modos na tela Meta de Prêmio | TypeScript | S–M | ✅ done | — |
 
 ---
 
@@ -69,3 +87,5 @@
 | 2026-10-01 | Gate 2 PASS WITH NOTES — SDD F-024 pronto para revisão do usuário |
 | 2026-10-01 | Gate 3 PASS WITH NOTES — 47 tasks TypeScript |
 | 2026-10-01 | F-024 implementada (rota `/simulacao-meta-premio`, menu, serviços HTTP, testes) |
+| 2026-10-02 | F-026 — modos meta/garantia/quantidade na mesma tela |
+| 2026-10-02 | F-026 implementada (toggle, HttpParams por modo, validator múltiplo de 100); testes da feature verdes; aguardando REVIEW |

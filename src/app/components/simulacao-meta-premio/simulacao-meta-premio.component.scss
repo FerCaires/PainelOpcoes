@@ -55,6 +55,22 @@
   }
 }
 
+.formulario-completo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.modos {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.modos .mat-button-toggle {
+  flex: 1 1 auto;
+}
+
 .formulario {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.8fr) auto;
