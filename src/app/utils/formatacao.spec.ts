@@ -1,5 +1,6 @@
 import { TipoNotional } from '../models/tipo-notional.enum';
 import {
+  formatarDataHora,
   formatarDataIso,
   formatarMonetario,
   formatarPercentual,
@@ -9,6 +10,17 @@ import {
 describe('formatacao', () => {
   it('converte data ISO para DD/MM/YYYY', () => {
     expect(formatarDataIso('2026-10-16')).toBe('16/10/2026');
+  });
+
+  it('converte data e hora ISO para DD/MM/YYYY HH:mm', () => {
+    const formatado = formatarDataHora('2026-10-02T22:18:00');
+    expect(formatado).toContain('02/10/2026');
+    expect(formatado).toContain('22:18');
+    expect(formatado).toBe('02/10/2026 22:18');
+  });
+
+  it('devolve a string original quando a data/hora é ilegível', () => {
+    expect(formatarDataHora('lixo')).toBe('lixo');
   });
 
   it('formata monetário pt-BR com 2 casas', () => {

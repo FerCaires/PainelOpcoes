@@ -55,6 +55,7 @@ Os termos abaixo coincidem com o glossário do backend. Não inventar sinônimos
 | **Simulação** | Cálculo hipotético e stateless feito pelo backend; o Painel não persiste nem executa a operação (BR-14) | Carteira |
 | **Rolagem** | Substituição de uma opção próxima do vencimento por outra com vencimento posterior | Simulação |
 | **Landing** | Página inicial educativa do Painel (Home). Não concentra telas operacionais de simulação | Tela de simulação |
+| **Atualização de cotações** | Processo do backend que busca opções/prêmios na API externa e grava `precoSpot`; na UI é disparo manual em `/acoes` | Simulação |
 
 ---
 
@@ -106,6 +107,10 @@ Demais regras backend (BR-01 a BR-13, BR-26) não são reimplementadas na UI.
 | BR-UI-22 | Sem persistência local da simulação (espelha BR-14 no cliente): sair da rota descarta resultado, erro e estado de formulário da simulação | F-024 |
 | BR-UI-23 | A simulação por garantia ou quantidade de ações ocorre na mesma tela e rota da Meta de Prêmio; não há item de menu extra | F-026 |
 | BR-UI-24 | O seletor de modo inicia em Meta de prêmio. Trocar o modo limpa resultado, erro e o campo numérico inativo | F-026 |
+| BR-UI-25 | Gestão de ações é **tela dedicada**. Rota: `/acoes`. Rótulo do menu: "Ações". Ordem do menu: Home, Busca de Rolagens, Meta de Prêmio, Ações, Carteira | F-027 |
+| BR-UI-26 | A UI **não** oferece exclusão nem desativação de ação, mesmo existindo `DELETE /api/acoes` na API | F-027 |
+| BR-UI-27 | Atualização de cotações na tela de Ações é disparo **manual** via `POST /api/atualizacao/executar` (todas as ações). Não dispara sozinha no cadastro | F-027 |
+| BR-UI-28 | `POST /api/acoes` 4xx com envelope: exibir `mensagem`. `GET /api/acoes` permanece genérico (BR-UI-13). 5xx/rede de cadastro ou atualização: mensagem genérica do fluxo | F-027 |
 
 ### Regras históricas da tela de Rolagens (permanecem)
 
@@ -136,6 +141,7 @@ Aplicam-se **somente** ao formulário de busca de rolagens, não à simulação 
 | `/carteira/criar` | Criação de carteira | (fluxo de Carteira) |
 | `/carteira/:id/adicionar-opcao` | Adição de opções à carteira | (fluxo de Carteira) |
 | `/simulacao-meta-premio` | Simulação de meta de prêmio | Meta de Prêmio |
+| `/acoes` | Gestão de ações (inclusão + atualizar cotações) | Ações |
 
 ### Campos JSON da API
 
@@ -155,7 +161,7 @@ Aplicam-se **somente** ao formulário de busca de rolagens, não à simulação 
 }
 ```
 
-Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). A carga `GET /api/acoes` não usa o envelope: qualquer falha mostra mensagem genérica.
+Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). A carga `GET /api/acoes` não usa o envelope: qualquer falha mostra mensagem genérica. O cadastro `POST /api/acoes` 4xx exibe `mensagem` (BR-UI-28).
 
 ### Datas e números na tela
 
@@ -172,7 +178,7 @@ Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). 
 
 ### Persistência no cliente
 - Sem armazenamento da simulação (BR-UI-22 / BR-14)
-- Carteira e opções são persistidas **no backend**, não no navegador
+- Carteira, opções e **ações cadastradas** são persistidas **no backend**, não no navegador
 
 ### Acessibilidade e responsividade
 - WCAG 2.1 AA (BR-UI-20)
@@ -183,7 +189,7 @@ Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). 
 - Toda nova tela operacional deve invocar **frontend-design** na implementação (layout, hierarquia, destaque, espaçamento). A spec descreve o quê; o visual do como fica para essa skill + Architect.
 
 ### Fora do Painel
-- Jobs de cotação, autenticação, i18n, PWA
+- Job diário de cotação (o Painel só dispara o POST existente sob demanda), autenticação, i18n, PWA
 - Recálculo de fórmulas de simulação no cliente
 
 ---
@@ -195,6 +201,7 @@ Na UI, o texto visível nas falhas 4xx da simulação é `mensagem` (BR-UI-13). 
 | Rolagens | `GET /api/rolagem/por-tipo` | Query: `opcao`, `quantidadeVencimentos`, `tipoRolagem` |
 | Carteiras | `GET/POST /api/carteiras` e sub-recursos de opções | Persistência no backend |
 | Seletor de ação (simulação) | `GET /api/acoes` | Campos usados na UI: `nomeAcao`, `nomeCompleto` (também vem `precoSpot`, possivelmente nulo) |
+| Gestão de ações | `GET /api/acoes`, `POST /api/acoes`, `POST /api/atualizacao/executar` | Inclusão (ticker 5 chars + nome); sem DELETE na UI; atualização manual de cotações |
 | Simulação de meta de prêmio | `GET /api/simulacao-meta-premio` | Query: `nomeAcao`, `tipo`, `modo` (`META_PREMIO` \| `GARANTIA` \| `QUANTIDADE_ACOES`) e o parâmetro do modo (`metaPremio`, `garantia` ou `quantidadeAcoes`) |
 
 Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demais telas).
@@ -213,6 +220,7 @@ Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demai
 | atualizar-situacao-opcao | Edição em massa da situação das opções na carteira | Situação |
 | F-024 — simulacaoMetaPremio | Tela e item de menu para simular meta de prêmio mensal (consome F-023) | Meta de Prêmio, Simulação, Notional, TipoNotional, Moneyness, ROI |
 | F-026 — modosSimulacaoPremio | Seletor de modo (meta / garantia / quantidade) na mesma tela (consome F-025) | Modo de Simulação, Garantia |
+| F-027 — gestaoAcoes | Tela e item de menu para incluir ações e atualizar cotações | Ação (cadastro), Atualização de cotações |
 
 ---
 
@@ -221,3 +229,4 @@ Base URL e mecanismo HTTP são decisão de arquitetura (já existentes nas demai
 - 2026-10-01 · Knowledge base do frontend inicializada a partir do SDD do Painel, rotas/menu existentes, glossário e BR-14 a BR-27 do backend (por referência). Regras BR-UI-01 a BR-UI-22 introduzidas pela F-024 (Tela de Simulação de Meta de Prêmio) e pela generalização das convenções de data, dinheiro, header e erros já usadas no Painel.
 - 2026-10-01 · Gate 1 W-02: BR-UI-13 restrita — envelope `mensagem` só na simulação; `GET /api/acoes` sempre mensagem genérica.
 - 2026-10-02 · F-026: modos de simulação na tela Meta de Prêmio; BR-UI-23 e BR-UI-24.
+- 2026-10-02 · F-027: tela `/acoes` para incluir ações e disparar atualização de cotações; BR-UI-25 a BR-UI-28; sem exclusão na UI.

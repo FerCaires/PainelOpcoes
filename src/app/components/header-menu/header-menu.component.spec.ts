@@ -23,8 +23,8 @@ describe('HeaderMenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('deve ter 4 itens de menu', () => {
-    expect(component.menuItems.length).toBe(4);
+  it('deve ter 5 itens de menu', () => {
+    expect(component.menuItems.length).toBe(5);
   });
 
   it('deve renderizar logo', () => {
@@ -34,7 +34,7 @@ describe('HeaderMenuComponent', () => {
 
   it('deve renderizar todos os links de menu', () => {
     const links = fixture.nativeElement.querySelectorAll('.nav-link');
-    expect(links.length).toBe(4);
+    expect(links.length).toBe(5);
   });
 
   it('deve ter link Home', () => {
@@ -59,6 +59,12 @@ describe('HeaderMenuComponent', () => {
     const links = fixture.nativeElement.querySelectorAll('.nav-link');
     const metaLink = Array.from(links).find((el: any) => el.textContent.includes('Meta de Prêmio'));
     expect(metaLink).toBeTruthy();
+  });
+
+  it('deve ter link Ações', () => {
+    const links = fixture.nativeElement.querySelectorAll('.nav-link');
+    const acoesLink = Array.from(links).find((el: any) => el.textContent.includes('Ações'));
+    expect(acoesLink).toBeTruthy();
   });
 
   it('não deve ter link Criar Carteira no menu', () => {

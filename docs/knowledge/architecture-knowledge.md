@@ -48,7 +48,8 @@ src/
 │   │   ├── carteira/                 # rota /carteira (lazy)
 │   │   ├── criar-carteira/           # rota /carteira/criar (lazy)
 │   │   ├── adicionar-opcao/          # rota /carteira/:id/adicionar-opcao (lazy)
-│   │   └── simulacao-meta-premio/    # rota /simulacao-meta-premio (lazy) — F-024
+│   │   ├── simulacao-meta-premio/    # rota /simulacao-meta-premio (lazy) — F-024
+│   │   └── gestao-acoes/             # rota /acoes (lazy) — F-027
 │   ├── models/                       # interfaces e enums (sem pasta features/)
 │   ├── services/                     # HttpClient, providedIn: 'root'
 │   ├── utils/                        # funções puras (formatação, validators) — F-024
@@ -85,8 +86,9 @@ Convenções de arquivo de componente: `{nome}.component.ts` + `.html` + `.scss`
 |---------|-----------|------------|
 | `RolagemApiService` | `GET /rolagem/por-tipo` | `HttpParams`; `inject(HttpClient)`; `environment.apiBaseUrl` |
 | `CarteiraApiService` | `POST/GET /carteiras`, opções da carteira | `catchError` mapeia 409/404 para subclasses de `ApiError`; mapping de payload legado em `listarOpcoesCarteira` (ADR-007) |
-| `AcaoApiService` | `GET /acoes` | F-024. Falha 4xx/5xx/rede → erro genérico, **sem** ler `mensagem` |
+| `AcaoApiService` | `GET /acoes`, `POST /acoes` | F-024 `listar`: falha → genérico, **sem** ler `mensagem`. F-027 `criar`: 4xx → `mensagem` (BR-UI-28); 5xx/rede → genérico de cadastro |
 | `SimulacaoMetaPremioApiService` | `GET /simulacao-meta-premio` | F-024. 4xx com envelope → `SimulacaoMetaPremioError` com `mensagem`; 5xx/rede → mensagem genérica da spec |
+| `AtualizacaoApiService` | `POST /atualizacao/executar` | F-027. Qualquer falha → mensagem genérica de cotações |
 
 Padrão de serviço novo:
 
@@ -119,7 +121,9 @@ No cliente Angular, o JSON vive em `HttpErrorResponse.error`. Tipar com type gua
 | 4xx de fluxos que a spec manda exibir `mensagem` (simulação, carteira duplicada, etc.) | Ler `error.error.mensagem`; se ausente/vazia, fallback genérico da spec |
 | 5xx ou rede (`status === 0` ou falha sem envelope) | Mensagem genérica da spec; não exibir stack nem corpo técnico |
 | `GET /acoes` qualquer falha (4xx, 5xx ou rede) | Sempre mensagem genérica; **não** ler o envelope (BR-UI-13 / AC-05) |
-| HTTP 200 com lista vazia quando a spec define sucesso vazio | Não é erro (ex.: simulação BR-27) |
+| `POST /acoes` 4xx | Exibir `mensagem`; fallback genérico de cadastro se ausente (BR-UI-28) |
+| `POST /atualizacao/executar` qualquer falha | Mensagem genérica de atualização (F-027) |
+| HTTP 200 com lista vazia quando a spec define sucesso vazio | Não é erro (ex.: simulação BR-27; lista de ações cadastradas vazia na F-027) |
 
 Códigos de erro da simulação (F-023, só para identificar casos de teste; a UI **não** exibe o campo `erro`):
 
@@ -141,13 +145,13 @@ Códigos de erro da simulação (F-023, só para identificar casos de teste; a U
 
 ## Persistência e banco
 
-O Painel **não** possui schema, migration, IndexedDB nem cache de simulação. Dados de carteira/opções vivem no backend. Tela de simulação é stateless: destruir o componente ao sair da rota zera form, resultado e erro (BR-14 / BR-UI-22).
+O Painel **não** possui schema, migration, IndexedDB nem cache de simulação. Dados de carteira, opções e **ações cadastradas** vivem no backend. Tela de simulação é stateless: destruir o componente ao sair da rota zera form, resultado e erro (BR-14 / BR-UI-22). Tela de gestão de ações relista no `ngOnInit` ao reentrar (F-027 AC-17).
 
 ---
 
 ## Convenções de API consumida
 
-- Paths kebab-case português sob `{apiBaseUrl}` (`/acoes`, `/simulacao-meta-premio`, `/rolagem/por-tipo`, `/carteiras`).
+- Paths kebab-case português sob `{apiBaseUrl}` (`/acoes`, `/simulacao-meta-premio`, `/rolagem/por-tipo`, `/carteiras`, `/atualizacao/executar`).
 - JSON camelCase.
 - Datas de API `YYYY-MM-DD`; tela `DD/MM/YYYY` (BR-UI-01).
 - Query de leitura via `HttpParams` em GET (não POST de busca).
@@ -164,7 +168,9 @@ O Painel **não** possui schema, migration, IndexedDB nem cache de simulação. 
 | GET | `/carteiras/{id}/opcoes` | `CarteiraApiService` |
 | POST | `/carteiras/{id}/opcoes/{nomeOpcao}` | `CarteiraApiService` |
 | PUT | `/carteiras/{id}/opcoes/{nomeOpcao}` | `CarteiraApiService` |
-| GET | `/acoes` | `AcaoApiService` (F-024) |
+| GET | `/acoes` | `AcaoApiService` (F-024 / F-027) |
+| POST | `/acoes` | `AcaoApiService.criar` (F-027) |
+| POST | `/atualizacao/executar` | `AtualizacaoApiService` (F-027) |
 | GET | `/simulacao-meta-premio` | `SimulacaoMetaPremioApiService` (F-024 / F-026) |
 
 Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
@@ -178,6 +184,7 @@ Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
 | `''` | eager | `LandingPageComponent` | Home |
 | `painel-rolagem` | eager | `PainelRolagemComponent` | Busca de Rolagens |
 | `simulacao-meta-premio` | **lazy** `loadComponent` | `SimulacaoMetaPremioComponent` | Meta de Prêmio |
+| `acoes` | **lazy** `loadComponent` | `GestaoAcoesComponent` | Ações |
 | `carteira` | lazy | `CarteiraComponent` | Carteira |
 | `carteira/criar` | lazy | `CriarCarteiraComponent` | (fluxo Carteira) |
 | `carteira/:id/adicionar-opcao` | lazy | `AdicionarOpcaoComponent` | (fluxo Carteira) |
@@ -185,7 +192,7 @@ Não consumir `GET /acoes/{nomeAcao}` nesta feature: o seletor usa a listagem.
 
 Telas novas de produto: **lazy `loadComponent`**, no padrão carteira — não eager como `painel-rolagem` (débito histórico da landing).
 
-Ordem do menu (F-024): Home, Busca de Rolagens, Meta de Prêmio, Carteira.
+Ordem do menu (F-027): Home, Busca de Rolagens, Meta de Prêmio, Ações, Carteira.
 
 ---
 
@@ -225,9 +232,9 @@ Telas novas: **signals** para estado (`acoes`, `resultado`, `erro*`, `carregando
 | `tipo-rolagem.enum.ts` | tipos de rolagem |
 | `status-carteira.enum.ts` | `ATIVA`, `INATIVA` |
 | `situacao-opcao.enum.ts` | `ABERTA`, `EXERCIDA`, `ROLADA`, `FINALIZADA` |
-| `api-errors.model.ts` | `ApiError` + erros de carteira + `SimulacaoMetaPremioError` (F-024) |
+| `api-errors.model.ts` | `ApiError` + erros de carteira + `SimulacaoMetaPremioError` (F-024) + `AcaoCadastroError` (F-027) |
 | `opcao.model.ts` | opção da busca de rolagem (`nome`, `premio`, `strike`, `delta`, `modalidade`) — **não** é o item da simulação |
-| `acao.model.ts` | F-024: `nomeAcao`, `nomeCompleto`, `precoSpot: number \| null` |
+| `acao.model.ts` | F-024/F-027: `nomeAcao`, `nomeCompleto`, `precoSpot: number \| null`, `dataAtualizacao?: string` |
 | `tipo-opcao.enum.ts` | F-024: `CALL`, `PUT` |
 | `moneyness.enum.ts` | F-024: `ITM`, `ATM`, `OTM` |
 | `tipo-notional.enum.ts` | F-024: `ACOES`, `CAIXA` |
@@ -267,3 +274,4 @@ ADRs de feature vivem no `architecture.md` da feature quando o trade-off for peq
 - 2026-10-01 · Knowledge base de arquitetura do frontend criada a partir do código (`src/app`, environments, rotas, serviços, `api-errors`), `docs/sdd.md`, ADR-005/006/007 e `AGENTS.md`.
 - 2026-10-01 · F-024: rota lazy `/simulacao-meta-premio`; item de menu "Meta de Prêmio"; `AcaoApiService` + `SimulacaoMetaPremioApiService`; models/enums de simulação; `SimulacaoMetaPremioError`; `src/app/utils/` para formatação e validator `maiorQueZero`; padrão signals + OnPush para tela nova; sem persistência, sem interceptor, sem env var nova.
 - 2026-10-02 · F-026: seletor de modo na mesma tela; `SimulacaoRequest`; validators `multiploDeCem`; sem rota nova.
+- 2026-10-02 · F-027: rota lazy `/acoes`; item de menu "Ações"; `AcaoApiService.criar`; `AtualizacaoApiService`; `AcaoCadastroError`; `dataAtualizacao` opcional em `Acao`; sem DELETE no cliente.

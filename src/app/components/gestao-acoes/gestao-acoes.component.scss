@@ -1,0 +1,240 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gestao-acoes {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.gestao-acoes-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--neutral-100);
+  overflow: hidden;
+
+  mat-card-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+    padding: var(--spacing-lg) var(--spacing-xl);
+    margin: 0;
+    display: block;
+  }
+
+  mat-card-title {
+    color: white;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.4px;
+    margin: 0;
+  }
+
+  mat-card-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    margin: var(--spacing-sm) 0 0;
+  }
+
+  mat-card-content {
+    padding: var(--spacing-xl);
+  }
+}
+
+.formulario-cadastro {
+  display: grid;
+  grid-template-columns: minmax(8rem, 10rem) minmax(0, 1.6fr) auto;
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+.campo {
+  width: 100%;
+}
+
+.campo input {
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.campo-nome input {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.botao-adicionar,
+.botao-atualizar {
+  height: 56px;
+  padding: 0 var(--spacing-xl);
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  border-radius: 8px;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--accent-gold);
+    outline-offset: 2px;
+  }
+}
+
+.botao-adicionar {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+  color: white;
+  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+
+  &:disabled {
+    background: var(--neutral-300);
+    box-shadow: none;
+    color: var(--neutral-600);
+  }
+}
+
+.acoes-secundarias {
+  margin-top: var(--spacing-md);
+}
+
+.botao-atualizar {
+  color: var(--primary-dark);
+  border-color: var(--primary-blue);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.msg-lista-vazia,
+.erro-acoes,
+.erro-cadastro,
+.erro-atualizacao {
+  margin: var(--spacing-md) 0 0;
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.msg-lista-vazia {
+  background: var(--neutral-50);
+  border-left: 4px solid var(--primary-light);
+  color: var(--neutral-700);
+}
+
+.erro-acoes,
+.erro-cadastro,
+.erro-atualizacao {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  border-left: 4px solid var(--error);
+  color: var(--error);
+}
+
+.relatorio {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(212, 175, 55, 0.08), transparent 70%),
+    var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+}
+
+.totais {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(6rem, 1fr));
+  gap: var(--spacing-md);
+  margin: 0;
+
+  dt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--neutral-500);
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--primary-dark);
+  }
+}
+
+.tabela-wrapper {
+  overflow-x: auto;
+  margin-top: var(--spacing-lg);
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  scrollbar-gutter: stable;
+}
+
+.tabela {
+  width: 100%;
+  min-width: 640px;
+
+  th {
+    background: var(--neutral-50);
+    color: var(--primary-dark);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--primary-light);
+  }
+
+  td {
+    font-size: 0.9rem;
+    color: var(--neutral-700);
+    white-space: nowrap;
+  }
+
+  td:first-child {
+    font-weight: 700;
+    color: var(--primary-dark);
+    letter-spacing: 0.4px;
+  }
+}
+
+@media (max-width: 960px) {
+  .formulario-cadastro {
+    grid-template-columns: 1fr;
+  }
+
+  .botao-adicionar,
+  .botao-atualizar {
+    width: 100%;
+  }
+
+  .totais {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .gestao-acoes {
+    padding: var(--spacing-lg);
+  }
+
+  .card mat-card-content {
+    padding: var(--spacing-lg);
+  }
+}

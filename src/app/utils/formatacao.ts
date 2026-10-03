@@ -13,6 +13,17 @@ export function formatarDataIso(data: string): string {
   return `${dia}/${mes}/${ano}`;
 }
 
+const ISO_DATA_HORA = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/;
+
+export function formatarDataHora(iso: string): string {
+  const match = ISO_DATA_HORA.exec(iso);
+  if (!match) {
+    return iso;
+  }
+  const [, ano, mes, dia, hora, minuto] = match;
+  return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+}
+
 export function formatarMonetario(valor: number): string {
   return FORMATADOR_PT_BR.format(valor);
 }

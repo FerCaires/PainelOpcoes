@@ -36,3 +36,10 @@ export class SimulacaoMetaPremioError extends ApiError {
     this.name = 'SimulacaoMetaPremioError';
   }
 }
+
+export class AcaoCadastroError extends ApiError {
+  constructor(message: string, status: number, code?: string) {
+    super(message, status, code);
+    this.name = 'AcaoCadastroError';
+  }
+}

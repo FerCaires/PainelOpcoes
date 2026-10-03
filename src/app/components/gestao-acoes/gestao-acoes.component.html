@@ -1,0 +1,132 @@
+<app-header-menu></app-header-menu>
+
+<main class="gestao-acoes">
+  <section class="gestao-acoes-container">
+    <mat-card class="card">
+      <mat-card-header>
+        <mat-card-title>Ações</mat-card-title>
+        <mat-card-subtitle>
+          Inclua tickers no universo do Painel e atualize as cotações quando precisar.
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="adicionar()" class="formulario-cadastro">
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>Ticker</mat-label>
+            <input
+              matInput
+              formControlName="nomeAcao"
+              maxlength="5"
+              autocomplete="off"
+              aria-label="Ticker" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo campo-nome">
+            <mat-label>Nome da empresa</mat-label>
+            <input
+              matInput
+              formControlName="nomeCompleto"
+              maxlength="50"
+              autocomplete="off"
+              aria-label="Nome da empresa" />
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="botao-adicionar"
+            [disabled]="!podeAdicionar()">
+            Adicionar
+          </button>
+        </form>
+
+        <div class="acoes-secundarias">
+          <button
+            mat-stroked-button
+            type="button"
+            class="botao-atualizar"
+            [disabled]="!podeAtualizar()"
+            (click)="atualizarCotacoes()">
+            Atualizar cotações
+          </button>
+        </div>
+
+        <div
+          *ngIf="emOperacao()"
+          class="loading"
+          role="status"
+          aria-live="polite"
+          aria-label="Carregando">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <p *ngIf="erroAcoes()" class="erro-acoes" role="alert">
+          {{ erroAcoes() }}
+        </p>
+
+        <p *ngIf="erroCadastro()" class="erro-cadastro" role="alert">
+          {{ erroCadastro() }}
+        </p>
+
+        <p *ngIf="erroAtualizacao()" class="erro-atualizacao" role="alert">
+          {{ erroAtualizacao() }}
+        </p>
+
+        <p *ngIf="listaVazia()" class="msg-lista-vazia">
+          {{ msgListaVazia }}
+        </p>
+
+        <section *ngIf="relatorio() as relatorio" class="relatorio" role="status">
+          <dl class="totais">
+            <div>
+              <dt>Recuperadas</dt>
+              <dd>{{ relatorio.totalRecuperadas }}</dd>
+            </div>
+            <div>
+              <dt>Atualizadas</dt>
+              <dd>{{ relatorio.totalAtualizadas }}</dd>
+            </div>
+            <div>
+              <dt>Cadastradas</dt>
+              <dd>{{ relatorio.totalCadastradas }}</dd>
+            </div>
+            <div>
+              <dt>Não atualizadas</dt>
+              <dd>{{ relatorio.totalNaoAtualizadas }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <div *ngIf="acoes().length > 0" class="tabela-wrapper">
+          <table
+            mat-table
+            [dataSource]="acoes()"
+            [trackBy]="trackByNomeAcao"
+            class="tabela">
+            <ng-container matColumnDef="nomeAcao">
+              <th mat-header-cell *matHeaderCellDef>Ticker</th>
+              <td mat-cell *matCellDef="let row">{{ row.nomeAcao }}</td>
+            </ng-container>
+            <ng-container matColumnDef="nomeCompleto">
+              <th mat-header-cell *matHeaderCellDef>Empresa</th>
+              <td mat-cell *matCellDef="let row">{{ row.nomeCompleto }}</td>
+            </ng-container>
+            <ng-container matColumnDef="precoSpot">
+              <th mat-header-cell *matHeaderCellDef>Preço spot</th>
+              <td mat-cell *matCellDef="let row">{{ formatarSpot(row.precoSpot) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dataAtualizacao">
+              <th mat-header-cell *matHeaderCellDef>Atualização</th>
+              <td mat-cell *matCellDef="let row">{{ formatarAtualizacao(row.dataAtualizacao) }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasTabela"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</main>

@@ -39,6 +39,13 @@ export const routes: Routes = [
     data: { title: 'Meta de Prêmio' }
   },
   {
+    path: 'acoes',
+    loadComponent: () =>
+      import('./components/gestao-acoes/gestao-acoes.component')
+        .then(m => m.GestaoAcoesComponent),
+    data: { title: 'Ações' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

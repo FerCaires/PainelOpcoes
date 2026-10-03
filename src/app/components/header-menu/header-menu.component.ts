@@ -22,6 +22,7 @@ export class HeaderMenuComponent {
     { label: 'Home', route: '/', icon: '🏠' },
     { label: 'Busca de Rolagens', route: '/painel-rolagem', icon: '🔍' },
     { label: 'Meta de Prêmio', route: '/simulacao-meta-premio', icon: '🎯' },
+    { label: 'Ações', route: '/acoes', icon: '📈' },
     { label: 'Carteira', route: '/carteira', icon: '💼' }
   ];
 
