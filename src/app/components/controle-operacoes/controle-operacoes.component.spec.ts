@@ -396,6 +396,45 @@ describe('ControleOperacoesComponent', () => {
     expect(component.cadastroAberto()).toBeTrue();
   });
 
+  it('PUT envia o custo editado e relista', async () => {
+    await configurar();
+    fixture.detectChanges();
+    component.selecionarOperacao(operacao);
+    component.form.patchValue({ custo: 132 });
+    component.form.updateValueAndValidity();
+    operacaoApi.listar.calls.reset();
+    operacaoApi.criar.calls.reset();
+
+    component.salvar();
+    fixture.detectChanges();
+
+    expect(operacaoApi.criar).not.toHaveBeenCalled();
+    expect(operacaoApi.atualizar).toHaveBeenCalledWith(
+      1,
+      jasmine.objectContaining({ custo: 132, valorIr: 8.11, nomeOpcao: 'BBAST194' })
+    );
+    expect(operacaoApi.listar).toHaveBeenCalled();
+    expect(component.idEdicao()).toBeUndefined();
+    expect(component.erroCadastro()).toBeUndefined();
+  });
+
+  it('mostra a mensagem do PUT 4xx', async () => {
+    await configurar();
+    operacaoApi.atualizar.and.returnValue(
+      throwError(() => new OperacaoErro('Operacao com a mesma identidade ja cadastrada', 409, 'OPERACAO_DUPLICADA'))
+    );
+    fixture.detectChanges();
+    component.selecionarOperacao(operacao);
+    component.form.patchValue({ custo: 132 });
+    component.form.updateValueAndValidity();
+
+    component.salvar();
+    fixture.detectChanges();
+
+    expect(textoDaPagina()).toContain('Operacao com a mesma identidade ja cadastrada');
+    expect(component.idEdicao()).toBe(1);
+  });
+
   it('Cancelar descarta o rascunho sem HTTP', async () => {
     await configurar();
     fixture.detectChanges();

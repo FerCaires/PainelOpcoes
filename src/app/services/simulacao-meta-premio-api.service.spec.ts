@@ -10,12 +10,13 @@ import { TipoOpcao } from '../models/tipo-opcao.enum';
 import { ModoSimulacao } from '../models/modo-simulacao.enum';
 import { SimulacaoMetaPremioResponse } from '../models/simulacao-meta-premio-response.model';
 import { MSG_FALHA_SIMULACAO } from '../utils/simulacao-meta-premio-mensagens';
+import { environment } from '../../environments/environment';
 
 describe('SimulacaoMetaPremioApiService', () => {
   let service: SimulacaoMetaPremioApiService;
   let httpMock: HttpTestingController;
 
-  const url = 'http://localhost:8080/api/simulacao-meta-premio';
+  const url = `${environment.apiBaseUrl}/simulacao-meta-premio`;
 
   const respostaComItem: SimulacaoMetaPremioResponse = {
     nomeAcao: 'BBAS3',

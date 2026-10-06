@@ -6,6 +6,7 @@ import { Acao } from '../models/acao.model';
 import { AcaoCadastroError } from '../models/api-errors.model';
 import { MSG_FALHA_CADASTRAR } from '../utils/gestao-acoes-mensagens';
 import { MSG_FALHA_CARREGAR_ACOES } from '../utils/simulacao-meta-premio-mensagens';
+import { environment } from '../../environments/environment';
 
 describe('AcaoApiService', () => {
   let service: AcaoApiService;
@@ -32,7 +33,7 @@ describe('AcaoApiService', () => {
       expect(acoes[0].nomeAcao).toBe('BBAS3');
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/acoes');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/acoes`);
     expect(req.request.method).toBe('GET');
     req.flush(mock);
   });
@@ -42,7 +43,7 @@ describe('AcaoApiService', () => {
       expect(acoes).toEqual([]);
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush([]);
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush([]);
   });
 
   it('não lê o envelope quando GET /acoes retorna 400 com mensagem', () => {
@@ -54,7 +55,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush(
       { mensagem: 'segredo', erro: 'ACAO_NAO_ENCONTRADA' },
       { status: 400, statusText: 'Bad Request' }
     );
@@ -68,7 +69,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush(
       { mensagem: 'Segredo do envelope', erro: 'ACAO_NAO_ENCONTRADA' },
       { status: 404, statusText: 'Not Found' }
     );
@@ -82,7 +83,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush(
       { mensagem: 'stacktrace' },
       { status: 500, statusText: 'Server Error' }
     );
@@ -96,7 +97,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').error(new ProgressEvent('error'));
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).error(new ProgressEvent('error'));
   });
 
   it('não expõe método deletar', () => {
@@ -114,7 +115,7 @@ describe('AcaoApiService', () => {
       expect(acao.nomeAcao).toBe('VALE3');
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/acoes');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/acoes`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ nomeAcao: 'VALE3', nomeCompleto: 'Vale S.A.' });
     req.flush(criada, { status: 201, statusText: 'Created' });
@@ -133,7 +134,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush(
       { erro: 'ACAO_DUPLICADA', mensagem },
       { status: 409, statusText: 'Conflict' }
     );
@@ -149,7 +150,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush(
       {},
       { status: 400, statusText: 'Bad Request' }
     );
@@ -164,7 +165,7 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).flush(
       { mensagem: 'stacktrace' },
       { status: 500, statusText: 'Server Error' }
     );
@@ -178,6 +179,6 @@ describe('AcaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/acoes').error(new ProgressEvent('error'));
+    httpMock.expectOne(`${environment.apiBaseUrl}/acoes`).error(new ProgressEvent('error'));
   });
 });

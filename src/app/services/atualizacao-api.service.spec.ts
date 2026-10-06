@@ -4,12 +4,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { AtualizacaoApiService } from './atualizacao-api.service';
 import { RelatorioAtualizacao } from '../models/relatorio-atualizacao.model';
 import { MSG_FALHA_ATUALIZAR_COTACOES } from '../utils/gestao-acoes-mensagens';
+import { environment } from '../../environments/environment';
 
 describe('AtualizacaoApiService', () => {
   let service: AtualizacaoApiService;
   let httpMock: HttpTestingController;
 
-  const url = 'http://localhost:8080/api/atualizacao/executar';
+  const url = `${environment.apiBaseUrl}/atualizacao/executar`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

@@ -14,6 +14,7 @@ import {
   MSG_FALHA_IMPORTAR_PLANILHA,
   MSG_FALHA_SALVAR_OPERACAO
 } from '../utils/controle-operacoes-mensagens';
+import { environment } from '../../environments/environment';
 
 describe('OperacaoApiService', () => {
   let service: OperacaoApiService;
@@ -79,7 +80,7 @@ describe('OperacaoApiService', () => {
       expect(resposta.operacoes[0].nomeOpcao).toBe('BBAST194');
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/operacoes');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.keys().length).toBe(0);
     req.flush(lista);
@@ -89,7 +90,7 @@ describe('OperacaoApiService', () => {
     service.listar({ nomeAcao: 'PETR4', ano: 2026, mes: 4 }).subscribe();
 
     const req = httpMock.expectOne(
-      (pedido) => pedido.url === 'http://localhost:8080/api/operacoes'
+      (pedido) => pedido.url === `${environment.apiBaseUrl}/operacoes`
     );
     expect(req.request.params.get('nomeAcao')).toBe('PETR4');
     expect(req.request.params.get('ano')).toBe('2026');
@@ -100,7 +101,7 @@ describe('OperacaoApiService', () => {
   it('não inclui query quando os filtros estão vazios', () => {
     service.listar({}).subscribe();
 
-    const req = httpMock.expectOne('http://localhost:8080/api/operacoes');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`);
     expect(req.request.params.keys().length).toBe(0);
     req.flush({ operacoes: [], resumo: { acumulado: 0, porMes: [], porAno: [], porAtivo: [] } });
   });
@@ -114,7 +115,7 @@ describe('OperacaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/operacoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`).flush(
       { mensagem: 'segredo', erro: 'DADOS_INVALIDOS' },
       { status: 400, statusText: 'Bad Request' }
     );
@@ -125,7 +126,7 @@ describe('OperacaoApiService', () => {
       next: () => fail('deveria falhar'),
       error: (err: Error) => expect(err.message).toBe(MSG_FALHA_CARREGAR_OPERACOES)
     });
-    httpMock.expectOne('http://localhost:8080/api/operacoes').error(new ProgressEvent('error'));
+    httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`).error(new ProgressEvent('error'));
   });
 
   it('emite a operação quando POST /operacoes retorna 201', () => {
@@ -133,7 +134,7 @@ describe('OperacaoApiService', () => {
       expect(criada.nomeOpcao).toBe('BBAST194');
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/operacoes');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(request);
     req.flush(operacao, { status: 201, statusText: 'Created' });
@@ -151,7 +152,7 @@ describe('OperacaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/operacoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`).flush(
       { erro: 'OPERACAO_DUPLICADA', mensagem },
       { status: 409, statusText: 'Conflict' }
     );
@@ -166,7 +167,7 @@ describe('OperacaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/operacoes').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/operacoes`).flush(
       { mensagem: 'stacktrace' },
       { status: 500, statusText: 'Server Error' }
     );
@@ -182,7 +183,7 @@ describe('OperacaoApiService', () => {
       }
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/operacoes/8');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/operacoes/8`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(request);
     req.flush({ mensagem, erro: 'DADOS_INVALIDOS' }, { status: 422, statusText: 'Unprocessable' });
@@ -198,7 +199,7 @@ describe('OperacaoApiService', () => {
       }
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/operacoes/9');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/operacoes/9`);
     expect(req.request.method).toBe('DELETE');
     req.flush({ mensagem, erro: 'OPERACAO_NAO_ENCONTRADA' }, { status: 404, statusText: 'Not Found' });
   });
@@ -210,7 +211,7 @@ describe('OperacaoApiService', () => {
     });
 
     httpMock
-      .expectOne('http://localhost:8080/api/operacoes/9')
+      .expectOne(`${environment.apiBaseUrl}/operacoes/9`)
       .flush({ mensagem: 'stacktrace' }, { status: 500, statusText: 'Server Error' });
   });
 
@@ -228,7 +229,7 @@ describe('OperacaoApiService', () => {
       expect(resposta.totalCriadas).toBe(1);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/operacoes/importar');
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/operacoes/importar`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBeInstanceOf(FormData);
     expect((req.request.body as FormData).get('file')).toBe(arquivo);
@@ -249,7 +250,7 @@ describe('OperacaoApiService', () => {
       }
     });
 
-    httpMock.expectOne('http://localhost:8080/api/operacoes/importar').flush(
+    httpMock.expectOne(`${environment.apiBaseUrl}/operacoes/importar`).flush(
       { erro: 'PLANILHA_INVALIDA', mensagem },
       { status: 422, statusText: 'Unprocessable' }
     );
@@ -262,6 +263,6 @@ describe('OperacaoApiService', () => {
       error: (err: OperacaoErro) => expect(err.message).toBe(MSG_FALHA_IMPORTAR_PLANILHA)
     });
 
-    httpMock.expectOne('http://localhost:8080/api/operacoes/importar').error(new ProgressEvent('error'));
+    httpMock.expectOne(`${environment.apiBaseUrl}/operacoes/importar`).error(new ProgressEvent('error'));
   });
 });
