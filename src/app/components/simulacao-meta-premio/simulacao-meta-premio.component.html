@@ -1,0 +1,282 @@
+<app-header-menu></app-header-menu>
+
+<main class="simulacao">
+  <section class="simulacao-container">
+    <mat-card class="card">
+      <mat-card-header>
+        <mat-card-title>Meta de Prêmio</mat-card-title>
+        <mat-card-subtitle>
+          Simule pela meta, pela garantia disponível ou pela quantidade de ações neste vencimento mensal.
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="simular()" class="formulario-completo">
+          <mat-button-toggle-group
+            formControlName="modo"
+            class="modos"
+            name="modo"
+            aria-label="Modo de simulação">
+            <mat-button-toggle [value]="modosSimulacao.META_PREMIO">Meta de prêmio</mat-button-toggle>
+            <mat-button-toggle [value]="modosSimulacao.GARANTIA">Garantia</mat-button-toggle>
+            <mat-button-toggle [value]="modosSimulacao.QUANTIDADE_ACOES">Quantidade de ações</mat-button-toggle>
+          </mat-button-toggle-group>
+
+          <div class="formulario">
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Ação</mat-label>
+              <mat-select formControlName="nomeAcao">
+                <mat-option *ngFor="let acao of acoes()" [value]="acao.nomeAcao">
+                  {{ acao.nomeAcao }} — {{ acao.nomeCompleto }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field
+              *ngIf="modoAtual() === modosSimulacao.META_PREMIO"
+              appearance="outline"
+              class="campo">
+              <mat-label>Meta de prêmio</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="metaPremio"
+                step="any"
+                min="0"
+                inputmode="decimal" />
+            </mat-form-field>
+
+            <mat-form-field
+              *ngIf="modoAtual() === modosSimulacao.GARANTIA"
+              appearance="outline"
+              class="campo">
+              <mat-label>Garantia</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="garantia"
+                step="any"
+                min="0"
+                inputmode="decimal" />
+            </mat-form-field>
+
+            <mat-form-field
+              *ngIf="modoAtual() === modosSimulacao.QUANTIDADE_ACOES"
+              appearance="outline"
+              class="campo">
+              <mat-label>Quantidade de ações</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="quantidadeAcoes"
+                step="100"
+                min="100"
+                inputmode="numeric" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo">
+              <mat-label>Tipo</mat-label>
+              <mat-select formControlName="tipo">
+                <mat-option *ngFor="let tipo of tiposOpcao" [value]="tipo">
+                  {{ tipo }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              class="botao-simular"
+              [disabled]="!podeSimular()">
+              Simular
+            </button>
+          </div>
+        </form>
+
+        <div
+          *ngIf="carregando()"
+          class="loading"
+          role="status"
+          aria-live="polite"
+          aria-label="Carregando">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <p *ngIf="listaAcoesVazia()" class="msg-acoes-vazias">
+          {{ msgAcoesVazias }}
+        </p>
+
+        <p *ngIf="erroAcoes()" class="erro-acoes" role="alert">
+          {{ erroAcoes() }}
+        </p>
+
+        <p *ngIf="erroSimulacao()" class="erro-simulacao" role="alert">
+          {{ erroSimulacao() }}
+        </p>
+
+        <section *ngIf="resultado() as resultado" class="resultado" aria-live="polite">
+          <article *ngIf="opcaoSugerida() as sugerida" class="sugestao" aria-label="Cobertura sugerida">
+            <header class="sugestao-header">
+              <p class="sugestao-kicker">ATM ou OTM mais próxima do spot</p>
+              <p class="sugestao-nome">{{ sugerida.nome }}</p>
+              <p class="sugestao-meta">
+                {{ sugerida.tipo }} · {{ sugerida.modalidade }} · {{ sugerida.moneyness }}
+                · strike {{ formatarMonetario(sugerida.strike) }}
+              </p>
+            </header>
+            <dl class="sugestao-metricas">
+              <div>
+                <dt>Quantidade de ações</dt>
+                <dd>{{ sugerida.quantidadeAcoes }}</dd>
+              </div>
+              <div>
+                <dt>Notional ({{ formatarTipoNotional(sugerida.tipoNotional) }})</dt>
+                <dd>{{ formatarMonetario(sugerida.notional) }}</dd>
+              </div>
+              <div>
+                <dt>Prêmio estimado</dt>
+                <dd>{{ formatarMonetario(sugerida.premioEstimado) }}</dd>
+              </div>
+              <div>
+                <dt>ROI da operação</dt>
+                <dd>{{ formatarPercentual(sugerida.roiOperacao) }}</dd>
+              </div>
+            </dl>
+            <p *ngIf="sugerida.avisoExercicio" class="sugestao-aviso">
+              {{ sugerida.avisoExercicio }}
+            </p>
+            <p class="sugestao-rodape">
+              Análise só com ATM e OTM. Demais strikes na tabela, com quantidade e notional ao rolar para a direita.
+            </p>
+          </article>
+
+          <header class="cabecalho-resultado">
+            <div class="ticker">
+              <span class="ticker-nome">{{ resultado.nomeAcao }}</span>
+              <span class="ticker-empresa">{{ resultado.nomeCompleto }}</span>
+            </div>
+            <dl class="stats">
+              <div>
+                <dt>Spot</dt>
+                <dd>{{ formatarMonetario(resultado.precoSpot) }}</dd>
+              </div>
+              <div *ngIf="modoDoResultado(resultado) === modosSimulacao.META_PREMIO && resultado.metaPremio !== null && resultado.metaPremio !== undefined">
+                <dt>Meta</dt>
+                <dd>{{ formatarMonetario(resultado.metaPremio) }}</dd>
+              </div>
+              <div *ngIf="modoDoResultado(resultado) === modosSimulacao.GARANTIA && resultado.garantia !== null && resultado.garantia !== undefined">
+                <dt>Garantia</dt>
+                <dd>{{ formatarMonetario(resultado.garantia) }}</dd>
+              </div>
+              <div *ngIf="modoDoResultado(resultado) === modosSimulacao.QUANTIDADE_ACOES && resultado.quantidadeAcoesInformada !== null && resultado.quantidadeAcoesInformada !== undefined">
+                <dt>Quantidade</dt>
+                <dd>{{ resultado.quantidadeAcoesInformada }}</dd>
+              </div>
+              <div>
+                <dt>Tipo</dt>
+                <dd>{{ resultado.tipo }}</dd>
+              </div>
+              <div>
+                <dt>Vencimento</dt>
+                <dd>{{ formatarData(resultado.dataVencimento) }}</dd>
+              </div>
+              <div>
+                <dt>Dias</dt>
+                <dd>{{ resultado.diasAteVencimento }}</dd>
+              </div>
+              <div>
+                <dt>Operações</dt>
+                <dd>{{ opcoesAnalise().length }}</dd>
+              </div>
+            </dl>
+          </header>
+
+          <p *ngIf="opcoesVazias()" class="msg-opcoes-vazias">
+            {{ msgOpcoesVazias }}
+          </p>
+
+          <div *ngIf="opcoesAnalise().length > 0" class="tabela-wrapper">
+            <table
+              mat-table
+              [dataSource]="opcoesAnalise()"
+              [trackBy]="trackByNomeOpcao"
+              class="tabela">
+              <ng-container matColumnDef="nome">
+                <th mat-header-cell *matHeaderCellDef>Opção</th>
+                <td mat-cell *matCellDef="let row">{{ row.nome }}</td>
+              </ng-container>
+              <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let row">{{ row.tipo }}</td>
+              </ng-container>
+              <ng-container matColumnDef="modalidade">
+                <th mat-header-cell *matHeaderCellDef>Modalidade</th>
+                <td mat-cell *matCellDef="let row">{{ row.modalidade }}</td>
+              </ng-container>
+              <ng-container matColumnDef="strike">
+                <th mat-header-cell *matHeaderCellDef>Strike</th>
+                <td mat-cell *matCellDef="let row">{{ formatarMonetario(row.strike) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="valorPremio">
+                <th mat-header-cell *matHeaderCellDef>Prêmio</th>
+                <td mat-cell *matCellDef="let row">{{ formatarMonetario(row.valorPremio) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="percentualVsSpot">
+                <th mat-header-cell *matHeaderCellDef>% vs spot</th>
+                <td mat-cell *matCellDef="let row">{{ formatarPercentual(row.percentualVsSpot) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="moneyness">
+                <th mat-header-cell *matHeaderCellDef>Moneyness</th>
+                <td mat-cell *matCellDef="let row">{{ row.moneyness }}</td>
+              </ng-container>
+              <ng-container matColumnDef="avisoExercicio">
+                <th mat-header-cell *matHeaderCellDef>Aviso</th>
+                <td mat-cell *matCellDef="let row">{{ row.avisoExercicio || '' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="dataVencimento">
+                <th mat-header-cell *matHeaderCellDef>Vencimento</th>
+                <td mat-cell *matCellDef="let row">{{ formatarData(row.dataVencimento) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="diasAteVencimento">
+                <th mat-header-cell *matHeaderCellDef>Dias até vencimento</th>
+                <td mat-cell *matCellDef="let row">{{ row.diasAteVencimento }}</td>
+              </ng-container>
+              <ng-container matColumnDef="quantidadeAcoes">
+                <th mat-header-cell *matHeaderCellDef>Quantidade de ações</th>
+                <td mat-cell *matCellDef="let row" class="celula-destaque">{{ row.quantidadeAcoes }}</td>
+              </ng-container>
+              <ng-container matColumnDef="notional">
+                <th mat-header-cell *matHeaderCellDef>Notional</th>
+                <td mat-cell *matCellDef="let row" class="celula-destaque">{{ formatarMonetario(row.notional) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="tipoNotional">
+                <th mat-header-cell *matHeaderCellDef>Tipo de notional</th>
+                <td mat-cell *matCellDef="let row">{{ formatarTipoNotional(row.tipoNotional) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="premioEstimado">
+                <th mat-header-cell *matHeaderCellDef>Prêmio estimado</th>
+                <td mat-cell *matCellDef="let row">{{ formatarMonetario(row.premioEstimado) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="roiOperacao">
+                <th mat-header-cell *matHeaderCellDef>ROI da operação</th>
+                <td mat-cell *matCellDef="let row">{{ formatarPercentual(row.roiOperacao) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="roiAnualizadoSimples">
+                <th mat-header-cell *matHeaderCellDef>ROI anualizado</th>
+                <td mat-cell *matCellDef="let row">{{ formatarPercentual(row.roiAnualizadoSimples) }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: colunasTabela"
+                [class.linha-itm]="isLinhaItm(row)"
+                [class.linha-sugerida]="isOpcaoSugerida(row)"></tr>
+            </table>
+          </div>
+        </section>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</main>

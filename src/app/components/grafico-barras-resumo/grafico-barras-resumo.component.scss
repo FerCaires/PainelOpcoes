@@ -1,0 +1,71 @@
+:host {
+  display: block;
+}
+
+.grafico {
+  margin: 0;
+  padding: var(--spacing-md);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.12), transparent 55%),
+    var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+}
+
+.titulo {
+  margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  letter-spacing: -0.2px;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  min-width: 280px;
+  height: auto;
+}
+
+.eixo {
+  stroke: var(--neutral-300);
+  stroke-width: 1;
+}
+
+rect.positiva {
+  fill: var(--accent-green);
+}
+
+rect.negativa {
+  fill: var(--error);
+}
+
+.valor,
+.rotulo {
+  fill: var(--neutral-700);
+  font-size: 11px;
+  text-anchor: middle;
+  font-family: var(--font-body);
+}
+
+.valor {
+  font-weight: 700;
+  fill: var(--primary-dark);
+}
+
+@media (max-width: 960px) {
+  .grafico {
+    overflow-x: auto;
+  }
+
+  .canvas {
+    min-width: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .canvas {
+    min-width: 360px;
+  }
+}

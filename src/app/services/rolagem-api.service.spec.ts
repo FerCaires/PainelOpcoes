@@ -6,6 +6,7 @@ import { TipoRolagem } from '../models/tipo-rolagem.enum';
 import { Modalidade } from '../models/modalidade.enum';
 import { BuscaRolagemRequest } from '../models/busca-rolagem-request.model';
 import { BuscaRolagemResponse } from '../models/busca-rolagem-response.model';
+import { environment } from '../../environments/environment';
 
 describe('RolagemApiService', () => {
   let service: RolagemApiService;
@@ -48,7 +49,7 @@ describe('RolagemApiService', () => {
     });
 
     const req = httpMock.expectOne((r) =>
-      r.url === 'http://localhost:8080/api/rolagem/por-tipo' &&
+      r.url === `${environment.apiBaseUrl}/rolagem/por-tipo` &&
       r.params.get('opcao') === 'BBSEF358' &&
       r.params.get('quantidadeVencimentos') === '3' &&
       r.params.get('tipoRolagem') === 'POSITIVA_AUMENTO_STRIKE' &&

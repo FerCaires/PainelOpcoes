@@ -6,6 +6,7 @@ import { Carteira } from '../models/carteira.model';
 import { OpcaoCarteira } from '../models/opcao-carteira.model';
 import { StatusCarteira } from '../models/status-carteira.enum';
 import { SituacaoOpcao } from '../models/situacao-opcao.enum';
+import { environment } from '../../environments/environment';
 
 describe('CarteiraApiService', () => {
   let service: CarteiraApiService;
@@ -42,7 +43,7 @@ describe('CarteiraApiService', () => {
         expect(res).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne('http://localhost:8080/api/carteiras');
+      const req = httpMock.expectOne(`${environment.apiBaseUrl}/carteiras`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ nome });
       req.flush(mockResponse);
@@ -59,7 +60,7 @@ describe('CarteiraApiService', () => {
         }
       });
 
-      const req = httpMock.expectOne('http://localhost:8080/api/carteiras');
+      const req = httpMock.expectOne(`${environment.apiBaseUrl}/carteiras`);
       req.flush('CARTEIRA_DUPLICADA', errorResponse);
     });
   });
@@ -81,7 +82,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne((r) =>
-        r.url === 'http://localhost:8080/api/carteiras' &&
+        r.url === `${environment.apiBaseUrl}/carteiras` &&
         r.params.get('status') === 'ATIVA'
       );
       expect(req.request.method).toBe('GET');
@@ -97,7 +98,7 @@ describe('CarteiraApiService', () => {
       service.adicionarOpcao(carteiraId, nomeOpcao).subscribe();
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
@@ -117,7 +118,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
       );
       req.flush('OPCAO_NAO_ENCONTRADA', errorResponse);
     });
@@ -135,7 +136,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
       );
       req.flush('OPCAO_JA_EXISTE', errorResponse);
     });
@@ -159,7 +160,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
       );
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual({ situacao: 'FINALIZADA' });
@@ -180,7 +181,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes/${nomeOpcao}`
       );
       req.flush('ERRO_INTERNO', errorResponse);
     });
@@ -205,7 +206,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes`
       );
       req.flush(payloadLegado);
     });
@@ -228,7 +229,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes`
       );
       req.flush(payloadCanonico);
     });
@@ -250,7 +251,7 @@ describe('CarteiraApiService', () => {
       });
 
       const req = httpMock.expectOne(
-        `http://localhost:8080/api/carteiras/${carteiraId}/opcoes`
+        `${environment.apiBaseUrl}/carteiras/${carteiraId}/opcoes`
       );
       req.flush(payload);
     });

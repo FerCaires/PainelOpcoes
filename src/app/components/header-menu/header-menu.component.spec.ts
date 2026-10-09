@@ -23,8 +23,8 @@ describe('HeaderMenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('deve ter 3 itens de menu', () => {
-    expect(component.menuItems.length).toBe(3);
+  it('deve ter 6 itens de menu', () => {
+    expect(component.menuItems.length).toBe(6);
   });
 
   it('deve renderizar logo', () => {
@@ -34,7 +34,7 @@ describe('HeaderMenuComponent', () => {
 
   it('deve renderizar todos os links de menu', () => {
     const links = fixture.nativeElement.querySelectorAll('.nav-link');
-    expect(links.length).toBe(3);
+    expect(links.length).toBe(6);
   });
 
   it('deve ter link Home', () => {
@@ -53,6 +53,29 @@ describe('HeaderMenuComponent', () => {
     const links = fixture.nativeElement.querySelectorAll('.nav-link');
     const walletLink = Array.from(links).find((el: any) => el.textContent.includes('Carteira'));
     expect(walletLink).toBeTruthy();
+  });
+
+  it('deve ter link Meta de Prêmio', () => {
+    const links = fixture.nativeElement.querySelectorAll('.nav-link');
+    const metaLink = Array.from(links).find((el: any) => el.textContent.includes('Meta de Prêmio'));
+    expect(metaLink).toBeTruthy();
+  });
+
+  it('deve ter link Ações', () => {
+    const links = fixture.nativeElement.querySelectorAll('.nav-link');
+    const acoesLink = Array.from(links).find((el: any) => el.textContent.includes('Ações'));
+    expect(acoesLink).toBeTruthy();
+  });
+
+  it('deve ter Controle depois de Carteira', () => {
+    const labels = component.menuItems.map((item) => item.label);
+    expect(labels.indexOf('Controle')).toBe(labels.indexOf('Carteira') + 1);
+    expect(component.menuItems.find((item) => item.label === 'Controle')?.route).toBe(
+      '/controle-operacoes'
+    );
+    const links = fixture.nativeElement.querySelectorAll('.nav-link');
+    const controleLink = Array.from(links).find((el: any) => el.textContent.includes('Controle'));
+    expect(controleLink).toBeTruthy();
   });
 
   it('não deve ter link Criar Carteira no menu', () => {

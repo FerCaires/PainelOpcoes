@@ -29,3 +29,24 @@ export class OpcaoJaExisteNaCarteiraError extends ApiError {
     this.name = 'OpcaoJaExisteNaCarteiraError';
   }
 }
+
+export class SimulacaoMetaPremioError extends ApiError {
+  constructor(message: string, status: number, code?: string) {
+    super(message, status, code);
+    this.name = 'SimulacaoMetaPremioError';
+  }
+}
+
+export class AcaoCadastroError extends ApiError {
+  constructor(message: string, status: number, code?: string) {
+    super(message, status, code);
+    this.name = 'AcaoCadastroError';
+  }
+}
+
+export class OperacaoErro extends ApiError {
+  constructor(message: string, status: number, code?: string) {
+    super(message, status, code);
+    this.name = 'OperacaoErro';
+  }
+}

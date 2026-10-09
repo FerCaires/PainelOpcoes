@@ -1,0 +1,5 @@
+export enum ModoSimulacao {
+  META_PREMIO = 'META_PREMIO',
+  GARANTIA = 'GARANTIA',
+  QUANTIDADE_ACOES = 'QUANTIDADE_ACOES'
+}

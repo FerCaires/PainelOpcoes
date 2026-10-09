@@ -21,7 +21,10 @@ export class HeaderMenuComponent {
   readonly menuItems: readonly MenuItem[] = [
     { label: 'Home', route: '/', icon: '🏠' },
     { label: 'Busca de Rolagens', route: '/painel-rolagem', icon: '🔍' },
-    { label: 'Carteira', route: '/carteira', icon: '💼' }
+    { label: 'Meta de Prêmio', route: '/simulacao-meta-premio', icon: '🎯' },
+    { label: 'Ações', route: '/acoes', icon: '📈' },
+    { label: 'Carteira', route: '/carteira', icon: '💼' },
+    { label: 'Controle', route: '/controle-operacoes', icon: '📋' }
   ];
 
   readonly isMenuOpen = signal(false);

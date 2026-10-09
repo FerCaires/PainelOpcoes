@@ -427,3 +427,38 @@
      - **Botão desabilitado durante iteração**: durante o subscribe do `forkJoin` (simular observable que ainda não emitiu), `atualizandoEmMassa === true` e `podeAtualizarEmMassa === false`.
 - **Critério de Done**: testes passam, cobertura > 80% no novo fluxo.
 - **Commit**: `test: atualizar-situacao-opcao - testes do fluxo de atualizacao em massa no AdicionarOpcaoComponent`
+
+## Feature: simulacao-meta-premio (F-024)
+
+### TASK-01 a TASK-47
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-10-01
+- **Arquivos**:
+  - `src/app/models/tipo-opcao.enum.ts`, `moneyness.enum.ts`, `tipo-notional.enum.ts`, `acao.model.ts`, `simulacao-opcao-item.model.ts`, `simulacao-meta-premio-response.model.ts`, `api-errors.model.ts`
+  - `src/app/utils/formatacao.ts`, `maior-que-zero.validator.ts`, `simulacao-meta-premio-mensagens.ts`
+  - `src/app/services/acao-api.service.ts`, `simulacao-meta-premio-api.service.ts`
+  - `src/app/components/simulacao-meta-premio/`
+  - `src/app/app.routes.ts`, `src/app/components/header-menu/`
+- **Descrição**: Tela `/simulacao-meta-premio` com menu **Meta de Prêmio**, consumo de `GET /acoes` e `GET /simulacao-meta-premio`, formatação pt-BR e tratamento de erros da spec F-024 (AC-01..AC-18).
+- **Critério de Done**: `ng lint` limpo, `ng build` ok, testes da feature passando em ChromiumHeadless
+
+## Feature: gestao-acoes (F-027)
+
+### Planejamento
+- **Status**: CONCLUIDO
+- **Data**: 2026-10-02
+- **Arquivos**: `docs/gestaoAcoes/spec.md`, `architecture.md`, `tasks.md`, `gate-1.md`, `gate-2.md`, `gate-3.md`
+- **Descrição**: Tela `/acoes` para incluir ações (ticker + nome) e disparar `POST /atualizacao/executar`. Sem exclusão na UI. Consome APIs já existentes. 28 tasks TypeScript.
+- **Critério de Done**: Spec, architecture e tasks aprovados.
+
+### TASK-01 a TASK-28
+- **Status**: CONCLUIDO
+- **Data de Conclusão**: 2026-10-02
+- **Arquivos**:
+  - `src/app/models/acao.model.ts`, `criar-acao-request.model.ts`, `relatorio-atualizacao.model.ts`, `api-errors.model.ts`
+  - `src/app/utils/gestao-acoes-mensagens.ts`, `formatacao.ts`
+  - `src/app/services/acao-api.service.ts`, `atualizacao-api.service.ts`
+  - `src/app/components/gestao-acoes/`
+  - `src/app/app.routes.ts`, `src/app/components/header-menu/`
+- **Descrição**: Tela `/acoes` com menu **Ações**, inclusão de ticker + nome, disparo de `POST /atualizacao/executar` e listagem via `GET /acoes`. Sem exclusão na UI.
+- **Critério de Done**: `ng lint` limpo, `ng build` ok, `ng test` 227/227 em ChromiumHeadless

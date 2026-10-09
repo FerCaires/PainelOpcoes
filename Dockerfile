@@ -32,10 +32,11 @@ COPY --from=builder /app/dist/painel-opcoes/browser /usr/share/nginx/html
 
 # Expor porta
 EXPOSE 4200
+LABEL version="1.1.0"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:4200/index.html || exit 1
+  CMD wget --quiet --tries=1 --spider http://127.0.0.1:4200/index.html || exit 1
 
 # Iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
