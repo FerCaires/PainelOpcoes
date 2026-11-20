@@ -83,6 +83,23 @@
               </mat-select>
             </mat-form-field>
 
+            <div class="campo-preco-medio">
+              <mat-checkbox formControlName="considerarPrecoMedio">
+                Considerar preço médio
+              </mat-checkbox>
+
+              <mat-form-field appearance="outline" class="campo">
+                <mat-label>Preço médio da ação</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="precoMedio"
+                  step="any"
+                  min="0"
+                  inputmode="decimal" />
+              </mat-form-field>
+            </div>
+
             <button
               mat-raised-button
               color="primary"
@@ -118,7 +135,7 @@
         <section *ngIf="resultado() as resultado" class="resultado" aria-live="polite">
           <article *ngIf="opcaoSugerida() as sugerida" class="sugestao" aria-label="Cobertura sugerida">
             <header class="sugestao-header">
-              <p class="sugestao-kicker">ATM ou OTM mais próxima do spot</p>
+              <p class="sugestao-kicker">{{ sugestaoKicker() }}</p>
               <p class="sugestao-nome">{{ sugerida.nome }}</p>
               <p class="sugestao-meta">
                 {{ sugerida.tipo }} · {{ sugerida.modalidade }} · {{ sugerida.moneyness }}
@@ -160,6 +177,10 @@
               <div>
                 <dt>Spot</dt>
                 <dd>{{ formatarMonetario(resultado.precoSpot) }}</dd>
+              </div>
+              <div *ngIf="precoMedioFormatado(resultado) as precoMedio">
+                <dt>Preço médio</dt>
+                <dd>{{ precoMedio }}</dd>
               </div>
               <div *ngIf="modoDoResultado(resultado) === modosSimulacao.META_PREMIO && resultado.metaPremio !== null && resultado.metaPremio !== undefined">
                 <dt>Meta</dt>

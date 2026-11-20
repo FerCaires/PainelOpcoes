@@ -547,4 +547,45 @@ describe('SimulacaoMetaPremioComponent', () => {
       metaPremio: 1000
     });
   });
+
+  it('mantém preço médio desabilitado e fora da requisição quando checkbox desmarcado', async () => {
+    await configurar();
+    fixture.detectChanges();
+    preencherFormularioValido();
+
+    expect(component.form.controls.precoMedio.disabled).toBeTrue();
+
+    component.simular();
+    const chamada = simulacaoApi.simular.calls.mostRecent().args[0];
+    expect(chamada.considerarPrecoMedio).toBeUndefined();
+    expect(chamada.precoMedio).toBeUndefined();
+  });
+
+  it('habilita campo, exige preço médio e envia parâmetros quando checkbox marcado', async () => {
+    await configurar();
+    fixture.detectChanges();
+    preencherFormularioValido();
+
+    component.form.controls.considerarPrecoMedio.setValue(true);
+    fixture.detectChanges();
+
+    expect(component.form.controls.precoMedio.enabled).toBeTrue();
+    expect(component.podeSimular()).toBeFalse();
+
+    component.form.controls.precoMedio.setValue(35.5);
+    fixture.detectChanges();
+    expect(component.podeSimular()).toBeTrue();
+
+    simulacaoApi.simular.and.returnValue(
+      of({ ...respostaCall, considerarPrecoMedio: true, precoMedio: 35.5 })
+    );
+    component.simular();
+    fixture.detectChanges();
+
+    const chamada = simulacaoApi.simular.calls.mostRecent().args[0];
+    expect(chamada.considerarPrecoMedio).toBeTrue();
+    expect(chamada.precoMedio).toBe(35.5);
+    expect(textoDaPagina()).toContain('Preço médio');
+    expect(textoDaPagina()).toContain('CALL acima do preço médio mais próxima');
+  });
 });
