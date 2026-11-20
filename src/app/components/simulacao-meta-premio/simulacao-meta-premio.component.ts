@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -59,6 +60,7 @@ import {
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,
+    MatCheckboxModule,
     MatTableModule,
     MatProgressSpinnerModule
   ],
@@ -85,12 +87,18 @@ export class SimulacaoMetaPremioComponent implements OnInit {
       maiorQueZero(),
       multiploDeCem()
     ]),
-    tipo: this.fb.control<TipoOpcao | null>(null, Validators.required)
+    tipo: this.fb.control<TipoOpcao | null>(null, Validators.required),
+    considerarPrecoMedio: this.fb.control(false),
+    precoMedio: this.fb.control<number | null>({ value: null, disabled: true }, [
+      Validators.required,
+      maiorQueZero()
+    ])
   });
 
   readonly tiposOpcao = Object.values(TipoOpcao);
   readonly modosSimulacao = ModoSimulacao;
   readonly modoAtual = signal(ModoSimulacao.META_PREMIO);
+  readonly usarPrecoMedio = signal(false);
   readonly msgAcoesVazias = MSG_ACOES_VAZIAS;
   readonly msgOpcoesVazias = MSG_OPCOES_VAZIAS;
 
@@ -160,6 +168,9 @@ export class SimulacaoMetaPremioComponent implements OnInit {
     this.form.controls.modo.valueChanges
       .pipe(distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe((modo) => this.aplicarModo(modo ?? ModoSimulacao.META_PREMIO, true));
+    this.form.controls.considerarPrecoMedio.valueChanges
+      .pipe(distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((considerar) => this.aplicarPrecoMedio(considerar ?? false));
     this.carregarAcoes();
   }
 
@@ -249,6 +260,43 @@ export class SimulacaoMetaPremioComponent implements OnInit {
     this.form.controls.metaPremio.enable({ emitEvent: false });
   }
 
+  private aplicarPrecoMedio(considerar: boolean): void {
+    this.usarPrecoMedio.set(considerar);
+    const controle = this.form.controls.precoMedio;
+    if (considerar) {
+      controle.enable();
+    } else {
+      controle.setValue(null, { emitEvent: false });
+      controle.disable();
+    }
+    this.resultado.set(undefined);
+    this.erroSimulacao.set(undefined);
+  }
+
+  precoMedioFormatado(resultado: SimulacaoMetaPremioResponse): string | null {
+    if (resultado.considerarPrecoMedio !== true || resultado.precoMedio == null) {
+      return null;
+    }
+    return formatarMonetario(resultado.precoMedio);
+  }
+
+  sugestaoKicker(): string {
+    return this.resultado()?.considerarPrecoMedio
+      ? 'CALL acima do preço médio mais próxima'
+      : 'ATM ou OTM mais próxima do spot';
+  }
+
+  private paramsPrecoMedio(): Pick<SimulacaoRequest, 'considerarPrecoMedio' | 'precoMedio'> {
+    if (!this.form.controls.considerarPrecoMedio.value) {
+      return {};
+    }
+    const precoMedio = this.form.controls.precoMedio.value;
+    return {
+      considerarPrecoMedio: true,
+      ...(precoMedio != null ? { precoMedio: Number(precoMedio) } : {})
+    };
+  }
+
   private paramsSimulacao(): SimulacaoRequest | undefined {
     const nomeAcao = this.form.controls.nomeAcao.value;
     const tipo = this.form.controls.tipo.value;
@@ -261,20 +309,26 @@ export class SimulacaoMetaPremioComponent implements OnInit {
       if (garantia == null) {
         return undefined;
       }
-      return { nomeAcao, tipo, modo, garantia: Number(garantia) };
+      return { nomeAcao, tipo, modo, garantia: Number(garantia), ...this.paramsPrecoMedio() };
     }
     if (modo === ModoSimulacao.QUANTIDADE_ACOES) {
       const quantidadeAcoes = this.form.controls.quantidadeAcoes.value;
       if (quantidadeAcoes == null) {
         return undefined;
       }
-      return { nomeAcao, tipo, modo, quantidadeAcoes: Number(quantidadeAcoes) };
+      return {
+        nomeAcao,
+        tipo,
+        modo,
+        quantidadeAcoes: Number(quantidadeAcoes),
+        ...this.paramsPrecoMedio()
+      };
     }
     const metaPremio = this.form.controls.metaPremio.value;
     if (metaPremio == null) {
       return undefined;
     }
-    return { nomeAcao, tipo, modo, metaPremio: Number(metaPremio) };
+    return { nomeAcao, tipo, modo, metaPremio: Number(metaPremio), ...this.paramsPrecoMedio() };
   }
 
   private dispararSimulacao(request: SimulacaoRequest): void {

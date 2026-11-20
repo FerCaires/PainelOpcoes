@@ -8,4 +8,6 @@ export interface SimulacaoRequest {
   readonly metaPremio?: number;
   readonly garantia?: number;
   readonly quantidadeAcoes?: number;
+  readonly considerarPrecoMedio?: boolean;
+  readonly precoMedio?: number;
 }
