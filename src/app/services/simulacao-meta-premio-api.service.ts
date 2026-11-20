@@ -21,6 +21,7 @@ export class SimulacaoMetaPremioApiService {
       .set('modo', request.modo);
 
     params = this.acrescentarParametroDoModo(params, request);
+    params = this.acrescentarPrecoMedio(params, request);
 
     return this.http
       .get<SimulacaoMetaPremioResponse>(`${this.baseUrl}/simulacao-meta-premio`, { params })
@@ -38,6 +39,17 @@ export class SimulacaoMetaPremioApiService {
       return params.set('metaPremio', request.metaPremio.toString());
     }
     return params;
+  }
+
+  private acrescentarPrecoMedio(params: HttpParams, request: SimulacaoRequest): HttpParams {
+    if (!request.considerarPrecoMedio) {
+      return params;
+    }
+    let resultado = params.set('considerarPrecoMedio', 'true');
+    if (request.precoMedio != null) {
+      resultado = resultado.set('precoMedio', request.precoMedio.toString());
+    }
+    return resultado;
   }
 
   private mapearErro(error: unknown): Observable<never> {

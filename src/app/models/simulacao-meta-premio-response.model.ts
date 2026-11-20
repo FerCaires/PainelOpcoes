@@ -15,4 +15,6 @@ export interface SimulacaoMetaPremioResponse {
   readonly modo?: ModoSimulacao;
   readonly garantia?: number | null;
   readonly quantidadeAcoesInformada?: number | null;
+  readonly considerarPrecoMedio?: boolean;
+  readonly precoMedio?: number | null;
 }

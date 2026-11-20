@@ -236,6 +236,27 @@ describe('SimulacaoMetaPremioApiService', () => {
     );
   });
 
+  it('envia considerarPrecoMedio e precoMedio quando marcado', () => {
+    service.simular({ ...requestMeta, considerarPrecoMedio: true, precoMedio: 35.5 }).subscribe();
+
+    const req = httpMock.expectOne(
+      (r) =>
+        r.url === url &&
+        r.params.get('considerarPrecoMedio') === 'true' &&
+        r.params.get('precoMedio') === '35.5'
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(respostaComItem);
+  });
+
+  it('nao envia precoMedio quando flag desmarcada', () => {
+    service.simular({ ...requestMeta, precoMedio: 35.5 }).subscribe();
+
+    const req = httpMock.expectOne((r) => r.url === url && !r.params.has('precoMedio'));
+    expect(req.request.params.has('considerarPrecoMedio')).toBeFalse();
+    req.flush(respostaComItem);
+  });
+
   it('usa mensagem genérica em HTTP 500', () => {
     service.simular(requestMeta).subscribe({
       next: () => fail('deveria falhar'),
